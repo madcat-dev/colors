@@ -1,0 +1,31 @@
+
+@define-color color0  ${COLOR[0]};
+@define-color color1  ${COLOR[1]};
+@define-color color2  ${COLOR[2]};
+@define-color color3  ${COLOR[3]};
+@define-color color4  ${COLOR[4]};
+@define-color color5  ${COLOR[5]};
+@define-color color6  ${COLOR[6]};
+@define-color color7  ${COLOR[7]};
+@define-color color8  ${COLOR[8]};
+@define-color color9  ${COLOR[9]};
+@define-color color10 ${COLOR[10]};
+@define-color color11 ${COLOR[11]};
+@define-color color12 ${COLOR[12]};
+@define-color color13 ${COLOR[13]};
+@define-color color14 ${COLOR[14]};
+@define-color color15 ${COLOR[15]};
+
+@define-color color_foreground ${COLOR[foreground]};
+@define-color color_background ${COLOR[background]};
+@define-color color_background_selected ${COLOR[cursor]};
+@define-color link_color ${COLOR[url_color]};
+
+@define-color bg_color ${COLOR[background]};
+@define-color fg_color ${COLOR[foreground]};
+@define-color base_color ${COLOR[background]};
+@define-color text_color ${COLOR[foreground]};
+@define-color selected_bg_color ${COLOR[cursor]};
+@define-color selected_fg_color ${COLOR[foreground]};
+@define-color tooltip_bg_color ${COLOR[background]};
+@define-color tooltip_fg_color ${COLOR[foreground]};

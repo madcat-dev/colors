@@ -1,0 +1,16 @@
+/**
+    Color manager ${COLOR[name]} theme
+    ${COLOR[description]}
+*/
+
+* {
+    background-color: ${COLOR[background]};
+    text-color:       ${COLOR[foreground]};
+
+    background-selected: ${COLOR[cursor]};
+    text-selected:       ${COLOR[foreground]};
+
+    text-prompt:    ${COLOR[4]};
+    text-entry:     ${COLOR[4]};
+    border-color:   ${COLOR[cursor]};
+}

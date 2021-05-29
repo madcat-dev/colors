@@ -1,0 +1,12 @@
+[Scheme]
+Name=${COLOR[name]}
+ColorCursorUseDefault=FALSE
+ColorCursor=${COLOR[cursor]}
+ColorForeground=${COLOR[foreground]}
+ColorBackground=${COLOR[background]}
+ColorPalette=${COLOR[0]};${COLOR[1]};${COLOR[2]};${COLOR[3]};${COLOR[4]};${COLOR[5]};${COLOR[6]};${COLOR[7]};${COLOR[8]};${COLOR[9]};${COLOR[10]};${COLOR[11]};${COLOR[12]};${COLOR[13]};${COLOR[14]};${COLOR[15]}
+ColorBold=${COLOR[15]}
+ColorBoldUseDefault=FALSE
+ColorSelectionUseDefault=FALSE
+ColorSelection=${COLOR[selection_foreground]}
+ColorSelectionBackground=${COLOR[selection_background]}

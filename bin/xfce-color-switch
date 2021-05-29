@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+PATHS=(
+    "$HOME/.local/share/xfce4/terminal/colorschemes"
+    "/usr/local/share/xfce4/terminal/colorschemes"
+    "/usr/share/xfce4/terminal/colorschemes"
+)
+
+CACHE="$HOME/.cache/colors"
+mkdir -p "$CACHE" > /dev/null 2>&1
+
+TMP="$CACHE/terminalrc.tmp"
+BAK="$CACHE/terminalrc.bak"
+
+apply_theme() {
+    mkdir -p ~/.config/xfce4/terminal > /dev/null 2>&1
+    cd ~/.config/xfce4/terminal
+
+    grep -v Color <(cat terminalrc) > $TMP
+    grep -e Color "$1" >> $TMP
+
+    cp terminalrc $BAK
+    mv $TMP terminalrc
+}
+
+NAME=${1}
+
+[[ -f "$NAME" ]] && \
+    apply_theme "$NAME" && \
+    exit 0
+
+for src in ${PATHS[@]}; do
+    THEME="$src/$NAME.theme"
+    echo $THEME
+
+    [[ -f "$THEME" ]] && \
+        apply_theme "$THEME" && \
+        exit 0
+done
+
+echo "No such colorscheme: $NAME"
+exit 1
