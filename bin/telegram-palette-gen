@@ -6,8 +6,6 @@
 #
 # Based: https://github.com/agnipau/telegram-palette-gen
 
-BASE="$HOME/.colors"
-TEMPLATES="$BASE/templates"
 CACHE="$HOME/.cache/colors"
 
 
@@ -248,7 +246,7 @@ colorAlpha7_4c: ${color7}4c;
 colorAlpha7_6b: ${color7}6b;
 colorAlpha7_14: ${color7}14;
 EOF
-const="$(<"${TEMPLATES}/colors.tpg-constants")"
+const="$(<"${TEMPLATE/\~/$HOME}")"
 printf '%s' "$const" >> "${CACHE}/colors.tdesktop-palette"
 }
 
@@ -262,10 +260,18 @@ xrdbq() {
 while [ -n "$1" ]; do
     case "${1}" in
     --palette|-p)
-        [[ ! -e "${2}" ]] && \
+        [[ ! -e "${2/\~/$HOME}" ]] && \
             echo -e "\033[31mInvalid '${2}' palette file\033[0m" && exit 1
 
-        PALETTE="${2}"
+        PALETTE="${2/\~/HOME}"
+        shift
+        ;;
+
+    --template|-t)
+        [[ ! -e "${2/\~/$HOME}" ]] && \
+            echo -e "\033[31mInvalid '${2/\~/$HOME}' template file\033[0m" && exit 1
+
+        TEMPLATE="${2/\~/HOME}"
         shift
         ;;
 
@@ -286,6 +292,10 @@ done
 # Initialise
 mkdir -p "$CACHE" > /dev/null 2>&1
 rm -rf "${CACHE}/colors.tdesktop-palette"
+
+[[ ! -e "${TEMPLATE/\~/$HOME}" ]] && \
+    echo -e "\033[31mTemplate file '${TEMPLATE/\~/$HOME}' not existing\033[0m" && exit 1
+
 
 if [[ ${PALETTE} ]]; then
     echo -e "  - Load palette from '${PALETTE/$HOME/\~}' external file"

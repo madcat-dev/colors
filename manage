@@ -735,7 +735,9 @@ echo -e "  [+] Shell colors theme stored to '${DEST/$HOME/\~}'"
 
 # Store telegram theme
 echo -e "  [ ] Store telegram colors theme"
-$BASE/bin/telegram-palette-gen --palette "$CACHE/colors.sh"
+$BASE/bin/telegram-palette-gen \
+    --palette  "$CACHE/colors.sh" \
+    --template "$TEMPLATES/colors.tpg-constants"
 echo -e "  [+] Telegram colors theme is stored"
 
 
