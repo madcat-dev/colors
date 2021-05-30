@@ -78,7 +78,7 @@ Order of applying modifiers:
     - apply brightnest of relative saturation (always)
 
 Available themes:
-    \033[33m${AVAILABLE[@]}\033[0m
+    \033[33m$(echo $(ls `dirname "$0"`/themes))\033[0m
 ENDDATA
 )
 
