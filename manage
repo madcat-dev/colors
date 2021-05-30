@@ -70,12 +70,12 @@ Order of applying modifiers:
     - get theme from image (if given)
     - load color scheme (if given)
     - apply saturation
-    - apply brightnest (always)
     - set special colors value
     - load preselected config or default
     - aplly dark/light theme mode
     - apply black-color modifier (if given)
     - apply custom colors values
+    - apply brightnest of relative saturation (always)
 
 Available themes:
     \033[33m${AVAILABLE[@]}\033[0m
@@ -292,7 +292,7 @@ set_background() {
     convert "${1}" -resize ${W}x${H} -crop ${WIDTH}x${HEIGHT}+${L}+${T} \
         "/tmp/tmp-Wallpaper.jpg"
 
-    convert "/tmp/tmp-Wallpaper.jpg" \
+    convert "/tmp/tmp-Wallpaper.jpg" -resize ${WIDTH}x${HEIGHT}\
         \( -size ${WIDTH}x${top} gradient:'rgba(0,0,0,1)-rgba(0,0,0,0)' \) \
         -geometry +0+0 -compose over -composite \
         \( -size ${WIDTH}x${top} gradient:'rgba(0,0,0,0)-rgba(0,0,0,1)' \) \
