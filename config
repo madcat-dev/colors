@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 GTK_THEME_NAME="FlatColor"
-GTK_ICON_THEME_NAME="Tela-black-dark"
+# Icon theme color modified variant
+GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
 GTK_FONT_NAME="Noto Sans 11"
 
 GTK_TOOLBAR_STYLE="GTK_TOOLBAR_ICONS"

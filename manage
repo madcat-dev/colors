@@ -473,13 +473,18 @@ if [[ ${SET_BACKGROUND} ]]; then
     set_background "$IMAGE" ${SET_BACKGROUND:-400}
 fi
 
+# Select prefered brightnest variant
+LIGHT=true
+BRIGHT_VARIANT=""
+if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
+    LIGHT=false
+    BRIGHT_VARIANT="-dark"
+fi
+
 # Get theme from image file
 if [[ ${IMAGE} ]]; then
     [[ ! -e ${IMAGE} ]] && \
         echo -e "\033[31mImage file '${IMAGE}' not existing\033[0m" && exit 1
-
-    LIGHT=true
-    [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]] && LIGHT=false
 
     new_theme=$(mktemp -u "$CACHE/theme.XXXXXXXXX")
     $BASE/bin/wal.py "${IMAGE}" $LIGHT "$new_theme"
@@ -580,7 +585,9 @@ if [[ ${GTK_ICON_THEME_NAME} ]]; then
         [[ -d "$i/$GTK_ICON_THEME_NAME" ]] && I_EXISTS=true && break
     done
 
-    [[ ! ${I_EXISTS} && -e "$BASE/icons/$GTK_ICON_THEME_NAME.tar.gz" ]] && \
+    SRC_GTK_ICON_THEME_NAME=( ${GTK_ICON_THEME_NAME/\-\#/ } )
+
+    [[ ! ${I_EXISTS} && -e "$BASE/icons/$SRC_GTK_ICON_THEME_NAME.tar.gz" ]] && \
         I_EXISTS=true && \
         I_INSTALL=true
 
@@ -705,13 +712,38 @@ fi
 if [[ ${I_INSTALL} ]]; then
     echo -e "  [ ] Install icons theme '${GTK_ICON_THEME_NAME}'"
 
-    [[ ! -e "$BASE/icons/${GTK_ICON_THEME_NAME:-Empty}.tar.gz" ]] && \
+    [[ ! -e "$BASE/icons/${SRC_GTK_ICON_THEME_NAME:-Empty}.tar.gz" ]] && \
         echo -e "\e[31m  [!] Icons theme '${GTK_ICON_THEME_NAME}' not existing\e[0m" && \
         exit 1
 
     mkdir -p "$HOME/.icons" > /dev/null 2>&1
 
-    tar -xzf "$BASE/icons/${GTK_ICON_THEME_NAME}.tar.gz" -C "$HOME/.icons"
+    tar -xzf "$BASE/icons/${SRC_GTK_ICON_THEME_NAME}.tar.gz" -C "$HOME/.icons"
+
+    if [[ "${SRC_GTK_ICON_THEME_NAME}" != "${GTK_ICON_THEME_NAME}" ]]; then
+        THEME_DIR="$HOME/.icons/${SRC_GTK_ICON_THEME_NAME:-unknown}"
+
+        [[ ! -e "$THEME_DIR" ]] && \
+            echo -e "\e[31m  [!] Icons theme '${GTK_ICON_THEME_NAME}' not prepeared\e[0m" && \
+            exit 1
+
+        if [[ ${BRIGHT_VARIANT} ]]; then
+            sed -i "s/#565656/#aaaaaa/g" \
+                "${THEME_DIR}"/{16,22,24}/actions/*.svg
+            sed -i "s/#727272/#aaaaaa/g" \
+                "${THEME_DIR}"/{16,22,24}/{places,devices}/*.svg
+            sed -i "s/#555555/#aaaaaa/g" \
+                "${THEME_DIR}"/symbolic/{actions,apps,categories,devices,emblems,emotes,mimetypes,places,status}/*.svg
+        fi
+
+        sed -i "s/#4D4D4D/${COLOR[cursor]}/gi" "${THEME_DIR}"/scalable/places/default-*.svg
+        sed -i "s/#808080/${COLOR[cursor]}/gi" "${THEME_DIR}"/scalable/places/default-*.svg
+
+        sed -i "s/#4D4D4D/${COLOR[cursor]}/gi" "${THEME_DIR}"/16/places/folder{,-open,-visiting}.svg
+        sed -i "s/#808080/${COLOR[cursor]}/gi" "${THEME_DIR}"/16/places/folder{,-open,-visiting}.svg
+
+        mv "$THEME_DIR" "$HOME/.icons/${GTK_ICON_THEME_NAME:-unknown}"
+    fi
 
     echo -e "  [+] Icons theme '${GTK_ICON_THEME_NAME}' installed"
 fi
