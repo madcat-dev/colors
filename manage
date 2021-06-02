@@ -736,11 +736,8 @@ if [[ ${I_INSTALL} ]]; then
                 "${THEME_DIR}"/symbolic/{actions,apps,categories,devices,emblems,emotes,mimetypes,places,status}/*.svg
         fi
 
-        sed -i "s/#4D4D4D/${COLOR[cursor]}/gi" "${THEME_DIR}"/scalable/places/default-*.svg
-        sed -i "s/#808080/${COLOR[cursor]}/gi" "${THEME_DIR}"/scalable/places/default-*.svg
-
-        sed -i "s/#4D4D4D/${COLOR[cursor]}/gi" "${THEME_DIR}"/16/places/folder{,-open,-visiting}.svg
-        sed -i "s/#808080/${COLOR[cursor]}/gi" "${THEME_DIR}"/16/places/folder{,-open,-visiting}.svg
+        sed -i "s/#5294E2/${COLOR[cursor]}/gi" "${THEME_DIR}"/scalable/places/default-*.svg
+        sed -i "s/#5294E2/${COLOR[cursor]}/gi" "${THEME_DIR}"/16/places/folder{,-open,-visiting}.svg
 
         mv "$THEME_DIR" "$HOME/.icons/${GTK_ICON_THEME_NAME:-unknown}"
     fi
