@@ -63,7 +63,7 @@ Usage: ${0} [theme] [install] [ARGS...]
     --purge             - clear cache
 
     --help|-h           - print this usage
-    --list|-l           - show a list of available themes 
+    --list|-l           - show a list of available schemes 
     --cls|-             - theme preview without extended configs
 
 Order of applying modifiers:
@@ -77,8 +77,8 @@ Order of applying modifiers:
     - apply custom colors values
     - apply brightnest of relative saturation (always)
 
-Available themes:
-    \033[33m$(echo $(ls `dirname "$0"`/themes))\033[0m
+Available schemes:
+    \033[33m$(echo $(ls `dirname "$0"`/schemes))\033[0m
 ENDDATA
 )
 
@@ -315,7 +315,7 @@ set_background() {
 # Initialise
 BASE="$(realpath `dirname "$0"`)"
 TEMPLATES="$BASE/templates"
-AVAILABLE=( $(ls $BASE/themes) )
+AVAILABLE=( $(ls $BASE/schemes) )
 CACHE="$HOME/.cache/colors"
 
 mkdir -p "$CACHE" > /dev/null 2>&1
@@ -491,7 +491,7 @@ fi
 NAME=${NAME:-${CURRENT}}
 
 if [[ ! -f "$NAME" ]]; then
-	NAME="$BASE/themes/$NAME"
+	NAME="$BASE/schemes/$NAME"
 
 	[[ ! -f "${NAME}" ]] && \
 		echo -e "\033[31mColor theme '$NAME' not existing!\033[0m\n" && \
@@ -551,7 +551,7 @@ if [[ ${GTK_THEME_NAME} ]]; then
         [[ -d "$i/$GTK_THEME_NAME" ]] && T_EXISTS=true && break
     done
 
-    [[ ! ${T_EXISTS} && -e "$BASE/gtk/$GTK_THEME_NAME.tar.gz" ]] && \
+    [[ ! ${T_EXISTS} && -e "$BASE/themes/$GTK_THEME_NAME.tar.gz" ]] && \
         T_EXISTS=true && \
         T_INSTALL=true
 
@@ -689,13 +689,13 @@ echo -e "  [+] Gtk colors 4.0 installed"
 if [[ ${T_INSTALL} ]]; then
     echo -e "  [ ] Install gtk theme '${GTK_THEME_NAME}'"
 
-    [[ ! -e "$BASE/gtk/${GTK_THEME_NAME:-Empty}.tar.gz" ]] && \
+    [[ ! -e "$BASE/themes/${GTK_THEME_NAME:-Empty}.tar.gz" ]] && \
         echo -e "\e[31m  [!] Theme '${GTK_THEME_NAME}' not existing\e[0m" && \
         exit 1
 
     mkdir -p "$HOME/.themes" > /dev/null 2>&1
 
-    tar -xzf "$BASE/gtk/${GTK_THEME_NAME}.tar.gz" -C "$HOME/.themes"
+    tar -xzf "$BASE/themes/${GTK_THEME_NAME}.tar.gz" -C "$HOME/.themes"
 
     echo -e "  [+] Gtk theme '${GTK_THEME_NAME}' installed"
 fi
