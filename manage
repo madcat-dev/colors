@@ -657,15 +657,17 @@ if [[ "${SRC_GTK_ICON_THEME_NAME}" && ! -e "$HOME/.icons/${GTK_ICON_THEME_NAME:-
         exit 1
 
     if [[ ${BRIGHT_VARIANT} ]]; then
-        sed -i "s/#565656/#aaaaaa/g" "${THEME_DIR}"/{16,22,24}/actions/*.svg
-        sed -i "s/#727272/#aaaaaa/g" "${THEME_DIR}"/{16,22,24}/{places,devices}/*.svg
-        sed -i "s/#555555/#aaaaaa/g" "${THEME_DIR}"/symbolic/{actions,apps,categories,devices,emblems,emotes,mimetypes,places,status}/*.svg
+        sed  -i "s/#565656/#aaaaaa/g" "${THEME_DIR}"/{16,22,24}/actions/*.svg
+        sed  -i "s/#727272/#aaaaaa/g" "${THEME_DIR}"/{16,22,24}/{places,devices}/*.svg
+        sed  -i "s/#555555/#aaaaaa/g" "${THEME_DIR}"/symbolic/{actions,apps,categories,devices,emblems,emotes,mimetypes,places,status}/*.svg
+        echo -e "- Applied ${BRIGHT_VARIANT} brightnest variant"
     fi
 
-    sed -i "s/#5294E2/${COLOR[cursor]}/gi"                 "${THEME_DIR}"/scalable/places/default-*.svg
-    sed -i "s/#66bcff/$(rgbval "${COLOR[cursor]}" +10)/gi" "${THEME_DIR}"/scalable/places/default-*.svg
-    sed -i "s/#b29aff/$(rgbval "${COLOR[cursor]}" +20)/gi" "${THEME_DIR}"/scalable/places/default-*.svg
-    sed -i "s/#5294E2/${COLOR[cursor]}/gi"                 "${THEME_DIR}"/16/places/folder*.svg
+    sed  -i "s/#5294E2/${COLOR[cursor]}/gi"                 "${THEME_DIR}"/scalable/places/default-*.svg
+    sed  -i "s/#66bcff/$(rgbval "${COLOR[cursor]}" +10)/gi" "${THEME_DIR}"/scalable/places/default-*.svg
+    sed  -i "s/#b29aff/$(rgbval "${COLOR[cursor]}" +20)/gi" "${THEME_DIR}"/scalable/places/default-*.svg
+    sed  -i "s/#5294E2/${COLOR[cursor]}/gi"                 "${THEME_DIR}"/16/places/folder*.svg
+    echo -e "- Applied ${COLOR[cursor]} folder colors variant"
 
     mv "$THEME_DIR" "$HOME/.icons/${GTK_ICON_THEME_NAME:-unknown}"
 
