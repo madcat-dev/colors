@@ -516,11 +516,6 @@ else
 fi
 
 
-# Default gtk-theme
-GTK_THEME_NAME="FlatColor"
-# Default icon-theme with colors modified variant
-GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
-
 # Replace defined font and check it
 [[ ${_GTK_FONT_NAME} ]] && \
     GTK_FONT_NAME="${_GTK_FONT_NAME}"
@@ -541,13 +536,19 @@ for i in ${!_colors[@]}; do
     COLOR[$i]=${_colors[$i]}
 done
 
-
 # Set brightnest
 for i in {1..7}; do
     j=$(echo "$i + 8" | bc -s)
     [[ ${COLOR[$i]} == ${COLOR[$j]} || ${RELATIVE_SATURATION} ]] && \
         COLOR[$j]=$(rgbval "${COLOR[$i]}" ${BRIGHTNEST:-10})
 done
+
+
+# Default gtk-theme
+GTK_THEME_NAME="FlatColor"
+# Default icon-theme with colors modified variant
+GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
+
 
 # Preview with external config
 [[ ! ${CLEAN_THEME_PREVIEW} ]] && preview_theme
