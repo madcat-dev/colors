@@ -4,7 +4,6 @@
 [[ "${0}" != "${BASH_SOURCE}" ]] && \
     MANAGE_E8CBAA_LIB=true || MANAGE_E8CBAA_LIB=""
 
-
 # Extended color names list 
 COLOR_KEYS=(
     0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
@@ -38,15 +37,9 @@ Usage: ${0} [theme] [install] [ARGS...]
                           of background intensity by a given value.
                           This function using original black color
 
-    --theme|-t "name"   - use selected gtk theme, example "Matcha-dark-aliz"
-                          (replace GTK_THEME_NAME from config file)
-
     --font|-f "font"    - set base font, example "Noto Sans 11"
                           (replace GTK_FONT_NAME from config file)
                     
-    --icon|-i "icons"   - set icons theme, example "Papirus-Dark"
-                          (replace GTK_ICON_THEME_NAME from config file)
-
     --config|-C "path"  - use external config from path
                           default use config.GTK_THEME_NAME if exists  
 
@@ -327,10 +320,6 @@ declare -A _colors=()
 CURRENT="$CACHE/theme.$(hostname)"
 
 echo -e "declare -A COLOR\nexport COLOR=(" > $CURRENT
-#for i in {0..15}; do
-    #cl=$(xrdbq "color$i")
-    #[[ ${cl} ]] && echo -e "\t[$i]=\"$cl\"" >> $CURRENT
-#done
 for i in ${COLOR_KEYS[@]}; do
     [[ $(int $i) ]] && \
         cl=$(xrdbq "color$i") || cl=$(xrdbq "*.$i")
@@ -338,7 +327,6 @@ for i in ${COLOR_KEYS[@]}; do
     [[ ${cl} ]] && echo -e "\t[$i]=\"$cl\"" >> $CURRENT
 done
 echo -e ")" >> $CURRENT
-
 
 # Load main config
 [[ -e "$BASE/config" ]] && source "$BASE/config"
@@ -384,25 +372,11 @@ while [ -n "$1" ]; do
         shift
         ;;
 
-    --theme|-t)
-        [[ ! ${2} || ${2:0:1} == "-" ]] && \
-            echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
-
-        _GTK_THEME_NAME="${2}"
-        shift
-        ;;
     --font|-f)
         [[ ! ${2} || ${2:0:1} == "-" ]] && \
             echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
 
         _GTK_FONT_NAME="${2}"
-        shift
-        ;;
-    --icon|--icons|-i)
-        [[ ! ${2} || ${2:0:1} == "-" ]] && \
-            echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
-
-        _GTK_ICON_THEME_NAME="${2}"
         shift
         ;;
 
@@ -510,6 +484,8 @@ source    "$NAME"
 
 ORIGIN_BLACK=${COLOR[0]}
 
+
+
 # Preview without external config
 [[ ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
@@ -540,61 +516,14 @@ else
 fi
 
 
-# Replace defined gtk-theme and check it
-[[ ${_GTK_THEME_NAME} ]] && \
-    GTK_THEME_NAME="${_GTK_THEME_NAME}"
-
-if [[ ${GTK_THEME_NAME} ]]; then
-    PTH=(
-        "$HOME/.themes"
-        "$HOME/.local/share/themes"
-        "/usr/share/themes"
-        "/usr/local/share/themes"
-    )
-
-    for i in ${PTH[@]}; do
-        [[ -d "$i/$GTK_THEME_NAME" ]] && T_EXISTS=true && break
-    done
-
-    [[ ! ${T_EXISTS} && -e "$BASE/themes/$GTK_THEME_NAME.tar.gz" ]] && \
-        T_EXISTS=true && \
-        T_INSTALL=true
-
-    [[ ! ${T_EXISTS} ]] && \
-        echo -e "\033[31mGtk theme '$GTK_THEME_NAME' in not existing\033[0m" && \
-        exit 1
-fi
+# Default gtk-theme
+GTK_THEME_NAME="FlatColor"
+# Default icon-theme with colors modified variant
+GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
 
 # Replace defined font and check it
 [[ ${_GTK_FONT_NAME} ]] && \
     GTK_FONT_NAME="${_GTK_FONT_NAME}"
-
-# Replace defined icon-theme and check it
-[[ ${_GTK_ICON_THEME_NAME} ]] && \
-    GTK_ICON_THEME_NAME="${_GTK_ICON_THEME_NAME}"
-
-if [[ ${GTK_ICON_THEME_NAME} ]]; then
-    PTH=(
-        "$HOME/.icons"
-        "$HOME/.local/share/icons"
-        "/usr/share/icons"
-        "/usr/local/share/icons"
-    )
-
-    for i in ${PTH[@]}; do
-        [[ -d "$i/$GTK_ICON_THEME_NAME" ]] && I_EXISTS=true && break
-    done
-
-    SRC_GTK_ICON_THEME_NAME=( ${GTK_ICON_THEME_NAME/\-\#/ } )
-
-    [[ ! ${I_EXISTS} && -e "$BASE/icons/$SRC_GTK_ICON_THEME_NAME.tar.gz" ]] && \
-        I_EXISTS=true && \
-        I_INSTALL=true
-
-    [[ ! ${I_EXISTS} ]] && \
-        echo -e "\033[31mIcon theme '$GTK_ICON_THEME_NAME' in not existing\033[0m" && \
-        exit 1
-fi
 
 
 # Set color 0 from background color
@@ -619,7 +548,6 @@ for i in {1..7}; do
     [[ ${COLOR[$i]} == ${COLOR[$j]} || ${RELATIVE_SATURATION} ]] && \
         COLOR[$j]=$(rgbval "${COLOR[$i]}" ${BRIGHTNEST:-10})
 done
-
 
 # Preview with external config
 [[ ! ${CLEAN_THEME_PREVIEW} ]] && preview_theme
@@ -693,7 +621,7 @@ echo -e "  [+] Gtk colors 4.0 installed"
 
 
 # Install GTK theme
-if [[ ${T_INSTALL} ]]; then
+if [[ "${GTK_THEME_NAME}" && ! -e "$HOME/.themes/${GTK_THEME_NAME}" ]]; then
     echo -e "  [ ] Install gtk theme '${GTK_THEME_NAME}'"
 
     [[ ! -e "$BASE/themes/${GTK_THEME_NAME:-Empty}.tar.gz" ]] && \
@@ -701,7 +629,6 @@ if [[ ${T_INSTALL} ]]; then
         exit 1
 
     mkdir -p "$HOME/.themes" > /dev/null 2>&1
-
     tar -xzf "$BASE/themes/${GTK_THEME_NAME}.tar.gz" -C "$HOME/.themes"
 
     echo -e "  [+] Gtk theme '${GTK_THEME_NAME}' installed"
@@ -709,38 +636,37 @@ fi
 
 
 # Install Icons theme
-if [[ ${I_INSTALL} ]]; then
+SRC_GTK_ICON_THEME_NAME=( ${GTK_ICON_THEME_NAME/\-\#/ } )
+
+if [[ "${SRC_GTK_ICON_THEME_NAME}" && ! -e "$HOME/.icons/${GTK_ICON_THEME_NAME:-unknown}" ]]; then
     echo -e "  [ ] Install icons theme '${GTK_ICON_THEME_NAME}'"
 
     [[ ! -e "$BASE/icons/${SRC_GTK_ICON_THEME_NAME:-Empty}.tar.gz" ]] && \
         echo -e "\e[31m  [!] Icons theme '${GTK_ICON_THEME_NAME}' not existing\e[0m" && \
         exit 1
 
-    mkdir -p "$HOME/.icons" > /dev/null 2>&1
+    THEME_DIR="$HOME/.icons/${SRC_GTK_ICON_THEME_NAME}"
 
+    mkdir -p "$HOME/.icons" > /dev/null 2>&1
+    rm   -rf "$THEME_DIR"   > /dev/null 2>&1
     tar -xzf "$BASE/icons/${SRC_GTK_ICON_THEME_NAME}.tar.gz" -C "$HOME/.icons"
 
-    if [[ "${SRC_GTK_ICON_THEME_NAME}" != "${GTK_ICON_THEME_NAME}" ]]; then
-        THEME_DIR="$HOME/.icons/${SRC_GTK_ICON_THEME_NAME:-unknown}"
+    [[ ! -e "$THEME_DIR" ]] && \
+        echo -e "\e[31m  [!] Icons theme '${SRC_GTK_ICON_THEME_NAME}' not prepeared\e[0m" && \
+        exit 1
 
-        [[ ! -e "$THEME_DIR" ]] && \
-            echo -e "\e[31m  [!] Icons theme '${GTK_ICON_THEME_NAME}' not prepeared\e[0m" && \
-            exit 1
-
-        if [[ ${BRIGHT_VARIANT} ]]; then
-            sed -i "s/#565656/#aaaaaa/g" \
-                "${THEME_DIR}"/{16,22,24}/actions/*.svg
-            sed -i "s/#727272/#aaaaaa/g" \
-                "${THEME_DIR}"/{16,22,24}/{places,devices}/*.svg
-            sed -i "s/#555555/#aaaaaa/g" \
-                "${THEME_DIR}"/symbolic/{actions,apps,categories,devices,emblems,emotes,mimetypes,places,status}/*.svg
-        fi
-
-        sed -i "s/#5294E2/${COLOR[cursor]}/gi" "${THEME_DIR}"/scalable/places/default-*.svg
-        sed -i "s/#5294E2/${COLOR[cursor]}/gi" "${THEME_DIR}"/16/places/folder{,-open,-visiting}.svg
-
-        mv "$THEME_DIR" "$HOME/.icons/${GTK_ICON_THEME_NAME:-unknown}"
+    if [[ ${BRIGHT_VARIANT} ]]; then
+        sed -i "s/#565656/#aaaaaa/g" "${THEME_DIR}"/{16,22,24}/actions/*.svg
+        sed -i "s/#727272/#aaaaaa/g" "${THEME_DIR}"/{16,22,24}/{places,devices}/*.svg
+        sed -i "s/#555555/#aaaaaa/g" "${THEME_DIR}"/symbolic/{actions,apps,categories,devices,emblems,emotes,mimetypes,places,status}/*.svg
     fi
+
+    sed -i "s/#5294E2/${COLOR[cursor]}/gi"                 "${THEME_DIR}"/scalable/places/default-*.svg
+    sed -i "s/#66bcff/$(rgbval "${COLOR[cursor]}" +10)/gi" "${THEME_DIR}"/scalable/places/default-*.svg
+    sed -i "s/#b29aff/$(rgbval "${COLOR[cursor]}" +20)/gi" "${THEME_DIR}"/scalable/places/default-*.svg
+    sed -i "s/#5294E2/${COLOR[cursor]}/gi"                 "${THEME_DIR}"/16/places/folder*.svg
+
+    mv "$THEME_DIR" "$HOME/.icons/${GTK_ICON_THEME_NAME:-unknown}"
 
     echo -e "  [+] Icons theme '${GTK_ICON_THEME_NAME}' installed"
 fi
@@ -803,7 +729,7 @@ for i in ${!COLOR[@]}; do
     echo "COLOR[$i]=\"${COLOR[$i]}\"" >> "$f"
 done
 
-echo -e "  [+] Your configuration stored at '${new_config/$HOME/\~}' file"
+echo -e "  [+] Your configuration stored at '${f/$HOME/\~}' file"
 
 
 # Restart wm
