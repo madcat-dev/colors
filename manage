@@ -681,22 +681,31 @@ if [[ "${SRC_GTK_ICON_THEME_NAME}" && ! -e "$HOME/.icons/${GTK_ICON_THEME_NAME:-
         echo -e "\e[31m[!] Icons theme '${SRC_GTK_ICON_THEME_NAME}' not prepeared\e[0m" && \
         exit 1
 
-    if [[ ${BRIGHT_VARIANT} ]]; then
-        sed  -i "s/#565656/#aaaaaa/g" "${THEME_DIR}"/{16,22,24}/actions/*.svg
-        sed  -i "s/#727272/#aaaaaa/g" "${THEME_DIR}"/{16,22,24}/{places,devices}/*.svg
-        sed  -i "s/#555555/#aaaaaa/g" "${THEME_DIR}"/symbolic/{actions,apps,categories,devices,emblems,emotes,mimetypes,places,status}/*.svg
-        echo -e "  - Dark brightnest variant is applyed"
-    fi
-
-    sed  -i "s/#5294E2/${COLOR[cursor]}/gi"                 "${THEME_DIR}"/scalable/places/default-*.svg
-    sed  -i "s/#66bcff/$(rgbval "${COLOR[cursor]}" +10)/gi" "${THEME_DIR}"/scalable/places/default-*.svg
-    sed  -i "s/#b29aff/$(rgbval "${COLOR[cursor]}" +20)/gi" "${THEME_DIR}"/scalable/places/default-*.svg
-    sed  -i "s/#5294E2/${COLOR[cursor]}/gi"                 "${THEME_DIR}"/16/places/folder*.svg
-    echo -e "  - Folder colors variant ${COLOR[cursor]} is applyed"
-
     if [[ "$SRC_GTK_ICON_THEME_NAME" != "$GTK_ICON_THEME_NAME" ]]; then
-        mv "$THEME_DIR" "$HOME/.icons/$GTK_ICON_THEME_NAME" && \
-            ERROR="" || ERROR=true
+        ERROR=""
+
+        if [[ ${BRIGHT_VARIANT} ]]; then
+            sed  -i "s/#565656/#aaaaaa/g" "${THEME_DIR}"/{16,22,24}/actions/*.svg          || ERROR=true
+            sed  -i "s/#727272/#aaaaaa/g" "${THEME_DIR}"/{16,22,24}/{places,devices}/*.svg || ERROR=true
+            sed  -i "s/#555555/#aaaaaa/g" "${THEME_DIR}"/symbolic/{actions,apps,categories,devices,emblems,emotes,mimetypes,places,status}/*.svg || ERROR=true
+            [[ ${ERROR} ]] && \
+                echo -e "\033[31m  - Dark brightnest variant is not applyed\033[0m" || \
+                echo -e "  - Dark brightnest variant is applyed"
+        fi
+
+        if [[ ! ${ERROR} ]]; then
+            sed  -i "s/#5294E2/${COLOR[cursor]}/gi"                 "${THEME_DIR}"/scalable/places/default-*.svg || ERROR=true
+            sed  -i "s/#66bcff/$(rgbval "${COLOR[cursor]}" +10)/gi" "${THEME_DIR}"/scalable/places/default-*.svg || ERROR=true
+            sed  -i "s/#b29aff/$(rgbval "${COLOR[cursor]}" +20)/gi" "${THEME_DIR}"/scalable/places/default-*.svg || ERROR=true
+            sed  -i "s/#5294E2/${COLOR[cursor]}/gi"                 "${THEME_DIR}"/16/places/folder*.svg         || ERROR=true
+            [[ ${ERROR} ]] && \
+                echo -e "\033[31m  - Folder colors variant ${COLOR[cursor]} is not applyed\033[0m" || \
+                echo -e "  - Folder colors variant ${COLOR[cursor]} is applyed"
+        fi
+
+        if [[ ! ${ERROR} ]]; then
+            mv "$THEME_DIR" "$HOME/.icons/$GTK_ICON_THEME_NAME" || ERROR=true
+        fi
 
         [[ ${ERROR} ]] && \
             echo -e "\e[31m[-] Icons theme '${SRC_GTK_ICON_THEME_NAME}' not installed\e[0m" && \
