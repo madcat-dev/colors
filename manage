@@ -7,6 +7,7 @@ AVAILABLE=( $(ls $BASE/schemes) )
 CACHE="$HOME/.cache/colors"
 DIFF=$(date '+%s')
 
+source "$BASE/include/errors.lib.sh"
 source "$BASE/include/colors.lib.sh"
 source "$BASE/include/manage.core.sh"
 
@@ -139,11 +140,11 @@ rgb_normalize --normalise-modified-colors
 #
 
 # Set background image
-if [[ ${SET_BACKGROUND} ]]; then
+if [[ ${SET_WALLPAPER} ]]; then
     [[ ! ${IMAGE} ]] && \
         error "Please specify the image first with --image" && exit 1
 
-    $BASE/bin/set-bg "$IMAGE" --fade-top ${SET_BACKGROUND:-80} \
+    $BASE/bin/setwal "$IMAGE" --fade-top ${SET_WALLPAPER:-80} \
         --fade-color $([[ ${BRIGHT_VARIANT} ]] && echo "#000000FF" || echo "#FFFFFFFF")
 fi
 

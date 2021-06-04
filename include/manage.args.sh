@@ -31,7 +31,7 @@ Usage: ${0} [theme] [install] [ARGS...]
 
     --image|-I "path"   - generate new color theme from image
 
-    --set-bg [fade height (px)]
+    --setwal [fade height (px)]
                         - set background wallpaper (feh use)
                           picture must be specified in the --image parameter
 
@@ -119,11 +119,11 @@ while [ -n "$1" ]; do
         shift
         ;;
 
-    --set-bg)
+    --setwal)
         VAL=$(int ${2})
         [[ $VAL ]] && shift
 
-        SET_BACKGROUND=${VAL:-80}
+        SET_WALLPAPER=${VAL:-80}
         ;;
 
     --light)

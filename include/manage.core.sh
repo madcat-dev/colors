@@ -9,31 +9,6 @@
     mkdir -p "$CACHE" > /dev/null 2>&1
 
 
-normal() {
-    echo -e "\033[37m${@}\033[0m" >&2
-}
-
-success() {
-    echo -e "\033[32m${@}\033[0m" >&2
-}
-
-warning() {
-    echo -e "\033[33m${@}\033[0m" >&2
-}
-
-error() {
-    echo -e "\033[31m${@}\033[0m" >&2
-
-    [[ ${ERROR_IS_FATAL} ]] && \
-        kill $$
-}
-
-fatal() {
-    echo -e "\033[31m${@}\033[0m" >&2
-    kill $$ 
-}
-
-
 function displaytime {
     local T=$1
     local W=$((T/60/60/24/7))
@@ -291,6 +266,7 @@ install_shell_colors() {
 
 
 store_configuration() {
+    local f="${1:-/unknown}"
     local KEYS=(
         GTK_THEME_NAME 
         GTK_ICON_THEME_NAME
@@ -308,8 +284,6 @@ store_configuration() {
         GTK_XFT_HINTSTYLE
         GTK_XFT_RGBA
     )
-
-    local f="${1:-/unknown}"
 
     echo "#!/usr/bin/env bash" > "$f" || return 1
     for i in ${KEYS[@]}; do

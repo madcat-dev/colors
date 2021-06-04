@@ -3,40 +3,51 @@
 # Initialise
 BASE="$(realpath `dirname "$0"`)"
 
-[[ -e "${COLORS_INCLUDE}/colors.sh" ]]   && \
-    source "${COLORS_INCLUDE}/colors.lib.sh" || \
-    source "$BASE/../include/colors.lib.sh"
+source "$BASE/../include/errors.lib.sh" || \
+    source "$BASE/errors.lib.sh"
+
+source "$BASE/../include/colors.lib.sh" || \
+    source "$BASE/colors.lib.sh"
 
 
 set_background() {
     [[ ! -e ${1} ]] && \
-        echo -e "\033[31mImage file '${1/$HOME/\~}' not existing\033[0m" >&2 && \
-        kill $$
+        fatal "Image file '${1/$HOME/\~}' not existing"
 
     local top=$(int ${2:-undefined}); top=${top:-0}
     local bottom=$(int ${3:-undefined}); bottom=${bottom:-0}
 
     FADE_COLOR=${FADE_COLOR:-#000000FF}
-    local  FADE_IN="$(rgb_format 'rgba($r,$g,$b,$alpha)' "$FADE_COLOR")"
-    local FADE_OUT="$(rgb_format 'rgba($r,$g,$b,0)'      "$FADE_COLOR")"
+    local FADE_IN="$(  rgb_format 'rgba($r,$g,$b,$alpha)' "$FADE_COLOR" )"
+    local FADE_OUT="$( rgb_format 'rgba($r,$g,$b,0)'      "$FADE_COLOR" )"
 
     [[ $top -lt 0 ]] && \
-        echo -e "\033[31mInvalid fade value\033[0m" >&2 && \
-        kill $$
+        fatal "Invalid fade value"
 
     local SIZE=( $(identify -ping -format '%w %h' "${IMAGE}") )
-
     local X=$(xrandr --query | grep "*+"); X=( $(echo "${X/x/ }") )
-    local WIDTH=${X[0]:-1920}
-    local HEIGHT=${X[1]:-1080}
+
+    WIDTH=$(int ${WIDTH:-undefined})
+    [[ "$WIDTH" && "$WIDTH" -le 0 ]] && \
+        fatal "Invalid width: $WIDTH"
+
+    [[ ! "${WIDTH}" ]] && \
+        WIDTH=${X[0]:-1920}
+
+    HEIGHT=$(int ${HEIGHT:-undefined})
+    [[ "$HEIGHT" && "$HEIGHT" -le 0 ]]  && \
+        fatal "Invalid height: $HEIGHT"
+
+    [[ ! "${HEIGHT}" ]] && \
+        HEIGHT=${X[1]:-1080}
 
     # Chech width scale
     local W=$WIDTH
-    local H=$(echo "${SIZE[1]} / $(echo "${SIZE[0]} / $WIDTH"  | bc -l)" | bc -s)
+    local H=$(echo "${SIZE[1]} / $(echo "${SIZE[0]} / $WIDTH"  | bc -l) + 1" | bc -s)
 
     if [[ $H -lt $HEIGHT ]]; then
         H=$HEIGHT
-        W=$(echo "${SIZE[0]} / $(echo "${SIZE[1]} / $HEIGHT"  | bc -l)" | bc -s)
+        W=$(echo  "${SIZE[0]} / $(echo "${SIZE[1]} / $HEIGHT"  | bc -l) + 1" | bc -s)
     fi
 
     local L=$(echo "($W - $WIDTH)  / 2" | bc -s)
@@ -77,7 +88,7 @@ while [ -n "$1" ]; do
     --fade-top|-t)
         VAL=$(int ${2:-"undefined"})
         [[ ! $VAL || $VAL -lt 0 ]] && \
-            echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
+            fatal "Invalid parameter '${2}' from ${1} argument"
 
         FADE_TOP=$VAL
         shift
@@ -86,7 +97,7 @@ while [ -n "$1" ]; do
     --fade-bottom|-b)
         VAL=$(int ${2:-"undefined"})
         [[ ! $VAL || $VAL -lt 0 ]] && \
-            echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
+            fatal "Invalid parameter '${2}' from ${1} argument"
 
         FADE_BOTTOM=$VAL
         shift
@@ -94,11 +105,30 @@ while [ -n "$1" ]; do
 
     --fade-color|-c)
         [[ ! $(rgb "${2}" --no-kill) ]] && \
-            echo -e "\033[31mInvalid color '${2}' from ${1} argument\033[0m" && exit 1
+            fatal "Invalid color '${2}' from ${1} argument"
         
         FADE_COLOR="${2}"
         shift
         ;;
+
+    --width|-W)
+        VAL=$(int ${2:-"undefined"})
+        [[ ! $VAL || $VAL -le 0 ]] && \
+            fatal "Invalid width: '${2}'"
+
+        WIDTH=$VAL
+        shift
+        ;;
+
+    --height|-H)
+        VAL=$(int ${2:-"undefined"})
+        [[ ! $VAL || $VAL -le 0 ]] && \
+            fatal "Invalid height: '${2}'"
+
+        HEIGHT=$VAL
+        shift
+        ;;
+
     *)
         IMAGE="${1/\~/$HOME}"
         ;;
@@ -108,6 +138,6 @@ done
 
 
 [[ ! -e "${IMAGE/\~/$HOME}" ]] && \
-    echo -e "\033[31mImage file '${IMAGE/\~/$HOME}' not existing\033[0m" && exit 1
+    fatal "Image file '${IMAGE/\~/$HOME}' not existing"
 
 set_background "${IMAGE}" "${FADE_TOP}" "${FADE_BOTTOM}"
