@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+
+# Initialise
+BASE="$(realpath `dirname "$0"`)"
+
+source "$BASE/../lib/colors.sh"
+
+
+set_background() {
+    [[ ! -e ${1} ]] && \
+        echo -e "\033[31mImage file '${1/$HOME/\~}' not existing\033[0m" >&2 && \
+        kill $$
+
+    local top=$(int ${2:-undefined}); top=${top:-0}
+    local bottom=$(int ${3:-undefined}); bottom=${bottom:-0}
+
+    FADE_COLOR=${FADE_COLOR:-#000000FF}
+    local  FADE_IN="$(rgb_format 'rgba($r,$g,$b,$alpha)' "$FADE_COLOR")"
+    local FADE_OUT="$(rgb_format 'rgba($r,$g,$b,0)'      "$FADE_COLOR")"
+
+    [[ $top -lt 0 ]] && \
+        echo -e "\033[31mInvalid fade value\033[0m" >&2 && \
+        kill $$
+
+    local SIZE=( $(identify -ping -format '%w %h' "${IMAGE}") )
+
+    local X=$(xrandr --query | grep "*+"); X=( $(echo "${X/x/ }") )
+    local WIDTH=${X[0]:-1920}
+    local HEIGHT=${X[1]:-1080}
+
+    # Chech width scale
+    local W=$WIDTH
+    local H=$(echo "${SIZE[1]} / $(echo "${SIZE[0]} / $WIDTH"  | bc -l)" | bc -s)
+
+    if [[ $H -lt $HEIGHT ]]; then
+        H=$HEIGHT
+        W=$(echo "${SIZE[0]} / $(echo "${SIZE[1]} / $HEIGHT"  | bc -l)" | bc -s)
+    fi
+
+    local L=$(echo "($W - $WIDTH)  / 2" | bc -s)
+    local T=$(echo "($H - $HEIGHT) / 2" | bc -s)
+
+    local TMP_IMAGE=$(mktemp "/tmp/tmp-image.XXXXXXXXX.jpg")
+
+    convert "${1}" -resize ${W}x${H} -crop ${WIDTH}x${HEIGHT}+${L}+${T} \
+        "$TMP_IMAGE"
+
+    if [[ $top -gt 0 ]]; then
+        convert "$TMP_IMAGE" \
+            \( -size ${WIDTH}x${top} gradient:${FADE_IN}-${FADE_OUT} \) \
+            -geometry +0+0 -compose over -composite \
+            "$TMP_IMAGE"
+    fi
+
+    if [[ $bottom -gt 0 ]]; then
+        convert "$TMP_IMAGE" \
+            \( -size ${WIDTH}x${bottom} gradient:${FADE_OUT}-${FADE_IN} \) \
+            -geometry +0+$(echo "$HEIGHT - $bottom" | bc -s) -compose over -composite \
+            "$TMP_IMAGE"
+    fi
+
+    convert "$TMP_IMAGE" -resize ${WIDTH}x${HEIGHT}\
+        "$HOME/.wallpaper.jpg"
+
+    rm -rf "$TMP_IMAGE" > /dev/null 2>&1
+
+    ${BACKGROUND_SETTER:-feh --bg-fill} "$HOME/.wallpaper.jpg" 2>/dev/null
+}
+
+
+
+# Parse command-line args
+while [ -n "$1" ]; do
+    case "${1}" in
+    --fade-top|-t)
+        VAL=$(int ${2:-"undefined"})
+        [[ ! $VAL || $VAL -lt 0 ]] && \
+            echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
+
+        FADE_TOP=$VAL
+        shift
+        ;;
+
+    --fade-bottom|-b)
+        VAL=$(int ${2:-"undefined"})
+        [[ ! $VAL || $VAL -lt 0 ]] && \
+            echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
+
+        FADE_BOTTOM=$VAL
+        shift
+        ;;
+
+    --fade-color|-c)
+        [[ ! $(rgb "${2}" --no-kill) ]] && \
+            echo -e "\033[31mInvalid color '${2}' from ${1} argument\033[0m" && exit 1
+        
+        FADE_COLOR="${2}"
+        shift
+        ;;
+    *)
+        IMAGE="${1/\~/$HOME}"
+        ;;
+    esac
+    shift
+done
+
+
+[[ ! -e "${IMAGE/\~/$HOME}" ]] && \
+    echo -e "\033[31mImage file '${IMAGE/\~/$HOME}' not existing\033[0m" && exit 1
+
+set_background "${IMAGE}" "${FADE_TOP}" "${FADE_BOTTOM}"

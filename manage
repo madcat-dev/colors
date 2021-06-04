@@ -1,20 +1,14 @@
 #!/usr/bin/env bash
 
-# is using as library
-[[ "${0}" != "${BASH_SOURCE}" ]] && \
-    MANAGE_E8CBAA_LIB=true || MANAGE_E8CBAA_LIB=""
+# Initialise
+BASE="$(realpath `dirname "$0"`)"
+TEMPLATES="$BASE/templates"
+AVAILABLE=( $(ls $BASE/schemes) )
+CACHE="$HOME/.cache/colors"
+DIFF=$(date '+%s')
 
-# Extended color names list 
-COLOR_KEYS=(
-    0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
-    foreground
-    background
-    selection_foreground
-    selection_background
-    cursor
-    url_color
-    highlight
-)
+source "$BASE/lib/colors.sh"
+source "$BASE/lib/manage.sh"
 
 
 USAGE=$(cat <<- ENDDATA
@@ -76,265 +70,8 @@ ENDDATA
 )
 
 
-function displaytime {
-    local T=$1
-    local W=$((T/60/60/24/7))
-    local D=$((T/60/60/24%7))
-    local H=$((T/60/60%24))
-    local M=$((T/60%60))
-    local S=$((T%60))
 
-    if [[ $W > 0 ]]; then
-        printf '%d weeks ' $W
-        printf '%d days ' $D
-    else
-        if [[ $D > 0 ]]; then
-            printf '%d days ' $D
-            printf '%d hours ' $H
-        else
-            [[ $H > 0 ]] && printf '%d hours ' $H
-            [[ $M > 0 ]] && printf '%d minutes ' $M
-            [[ $H = 0 ]] && printf '%d seconds ' $S
-        fi
-    fi
 
-    printf 'ago'
-}
-
-
-int() {
-    local value
-    printf -v value "%d" ${1/+/} > /dev/null 2>&1
-
-    [[ ${value} && ${value} == ${1/+/} ]] && \
-        echo $value
-}
-
-ina() {
-    local value
-    value=${1:-undefined}; shift
-
-    while [ -n "$1" ]; do
-        [[ "$value" == "$1" ]] && \
-            echo "true" && break
-        shift
-    done
-}
-
-
-xrdbq() {
-    xrdb -query | grep -w "${1}:" | cut -f 2
-}
-
-
-rgb() {
-    [[ ${#1} == 7 && ${1:0:1} == "#" ]] && \
-        printf -v RGB "%03d:%03d:%03d" 0x${1:1:2} 0x${1:3:2} 0x${1:5:2} > /dev/null 2>&1 && \
-        echo -e ${RGB} && return
-
-    [[ ! "${2}" ]] && \
-        echo -e "\033[31mInvalid color '${1}', terminate\033[0m" >&2 && \
-        kill $$
-}
-
-rgbval() {
-    _=$(rgb "${1}")
-
-    printf -v r "%d" 0x${1:1:2} > /dev/null 2>&1 || ERROR=true
-    printf -v g "%d" 0x${1:3:2} > /dev/null 2>&1 || ERROR=true
-    printf -v b "%d" 0x${1:5:2} > /dev/null 2>&1 || ERROR=true
-    printf -v value "%d" ${2} > /dev/null 2>&1   || ERROR=true
-
-    if [[ $r -eq 0 && $g -eq 0 && $b -eq 0 ]]; then
-        r=1; g=1; b=1
-    fi
-
-    max=$r
-    [[ $g -gt $max ]] && max=$g
-    [[ $b -gt $max ]] && max=$b
-
-    v=$(echo "$max / 256 * 100" | bc -l)
-    value=$(echo "$v + $value" | bc -l)
-
-    if [[ ! ${ERROR} && ${value} ]]; then
-        r=$(echo "($r / $v * $value)" | bc -l 2>/dev/null); r=${r%.*}
-        [[ $r -gt 255 ]] && r=255
-        [[ $r -lt 0 ]]   && r=0
-
-        g=$(echo "($g / $v * $value)" | bc -l 2>/dev/null); g=${g%.*}
-        [[ $g -gt 255 ]] && g=255
-        [[ $g -lt 0 ]]   && g=0
-
-        b=$(echo "($b / $v * $value)" | bc -l 2>/dev/null); b=${b%.*}
-        [[ $b -gt 255 ]] && b=255
-        [[ $b -lt 0 ]]   && b=0
-    fi
-
-    [[ ! ${ERROR} ]] && \
-        printf "#%02X%02X%02X" $r $g $b && return
-
-    echo -e "\033[31mInvalid color '${1}', terminate\033[0m" >&2 && \
-        kill $$
-}
-
-ecolor() {
-    echo -en "\033[48:2:$(rgb "${1}")m#\033[0m"
-    echo -en "\033[38:2:$(rgb "${1}")m${1:1}\033[0m"
-}
-
-
-preview_theme() {
-    if [[ ! ${SHORT_PREVIEW} ]]; then
-        [[ ${COLOR[name]} ]] && \
-            printf "%-15s%s\n"      "Name:"         "${COLOR[name]}"
-
-        [[ ${NAME} ]] && \
-            printf "%-15s%s\n"      "Path:"         "${NAME/$HOME/\~}"
-
-        [[ ${COLOR[description]} ]] && \
-            printf "%-15s%s...\n"   "Description:"  "${COLOR[description]:0:54}"
-
-        [[ ${COLOR[image]} ]] && \
-            printf "%-15s%s\n"      "Image:"        "${COLOR[image]}"
-
-        [[ ${GTK_THEME_NAME} ]] && \
-            printf "%-15s%s\n"      "Gtk theme:"    "${GTK_THEME_NAME}"
-
-        [[ ${GTK_ICON_THEME_NAME} ]] && \
-            printf "%-15s%s\n"      "Icons theme:"  "${GTK_ICON_THEME_NAME}"
-
-        [[ ${GTK_FONT_NAME} ]] && \
-            printf "%-15s%s\n"      "Font name:"    "${GTK_FONT_NAME}"
-
-        echo -e "$(printf '─%.0s' {1..72})"
-
-        printf '%-68s%s\n' \
-            "background: $(ecolor ${COLOR[background]:-${COLOR[0]}})" \
-            "selection_background: $(ecolor ${COLOR[selection_background]:-${COLOR[7]}})"
-        printf '%-68s%s\n' \
-            "foreground: $(ecolor ${COLOR[foreground]:-${COLOR[15]}})" \
-            "selection_foreground: $(ecolor ${COLOR[selection_foreground]:-${COLOR[0]}})"
-        printf '%-68s%-68s%-70s\n' \
-            "cursor:     $(ecolor ${COLOR[cursor]:-${COLOR[8]}})" \
-            "url_color: $(ecolor ${COLOR[url_color]:-${COLOR[12]}})" \
-            "highlight: $(ecolor ${COLOR[highlight]:-${COLOR[9]}})"
-
-        echo -e "$(printf '─%.0s' {1..72})"
-
-        echo -e "   BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
-        echo -e "$(printf '─%.0s' {1..72})"
-    else
-        name=$(basename ${NAME:-UNKNOWN})
-        len=$(echo "72 - ${#name} - 4" | bc -s)
-
-        echo -en `printf '─%.0s' $(seq $len)`
-        echo -e "[ ${name} ]"
-    fi
-
-
-    echo -en "\033[48:2:$(rgb "${COLOR[background]:-${COLOR[0]}}")m"
-    for i in {0..7}; do
-        [[ "${COLOR[$i]}" == "${COLOR[background]:-${COLOR[0]}}" ]] && \
-            echo -en "\033[38:2:$(rgb "#FFFFFF")m${COLOR[$i]}  " || \
-            echo -en "\033[38:2:$(rgb "${COLOR[$i]}")m${COLOR[$i]}  "
-    done
-    echo -e "\033[0m"
-
-    echo -en "\033[48:2:$(rgb "${COLOR[background]:-${COLOR[0]}}")m"
-    for i in {8..15}; do
-        [[ "${COLOR[$i]}" == "${COLOR[background]:-${COLOR[0]}}" ]] && \
-            echo -en "\033[38:2:$(rgb "#FFFFFF")m${COLOR[$i]}  " || \
-            echo -en "\033[38:2:$(rgb "${COLOR[$i]}")m${COLOR[$i]}  "
-    done
-    echo -e "\033[0m"
-
-    [[ ! ${SHORT_PREVIEW} ]] && echo -e "$(printf '─%.0s' {1..72})"
-}
-
-
-install_theme() {
-    SRCE="${1}"
-    DEST="${2}"
-
-    [[ ! -f "$SRCE" ]] && \
-        echo -e "\033[32m[-] Template $SRCE not existing!\033[0m" && \
-        return
-
-    rm -f $DEST > /dev/null 2>&1
-    mkdir -p "$(dirname $DEST)" > /dev/null 2>&1
-
-    while IFS=\# read -r data end; do
-        data=$(eval echo -e \"${data//\"/\\\"}\")
-        end=$(eval echo -e \"${end//\"/\\\"}\")
-
-
-        [[ "$end" ]] && end="#$end"
-        [[ "$data$end" ]] && echo -e "$data$end" >> $DEST
-    done < $SRCE
-}
-
-
-set_background() {
-    local top
-
-    [[ ! -e ${1} ]] && \
-        echo -e "\033[31mImage file '${1/$HOME/\~}' not existing\033[0m" >&2 && \
-        kill $$
-
-    top=$(int ${2})
-    top=${top:-120}
-
-    [[ $top -lt 0 ]] && \
-        echo -e "\033[31mInvalid fade value\033[0m" >&2 && \
-        kill $$
-
-    SIZE=( $(identify -ping -format '%w %h' "${IMAGE}") )
-
-    X=$(xrandr --query | grep "*+"); X=( $(echo "${X/x/ }") )
-    WIDTH=${X[0]:-1920}
-    HEIGHT=${X[1]:-1080}
-
-    # Chech width scale
-    W=$WIDTH
-    H=$(echo "${SIZE[1]} / $(echo "${SIZE[0]} / $WIDTH"  | bc -l)" | bc -s)
-
-    if [[ $H -lt $HEIGHT ]]; then
-        H=$HEIGHT
-        W=$(echo "${SIZE[0]} / $(echo "${SIZE[1]} / $HEIGHT"  | bc -l)" | bc -s)
-    fi
-
-    L=$(echo "($W - $WIDTH)  / 2" | bc -s)
-    T=$(echo "($H - $HEIGHT) / 2" | bc -s)
-
-    convert "${1}" -resize ${W}x${H} -crop ${WIDTH}x${HEIGHT}+${L}+${T} \
-        "/tmp/tmp-Wallpaper.jpg"
-
-    convert "/tmp/tmp-Wallpaper.jpg" -resize ${WIDTH}x${HEIGHT}\
-        \( -size ${WIDTH}x${top} gradient:'rgba(0,0,0,1)-rgba(0,0,0,0)' \) \
-        -geometry +0+0 -compose over -composite \
-        \( -size ${WIDTH}x${top} gradient:'rgba(0,0,0,0)-rgba(0,0,0,1)' \) \
-        -geometry +0+$(echo "$HEIGHT - $top" | bc -s) -compose over -composite \
-        "$HOME/.wallpaper.jpg"
-
-    rm -rf "/tmp/tmp-Wallpaper.jpg" > /dev/null 2>&1
-
-    ${BACKGROUND_SETTER:-feh --bg-fill} "$HOME/.wallpaper.jpg" 2>/dev/null
-}
-
-
-
-# -----------------------------------------------------------------------------
-# run in library mode?
-# -----------------------------------------------------------------------------
-[[ ${MANAGE_E8CBAA_LIB} ]] && exit 0
-
-
-# Initialise
-BASE="$(realpath `dirname "$0"`)"
-TEMPLATES="$BASE/templates"
-AVAILABLE=( $(ls $BASE/schemes) )
-CACHE="$HOME/.cache/colors"
-DIFF=$(date '+%s')
 
 mkdir -p "$CACHE" > /dev/null 2>&1
 source "$BASE/config" > /dev/null 2>&1
@@ -365,7 +102,7 @@ while [ -n "$1" ]; do
         ;;
 
     --color|-c)
-        [[ ! $(ina "${2}" ${COLOR_KEYS[@]}) ]] && \
+        [[ ! $(at "${2}" ${COLOR_KEYS[@]}) ]] && \
             echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
 
         [[ ! $(rgb "${3}" --no-kill) ]] && \
@@ -425,7 +162,7 @@ while [ -n "$1" ]; do
         VAL=$(int ${2})
         [[ $VAL ]] && shift
 
-        SET_BACKGROUND=${VAL:-120}
+        SET_BACKGROUND=${VAL:-80}
         ;;
 
     --light)
@@ -456,21 +193,12 @@ while [ -n "$1" ]; do
 	*)
 		NAME="${1/\~/$HOME}"
         [[ ${NAME:0:1} == "-" ]] && \
-            echo -e "\033[31mInvalid parametr '$NAME'!!!\033[0m\n" && \
-            echo -e "$USAGE" && exit 1
+            echo -e "\033[31mInvalid parametr '$NAME'!!!\033[0m\n" && exit 1
 		;;
 	esac
     shift
 done
 
-
-# Set background image
-if [[ ${SET_BACKGROUND} ]]; then
-    [[ ! ${IMAGE} ]] && \
-        echo -e "\033[31mPlease specify the image first with --image\033[0m" && exit 1
-
-    set_background "$IMAGE" ${SET_BACKGROUND:-400}
-fi
 
 # Select prefered brightnest variant
 LIGHT=true
@@ -480,13 +208,22 @@ if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
     BRIGHT_VARIANT="-dark"
 fi
 
+# Set background image
+if [[ ${SET_BACKGROUND} ]]; then
+    [[ ! ${IMAGE} ]] && \
+        echo -e "\033[31mPlease specify the image first with --image\033[0m" && exit 1
+
+    $BASE/bin/set-bg "$IMAGE" --fade-top ${SET_BACKGROUND:-80} \
+        --fade-color $([[ ${BRIGHT_VARIANT} ]] && echo "#000000FF" || echo "#FFFFFFFF")
+fi
+
 # Get theme from image file
 if [[ ${IMAGE} ]]; then
     [[ ! -e ${IMAGE} ]] && \
         echo -e "\033[31mImage file '${IMAGE}' not existing\033[0m" && exit 1
 
     new_theme=$(mktemp -u "$CACHE/theme.XXXXXXXXX")
-    $BASE/bin/wal.py "${IMAGE}" $LIGHT "$new_theme"
+    $BASE/bin/wal.py "${IMAGE}" ${LIGHT} "$new_theme"
 
     NAME="$new_theme"
 fi
@@ -498,17 +235,16 @@ if [[ ! -f "$NAME" ]]; then
 	NAME="$BASE/schemes/$NAME"
 
 	[[ ! -f "${NAME}" ]] && \
-		echo -e "\033[31mColor theme '$NAME' not existing!\033[0m\n" && \
-		echo -e "$USAGE" && exit 1
+		echo -e "\033[31mColor theme '$NAME' not existing!\033[0m\n" && exit 1
 fi
 
 # Load color theme
 unset      COLOR
 declare -A COLOR
 source    "$NAME"
+rgb_normalize --normalise-clear-colors
 
 ORIGIN_BLACK=${COLOR[0]}
-
 
 
 # Preview without external config
@@ -518,7 +254,7 @@ ORIGIN_BLACK=${COLOR[0]}
 # Set saturation
 if [[ ${SATURATION} ]]; then
     for i in {0..15}; do
-        COLOR[$i]=$(rgbval "${COLOR[$i]}" $SATURATION)
+        COLOR[$i]=$(saturation "${COLOR[$i]}" $SATURATION)
     done
 fi
 
@@ -552,7 +288,7 @@ fi
 
 if [[ ${BLACK_VALUE} ]]; then
     COLOR[background]=${ORIGIN_BLACK:-#010101}
-    COLOR[0]=$(rgbval "${COLOR[background]}" $BLACK_VALUE)
+    COLOR[0]=$(saturation "${COLOR[background]}" $BLACK_VALUE)
 fi
 
 
@@ -565,7 +301,7 @@ done
 for i in {1..7}; do
     j=$(echo "$i + 8" | bc -s)
     [[ ${COLOR[$i]} == ${COLOR[$j]} || ${RELATIVE_SATURATION} ]] && \
-        COLOR[$j]=$(rgbval "${COLOR[$i]}" ${BRIGHTNEST:-10})
+        COLOR[$j]=$(saturation "${COLOR[$i]}" ${BRIGHTNEST:-10})
 done
 
 
@@ -576,6 +312,7 @@ GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
 
 
 # Preview with external config
+rgb_normalize --normalise-modified-colors
 [[ ! ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
 
@@ -704,10 +441,10 @@ if [[ "${SRC_GTK_ICON_THEME_NAME}" && ! -e "$HOME/.icons/${GTK_ICON_THEME_NAME:-
             sed  -i "s/#5294E2/${COLOR[cursor]}/gi" \
                 "${THEME_DIR}"/scalable/places/default-*.svg || ERROR=true
 
-            sed  -i "s/#66bcff/$(rgbval "${COLOR[cursor]}" +10)/gi" \
+            sed  -i "s/#66bcff/$(saturation "${COLOR[cursor]}" +10)/gi" \
                 "${THEME_DIR}"/scalable/places/default-*.svg || ERROR=true
 
-            sed  -i "s/#b29aff/$(rgbval "${COLOR[cursor]}" +20)/gi" \
+            sed  -i "s/#b29aff/$(saturation "${COLOR[cursor]}" +20)/gi" \
                 "${THEME_DIR}"/scalable/places/default-*.svg || ERROR=true
 
             sed  -i "s/#5294E2/${COLOR[cursor]}/gi" \
