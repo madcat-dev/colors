@@ -8,7 +8,7 @@ CACHE="$HOME/.cache/colors"
 DIFF=$(date '+%s')
 
 source "$BASE/lib/colors.sh"
-source "$BASE/lib/manage.sh"
+source "$BASE/lib/core-lib.sh"
 
 
 USAGE=$(cat <<- ENDDATA
@@ -208,15 +208,6 @@ if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
     BRIGHT_VARIANT="-dark"
 fi
 
-# Set background image
-if [[ ${SET_BACKGROUND} ]]; then
-    [[ ! ${IMAGE} ]] && \
-        echo -e "\033[31mPlease specify the image first with --image\033[0m" && exit 1
-
-    $BASE/bin/set-bg "$IMAGE" --fade-top ${SET_BACKGROUND:-80} \
-        --fade-color $([[ ${BRIGHT_VARIANT} ]] && echo "#000000FF" || echo "#FFFFFFFF")
-fi
-
 # Get theme from image file
 if [[ ${IMAGE} ]]; then
     [[ ! -e ${IMAGE} ]] && \
@@ -317,8 +308,17 @@ rgb_normalize --normalise-modified-colors
 
 
 #
-# Create theme files
+# Install theme files
 #
+
+# Set background image
+if [[ ${SET_BACKGROUND} ]]; then
+    [[ ! ${IMAGE} ]] && \
+        echo -e "\033[31mPlease specify the image first with --image\033[0m" && exit 1
+
+    $BASE/bin/set-bg "$IMAGE" --fade-top ${SET_BACKGROUND:-80} \
+        --fade-color $([[ ${BRIGHT_VARIANT} ]] && echo "#000000FF" || echo "#FFFFFFFF")
+fi
 
 [[ ! ${INSTALL} ]] && exit 0
 

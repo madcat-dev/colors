@@ -26,6 +26,12 @@ function displaytime {
 }
 
 
+ecolor() {
+    echo -en "\033[48:2:$(rgb_escapes "${1}")m#\033[0m"
+    echo -en "\033[38:2:$(rgb_escapes "${1}")m${1:1}\033[0m"
+}
+
+
 preview_theme() {
     if [[ ! ${SHORT_PREVIEW} ]]; then
         [[ ${COLOR[name]} ]] && \

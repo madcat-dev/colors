@@ -143,9 +143,3 @@ saturation() {
     echo -e "\033[31mInvalid color '${1}', terminate\033[0m" >&2 && \
         kill $$
 }
-
-ecolor() {
-    echo -en "\033[48:2:$(rgb_escapes "${1}")m#\033[0m"
-    echo -en "\033[38:2:$(rgb_escapes "${1}")m${1:1}\033[0m"
-}
-
