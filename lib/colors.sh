@@ -1,4 +1,44 @@
 
+declare -A COLOR
+
+export COLOR=(
+    [name]="Smooth"
+    [description]=""
+
+    # terminal colors+
+    # black
+    [0]=#343945
+    [8]=#4F4F5F
+
+    # red
+    [1]=#917070
+    [9]=#C49898
+
+    # green
+    [2]=#709173
+    [10]=#98C49C
+
+    # yellow
+    [3]=#919070
+    [11]=#C4C398
+
+    # blue
+    [4]=#707491
+    [12]=#989DC4
+
+    # magenta
+    [5]=#91708F
+    [13]=#C498C2
+
+    # cyan
+    [6]=#709190
+    [14]=#98C4C3
+
+    # white
+    [7]=#E5E9F0
+    [15]=#ECEFF4
+)
+
 # Extended color names list 
 COLOR_KEYS=(
     0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
@@ -142,4 +182,15 @@ saturation() {
 
     echo -e "\033[31mInvalid color '${1}', terminate\033[0m" >&2 && \
         kill $$
+}
+
+
+fill_special_colors() {
+    [[ ${COLOR[foreground]} ]]           || COLOR[foreground]=${COLOR[15]:-#FFFFFF}
+    [[ ${COLOR[background]} ]]           || COLOR[background]=${COLOR[0]:-#000000}
+    [[ ${COLOR[cursor]} ]]               || COLOR[cursor]=${COLOR[8]:-#FFFFFF}
+    [[ ${COLOR[highlight]} ]]            || COLOR[highlight]=${COLOR[9]:-#FF0000}
+    [[ ${COLOR[url_color]} ]]            || COLOR[url_color]=${COLOR[12]:-#0000FF}
+    [[ ${COLOR[selection_foreground]} ]] || COLOR[selection_foreground]=${COLOR[0]:-#000000}
+    [[ ${COLOR[selection_background]} ]] || COLOR[selection_background]=${COLOR[7]:-#FFFFFF}
 }

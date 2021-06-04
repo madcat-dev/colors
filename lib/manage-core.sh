@@ -1,5 +1,22 @@
 
 
+normal() {
+    echo -e "\033[36m${@}\033m"
+}
+
+success() {
+    echo -e "\033[32m${@}\033m"
+}
+
+error() {
+    echo -e "\033[31m${@}\033m"
+}
+
+warning() {
+    echo -e "\033[33m${@}\033m"
+}
+
+
 function displaytime {
     local T=$1
     local W=$((T/60/60/24/7))
@@ -123,3 +140,8 @@ install_theme() {
 }
 
 
+install_xrdb_colors() {
+    DEST="$CACHE/xrdb"
+    install_theme "$TEMPLATES/xrdb" "$DEST"
+    xrdb -merge "$DEST" || return 1
+}

@@ -8,7 +8,12 @@ CACHE="$HOME/.cache/colors"
 DIFF=$(date '+%s')
 
 source "$BASE/lib/colors.sh"
-source "$BASE/lib/core-lib.sh"
+source "$BASE/lib/manage-core.sh"
+
+mkdir -p "$CACHE" > /dev/null 2>&1
+source "$BASE/config" > /dev/null 2>&1
+
+declare -A _colors=()
 
 
 USAGE=$(cat <<- ENDDATA
@@ -69,14 +74,6 @@ Available schemes:
 ENDDATA
 )
 
-
-
-
-
-mkdir -p "$CACHE" > /dev/null 2>&1
-source "$BASE/config" > /dev/null 2>&1
-
-declare -A _colors=()
 
 # Restore current color scheme
 CURRENT="$CACHE/theme.$(hostname)"
@@ -251,13 +248,7 @@ fi
 
 
 # Set specials colors
-[[ ${COLOR[foreground]} ]]              || COLOR[foreground]=${COLOR[15]:-#FFFFFF}
-[[ ${COLOR[background]} ]]              || COLOR[background]=${COLOR[0]:-#000000}
-[[ ${COLOR[cursor]} ]]                  || COLOR[cursor]=${COLOR[8]:-#FFFFFF}
-[[ ${COLOR[highlight]} ]]               || COLOR[highlight]=${COLOR[9]:-#FF0000}
-[[ ${COLOR[url_color]} ]]               || COLOR[url_color]=${COLOR[12]:-#0000FF}
-[[ ${COLOR[selection_foreground]} ]]    || COLOR[selection_foreground]=${COLOR[0]:-#000000}
-[[ ${COLOR[selection_background]} ]]    || COLOR[selection_background]=${COLOR[7]:-#FFFFFF}
+fill_special_colors --fill-missing-items 
 
 
 # Load main config (theme config parameters is replaced by this)
@@ -314,11 +305,12 @@ rgb_normalize --normalise-modified-colors
 # Set background image
 if [[ ${SET_BACKGROUND} ]]; then
     [[ ! ${IMAGE} ]] && \
-        echo -e "\033[31mPlease specify the image first with --image\033[0m" && exit 1
+        error "Please specify the image first with --image" && exit 1
 
     $BASE/bin/set-bg "$IMAGE" --fade-top ${SET_BACKGROUND:-80} \
         --fade-color $([[ ${BRIGHT_VARIANT} ]] && echo "#000000FF" || echo "#FFFFFFFF")
 fi
+
 
 [[ ! ${INSTALL} ]] && exit 0
 
@@ -326,11 +318,9 @@ echo -e "-- Install theme '${NAME/$HOME/\~}'\n"
 
 # Install XRDB colors
 echo -e "[ ] Install xrdb colors"
-DEST="$CACHE/xrdb"
-
-install_theme "$TEMPLATES/xrdb" "$DEST"
-xrdb -merge "$DEST" && \
-    echo -e "[+] Xrdb colors installed"
+install_xrdb_colors && \
+    success "[+] Xrdb colors installed" || \
+    error   "[-] Xrdb colors not installed"
 
 
 # Install TERMINALS colors
