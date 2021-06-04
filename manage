@@ -7,8 +7,8 @@ AVAILABLE=( $(ls $BASE/schemes) )
 CACHE="$HOME/.cache/colors"
 DIFF=$(date '+%s')
 
-source "$BASE/lib/colors.sh"
-source "$BASE/lib/manage-core.sh"
+source "$BASE/include/colors.lib.sh"
+source "$BASE/include/manage.core.sh"
 
 mkdir -p "$CACHE" > /dev/null 2>&1
 source "$BASE/config" > /dev/null 2>&1
@@ -100,10 +100,10 @@ while [ -n "$1" ]; do
 
     --color|-c)
         [[ ! $(at "${2}" ${COLOR_KEYS[@]}) ]] && \
-            echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
+            fatal "Invalid parameter '${2}' from ${1} argument"
 
         [[ ! $(rgb "${3}" --no-kill) ]] && \
-            echo -e "\033[31mInvalid color '${3}' from ${1} argument\033[0m" && exit 1
+            fatal "Invalid color '${3}' from ${1} argument"
         
         _colors[${2}]="${3}"
         shift; shift
@@ -112,7 +112,7 @@ while [ -n "$1" ]; do
     --saturation|-s)
         VAL=$(int ${2:-"undefined"})
         [[ ! $VAL || $VAL -gt 100 || $VAL -lt -100 ]] && \
-            echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
+            fatal "Invalid parameter '${2}' from ${1} argument"
 
         SATURATION=$VAL
         shift
@@ -125,7 +125,7 @@ while [ -n "$1" ]; do
     --black|-b)
         VAL=$(int ${2:-"undefined"})
         [[ ! $VAL || $VAL -gt 100 || $VAL -lt -100 ]] && \
-            echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
+            fatal "Invalid parameter '${2}' from ${1} argument"
 
         _BLACK_VALUE=$VAL
         shift
@@ -133,25 +133,19 @@ while [ -n "$1" ]; do
 
     --font|-f)
         [[ ! ${2} || ${2:0:1} == "-" ]] && \
-            echo -e "\033[31mInvalid parameter '${2}' from ${1} argument\033[0m" && exit 1
+            fatal "Invalid parameter '${2}' from ${1} argument"
 
         _GTK_FONT_NAME="${2}"
         shift
         ;;
 
     --config|-C)
-        [[ ! -e "${2/\~/$HOME}" ]] && \
-            echo -e "\033[31mInvalid '${2/\~/$HOME}' config file\033[0m" && exit 1
-
-        CONFIG="${2/\~/$HOME}"
+        CONFIG="${2}"
         shift
         ;;
 
     --image|-I)
-        [[ ! -e "${2/\~/$HOME}" ]] && \
-            echo -e "\033[31mImage file '${2/\~/$HOME}' not existing\033[0m" && exit 1
-
-        IMAGE="${2/\~/$HOME}"
+        IMAGE="${2}"
         shift
         ;;
 
@@ -188,9 +182,10 @@ while [ -n "$1" ]; do
         CLEAN_THEME_PREVIEW=true
         ;;
 	*)
-		NAME="${1/\~/$HOME}"
-        [[ ${NAME:0:1} == "-" ]] && \
-            echo -e "\033[31mInvalid parametr '$NAME'!!!\033[0m\n" && exit 1
+        [[ ${1:0:1} == "-" ]] && \
+            fatal "Invalid parametr '$1'!!!"
+
+		NAME="${1}"
 		;;
 	esac
     shift
@@ -207,11 +202,12 @@ fi
 
 # Get theme from image file
 if [[ ${IMAGE} ]]; then
-    [[ ! -e ${IMAGE} ]] && \
-        echo -e "\033[31mImage file '${IMAGE}' not existing\033[0m" && exit 1
+    [[ ! -e "${IMAGE/\~/$HOME}" ]] && \
+        fatal "Image file '${IMAGE/\~/$HOME}' not existing"
 
     new_theme=$(mktemp -u "$CACHE/theme.XXXXXXXXX")
-    $BASE/bin/wal.py "${IMAGE}" ${LIGHT} "$new_theme"
+    $BASE/bin/wal.py "${IMAGE/\~/$HOME}" ${LIGHT} "$new_theme" || \
+        fatal "Error of generating color theme"
 
     NAME="$new_theme"
 fi
@@ -219,25 +215,24 @@ fi
 # Resolve colors theme name
 NAME=${NAME:-${CURRENT}}
 
-if [[ ! -f "$NAME" ]]; then
+if [[ ! -f "${NAME/\~/$HOME}" ]]; then
 	NAME="$BASE/schemes/$NAME"
 
 	[[ ! -f "${NAME}" ]] && \
-		echo -e "\033[31mColor theme '$NAME' not existing!\033[0m\n" && exit 1
+		fatal "Color theme '$NAME' not existing!"
 fi
+
 
 # Load color theme
 unset      COLOR
 declare -A COLOR
-source    "$NAME"
+source  "${NAME/\~/$HOME}"
 rgb_normalize --normalise-clear-colors
 
 ORIGIN_BLACK=${COLOR[0]}
 
-
 # Preview without external config
 [[ ${CLEAN_THEME_PREVIEW} ]] && preview_theme
-
 
 # Set saturation
 if [[ ${SATURATION} ]]; then
@@ -246,23 +241,22 @@ if [[ ${SATURATION} ]]; then
     done
 fi
 
-
 # Set specials colors
 fill_special_colors --fill-missing-items 
 
-
 # Load main config (theme config parameters is replaced by this)
-if [[ -e ${CONFIG} ]]; then
-    source $CONFIG
+if [[ ${CONFIG} ]]; then
+    [[ ! -e ${CONFIG/\~/$HOME} ]] && \
+        fatal "Configuration '${CONFIG/\~/$HOME}' not existing"
+
+    source "${CONFIG/\~/$HOME}"
 else
     [[ -e "$BASE/config" ]] && source "$BASE/config"
 fi
 
-
 # Replace defined font and check it
 [[ ${_GTK_FONT_NAME} ]] && \
     GTK_FONT_NAME="${_GTK_FONT_NAME}"
-
 
 # Set color 0 from background color
 [[ ${_BLACK_VALUE} ]] && \
@@ -272,7 +266,6 @@ if [[ ${BLACK_VALUE} ]]; then
     COLOR[background]=${ORIGIN_BLACK:-#010101}
     COLOR[0]=$(saturation "${COLOR[background]}" $BLACK_VALUE)
 fi
-
 
 # Replace defined colors
 for i in ${!_colors[@]}; do
@@ -286,16 +279,15 @@ for i in {1..7}; do
         COLOR[$j]=$(saturation "${COLOR[$i]}" ${BRIGHTNEST:-10})
 done
 
-
 # Default gtk-theme
 GTK_THEME_NAME="FlatColor"
 # Default icon-theme with colors modified variant
 GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
 
-
 # Preview with external config
 rgb_normalize --normalise-modified-colors
 [[ ! ${CLEAN_THEME_PREVIEW} ]] && preview_theme
+
 
 
 #
@@ -317,209 +309,89 @@ fi
 echo -e "-- Install theme '${NAME/$HOME/\~}'\n"
 
 # Install XRDB colors
-echo -e "[ ] Install xrdb colors"
+normal "[ ] Install xrdb colors"
 install_xrdb_colors && \
     success "[+] Xrdb colors installed" || \
     error   "[-] Xrdb colors not installed"
 
 
 # Install TERMINALS colors
-echo -e "[ ] Install terminals colors"
-
-# kitty terminal
-install_theme "$TEMPLATES/kitty.conf" "$CACHE/kitty.colors.conf"
-
-# xfce-termanal
-install_theme "$TEMPLATES/xfce4-terminal.theme" "$CACHE/xfce4-terminal.theme"
-
-$BASE/bin/xfce-color-switch "$CACHE/xfce4-terminal.theme" && \
-    echo -e "[+] Terminals colors installed"
+normal "[ ] Install terminals colors"
+install_terminals_colors && \
+    success "[+] Terminals colors installed" || \
+    error   "[-] Terminals colors not installed"
 
 
 # Install ROFI colors
-echo -e "[ ] Install rofi colors"
-install_theme "$TEMPLATES/rofi.rasi" "$CACHE/colors.rasi"
-echo -e "[+] Rofi colors installed"
+normal "[ ] Install rofi colors"
+apply "$TEMPLATES/rofi.rasi" "$CACHE/colors.rasi" && \
+    success "[+] Rofi colors installed" || \
+    error   "[-] Rofi colors not installed"
 
 
 # Install GTK colors
-CFG="$HOME/.config"
+normal "[ ] Install gtk 2.0 colors"
+install_gtk2_colors && \
+    success "[+] Gtk 2.0 colors installed" || \
+    error   "[-] Gtk 2.0 colors not installed"
 
-echo -e "[ ] Install gtk 2.0 colors"
-TMPL="$TEMPLATES/gtk-2.0"
 
-install_theme "$TMPL/colorsrc"      "$CFG/gtk-2.0/colorsrc"
-install_theme "$TMPL/gtkrc"         "$CFG/gtk-2.0/gtkrc"
-echo -e "[+] Gtk colors 2.0 installed"
-echo -e "    Append 'export GTK2_RC_FILES=\"\$HOME/.config/gtk-2.0/gtkrc\"'"
-echo -e "    to your .profile or replace ~/.gtkrc-2.0 by gtkrc source"
+normal "[ ] Install gtk 3.0 colors"
+install_gtk3_colors && \
+    success "[+] Gtk 3.0 colors installed" || \
+    error   "[-] Gtk 3.0 colors not installed"
 
-echo -e "[ ] Install gtk 3.0 colors"
-install_theme "$TEMPLATES/gtksourceview.xml" \
-    "$HOME/.local/share/gtksourceview-3.0/styles/gtksourceview.xml"
 
-TMPL="$TEMPLATES/gtk-3.0"
-install_theme "$TMPL/settings.ini"  "$CFG/gtk-3.0/settings.ini"
-install_theme "$TMPL/colors.css"    "$CFG/gtk-3.0/colors.css"
-install_theme "$TMPL/gtk.css"       "$CFG/gtk-3.0/gtk.css"
-echo -e "[+] Gtk colors 3.0 installed"
-
-echo -e "[ ] Install gtk 4.0 colors"
-install_theme "$TEMPLATES/gtksourceview.xml" \
-    "$HOME/.local/share/gtksourceview-4/styles/gtksourceview.xml"
-
-TMPL="$TEMPLATES/gtk-4.0"
-install_theme "$TMPL/settings.ini"  "$CFG/gtk-4.0/settings.ini"
-echo -e "[+] Gtk colors 4.0 installed"
+normal "[ ] Install gtk 4.0 colors"
+install_gtk4_colors && \
+    success "[+] Gtk 4.0 colors installed" || \
+    error   "[-] Gtk 4.0 colors not installed"
 
 
 # Install GTK theme
 if [[ "${GTK_THEME_NAME}" && ! -e "$HOME/.themes/${GTK_THEME_NAME}" ]]; then
-    echo -e "[ ] Install gtk theme '${GTK_THEME_NAME}'"
-
-    [[ ! -e "$BASE/themes/${GTK_THEME_NAME:-Empty}.tar.gz" ]] && \
-        echo -e "\e[31m[!] Theme '${GTK_THEME_NAME}' not existing\e[0m" && \
-        exit 1
-
-    mkdir -p "$HOME/.themes" > /dev/null 2>&1
-    tar -xzf "$BASE/themes/${GTK_THEME_NAME}.tar.gz" -C "$HOME/.themes"
-
-    echo -e "[+] Gtk theme '${GTK_THEME_NAME}' installed"
+    normal "[ ] Install gtk theme '${GTK_THEME_NAME}'"
+    install_gtk_theme "${GTK_THEME_NAME}" && \
+        success "[+] Gtk theme '${GTK_THEME_NAME}' installed" || \
+        error   "[-] Gtk theme '${GTK_THEME_NAME}' not installed"
 fi
 
 
 # Install Icons theme
-SRC_GTK_ICON_THEME_NAME=( ${GTK_ICON_THEME_NAME/\-\#/ } )
-
-if [[ "${SRC_GTK_ICON_THEME_NAME}" && ! -e "$HOME/.icons/${GTK_ICON_THEME_NAME:-unknown}" ]]; then
+if [[ "${GTK_ICON_THEME_NAME}" && ! -e "$HOME/.icons/${GTK_ICON_THEME_NAME:-unknown}" ]]; then
     echo -e "[ ] Install icons theme '${GTK_ICON_THEME_NAME}'"
-
-    [[ ! -e "$BASE/icons/${SRC_GTK_ICON_THEME_NAME:-Empty}.tar.gz" ]] && \
-        echo -e "\e[31m[!] Icons theme '${GTK_ICON_THEME_NAME}' not existing\e[0m" && \
-        exit 1
-
-    THEME_DIR="$HOME/.icons/${SRC_GTK_ICON_THEME_NAME}"
-
-    mkdir -p "$HOME/.icons" > /dev/null 2>&1
-    rm   -rf "$THEME_DIR"   > /dev/null 2>&1
-    tar -xzf "$BASE/icons/${SRC_GTK_ICON_THEME_NAME}.tar.gz" -C "$HOME/.icons"
-
-    [[ ! -e "$THEME_DIR" ]] && \
-        echo -e "\e[31m[!] Icons theme '${SRC_GTK_ICON_THEME_NAME}' not prepeared\e[0m" && \
-        exit 1
-
-    if [[ "$SRC_GTK_ICON_THEME_NAME" != "$GTK_ICON_THEME_NAME" ]]; then
-        ERROR=""
-
-        if [[ ${BRIGHT_VARIANT} ]]; then
-            sed  -i "s/#565656/#aaaaaa/g" \
-                "${THEME_DIR}"/{16,22,24}/actions/*.svg || ERROR=true
-
-            sed  -i "s/#727272/#aaaaaa/g" \
-                "${THEME_DIR}"/{16,22,24}/{places,devices}/*.svg || ERROR=true
-
-            sed  -i "s/#555555/#aaaaaa/g" \
-                "${THEME_DIR}"/symbolic/{actions,apps,categories,devices,emblems,emotes,mimetypes,places,status}/*.svg || \
-                ERROR=true
-
-            [[ ${ERROR} ]] && \
-                echo -e "\033[31m  - Dark brightnest variant is not applyed\033[0m" || \
-                echo -e "  - Dark brightnest variant is applyed"
-        fi
-
-        if [[ ! ${ERROR} ]]; then
-            sed  -i "s/#5294E2/${COLOR[cursor]}/gi" \
-                "${THEME_DIR}"/scalable/places/default-*.svg || ERROR=true
-
-            sed  -i "s/#66bcff/$(saturation "${COLOR[cursor]}" +10)/gi" \
-                "${THEME_DIR}"/scalable/places/default-*.svg || ERROR=true
-
-            sed  -i "s/#b29aff/$(saturation "${COLOR[cursor]}" +20)/gi" \
-                "${THEME_DIR}"/scalable/places/default-*.svg || ERROR=true
-
-            sed  -i "s/#5294E2/${COLOR[cursor]}/gi" \
-                "${THEME_DIR}"/16/places/folder*.svg || ERROR=true
-
-            [[ ${ERROR} ]] && \
-                echo -e "\033[31m  - Folder colors variant ${COLOR[cursor]} is not applyed\033[0m" || \
-                echo -e "  - Folder colors variant ${COLOR[cursor]} is applyed"
-        fi
-
-        if [[ ! ${ERROR} ]]; then
-            mv "$THEME_DIR" "$HOME/.icons/$GTK_ICON_THEME_NAME" || ERROR=true
-        fi
-
-        [[ ${ERROR} ]] && \
-            echo -e "\e[31m[-] Icons theme '${SRC_GTK_ICON_THEME_NAME}' not installed\e[0m" && \
-            exit 1
-    fi
-
-    echo -e "[+] Icons theme '${GTK_ICON_THEME_NAME}' installed"
+    install_gtk_icon_theme "${GTK_ICON_THEME_NAME}" "${BRIGHT_VARIANT}" && \
+        success "[+] Icons theme '${GTK_ICON_THEME_NAME}' installed"    || \
+        error   "[-] Icons theme '${GTK_ICON_THEME_NAME}' not installed"
 fi
 
 
 # Store Shell colors
-DEST="$CACHE/colors.sh"
-echo -e "[ ] Store shell colors theme '${DEST/$HOME/\~}'"
-
-echo -e "# Shell colors" >  "$DEST"
-echo -e ""               >> "$DEST"
-
-for i in ${COLOR_KEYS[@]}; do
-    [[ $(int $i) ]] && \
-        echo -e "color$i='${COLOR[$i]}'" >> "$DEST" || \
-        echo -e "color_$i='${COLOR[$i]}'" >> "$DEST"
-done
-
-echo -e "[+] Shell colors theme stored to '${DEST/$HOME/\~}'"
+normal "[ ] Store shell colors theme"
+install_shell_colors "$CACHE/colors.sh" && \
+    success "[+] Shell colors theme stored to '${CACHE/$HOME/\~}/colors.sh'" || \
+    fatal   "[-] Shell colors theme is not stored"
 
 
 # Store telegram theme
-echo -e "[ ] Store telegram colors theme"
+normal "[ ] Store telegram colors theme"
 $BASE/bin/telegram-palette-gen \
     --palette  "$CACHE/colors.sh" \
-    --template "$TEMPLATES/colors.tpg-constants"
-echo -e "[+] Telegram colors theme is stored"
+    --template "$TEMPLATES/colors.tpg-constants"  && \
+    success "[+] Telegram colors theme is stored" || \
+    error   "[-] Telegram colors theme is not stored"
 
 
 # Save last config
-KEYS=(
-    GTK_THEME_NAME 
-    GTK_ICON_THEME_NAME
-    GTK_FONT_NAME
-    GTK_CURSOR_THEME_SIZE
-    GTK_TOOLBAR_STYLE
-    GTK_TOOLBAR_ICON_SIZE
-    GTK_BUTTON_IMAGES
-    GTK_MENU_IMAGES
-    GTK_DECORATION_LAYOUT    
-    GTK_ENABLE_EVENT_SOUNDS
-    GTK_ENABLE_INPUT_FEEDBACK_SOUNDS
-    GTK_XFT_ANTIALIAS
-    GTK_XFT_HINTING
-    GTK_XFT_HINTSTYLE
-    GTK_XFT_RGBA
-)
+normal "[ ] Save your configuration"
+CC_CONF=$(mktemp "$CACHE/config.XXXXXXXXX")
+store_configuration "$CC_CONF" && \
+    success "[+] Your configuration is saved to '${CC_CONF/$HOME/\~}' file" || \
+    error   "[-] Your configuration is not saved"
 
-f=$(mktemp "$CACHE/config.XXXXXXXXX")
-
-echo "#!/usr/bin/env bash" > "$f"
-
-for i in ${KEYS[@]}; do
-    value="${!i}"
-    [[ ${value} ]] && echo "$i=\"$value\"" >> "$f"
-done
-
-echo "# colors" >> "$f"
-for i in ${!COLOR[@]}; do
-    echo "COLOR[$i]=\"${COLOR[$i]}\"" >> "$f"
-done
-
-echo -e "[+] Your configuration stored at '${f/$HOME/\~}' file"
 
 # Restart wm
 bspc wm -r
 
 DIFF=$((`date '+%s'` - $DIFF))
-echo -e ""
-echo -e "\033[32mCompleted with $(displaytime $DIFF)...\033[0m"
+success "\nCompleted with $(displaytime $DIFF)..."

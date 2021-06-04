@@ -3,7 +3,9 @@
 # Initialise
 BASE="$(realpath `dirname "$0"`)"
 
-source "$BASE/../lib/colors.sh"
+[[ -e "${COLORS_INCLUDE}/colors.sh" ]]   && \
+    source "${COLORS_INCLUDE}/colors.lib.sh" || \
+    source "$BASE/../include/colors.lib.sh"
 
 
 set_background() {
