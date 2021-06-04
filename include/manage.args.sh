@@ -38,12 +38,12 @@ Usage: ${0} [theme] [install] [ARGS...]
     --light             - gtk application prefer light theme
     --dark              - gtk application prefer dark theme
     
+    --cls|-             - theme preview without extended configs
     --short             - short preview color scheme
     --purge             - clear cache
 
     --help|-h           - print this usage
     --list|-l           - show a list of available schemes 
-    --cls|-             - theme preview without extended configs
 
 Order of applying modifiers:
     - get theme from image (if given)
@@ -140,8 +140,8 @@ while [ -n "$1" ]; do
         export SHORT_PREVIEW=true
         ;;
     --purge)
-        rm -rf $CACHE/config.*
-        rm -rf $CACHE/theme.*
+        rm -rf "$CACHE"/config.*
+        rm -rf "$CACHE"/theme.*
         exit 0
         ;;
     --help|-h)

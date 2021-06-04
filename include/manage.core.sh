@@ -136,8 +136,8 @@ preview_theme() {
 
 
 apply() {
-    SRCE="${1/\~/$HOME}"
-    DEST="${2/\~/$HOME}"
+    local SRCE="${1/\~/$HOME}"
+    local DEST="${2/\~/$HOME}"
 
     [[ ! -f "$SRCE" ]] && \
         error "- Template '${SRCE/$HOME/\~}; not existing!" && return 1
@@ -314,7 +314,9 @@ store_configuration() {
     echo "#!/usr/bin/env bash" > "$f" || return 1
     for i in ${KEYS[@]}; do
         value="${!i}"
-        [[ ${value} ]] && echo "$i=\"$value\"" >> "$f" || return 1
+        if [[ ${value} ]]; then
+            echo "$i=\"$value\"" >> "$f" || return 1
+        fi
     done
 
     echo "# colors" >> "$f" || return 1
