@@ -84,7 +84,6 @@ rgb_format() {
 }
 
 
-
 rgb_normalize() {
     for i in ${COLOR_KEYS[@]}; do
         [[ "${COLOR[$i]}" ]] && \
