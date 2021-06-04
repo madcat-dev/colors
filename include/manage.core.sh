@@ -1,6 +1,12 @@
+#
+# Any wrappers from colors manager
+# require: colors.lib.sh
+#
 
+# Lazy initialise
 [[ ! ${CACHE} ]] && \
-    CACHE="$HOME/.cache/colors"
+    CACHE="$HOME/.cache/colors" && \
+    mkdir -p "$CACHE" > /dev/null 2>&1
 
 
 normal() {
@@ -49,14 +55,13 @@ function displaytime {
             [[ $H = 0 ]] && printf '%d seconds ' $S
         fi
     fi
-
     printf 'ago'
 }
 
 
 ecolor() {
-    echo -en "\033[48:2:$(rgb_escapes "${1}")m#\033[0m"
-    echo -en "\033[38:2:$(rgb_escapes "${1}")m${1:1}\033[0m"
+    ebg ${1} "#\033[0m"
+    efg ${1} "${1:1}\033[0m"
 }
 
 
@@ -88,16 +93,17 @@ preview_theme() {
         printf '%-68s%s\n' \
             "background: $(ecolor ${COLOR[background]:-${COLOR[0]}})" \
             "selection_background: $(ecolor ${COLOR[selection_background]:-${COLOR[7]}})"
+
         printf '%-68s%s\n' \
             "foreground: $(ecolor ${COLOR[foreground]:-${COLOR[15]}})" \
             "selection_foreground: $(ecolor ${COLOR[selection_foreground]:-${COLOR[0]}})"
+
         printf '%-68s%-68s%-70s\n' \
             "cursor:     $(ecolor ${COLOR[cursor]:-${COLOR[8]}})" \
             "url_color: $(ecolor ${COLOR[url_color]:-${COLOR[12]}})" \
             "highlight: $(ecolor ${COLOR[highlight]:-${COLOR[9]}})"
 
         echo -e "$(printf '─%.0s' {1..72})"
-
         echo -e "   BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
         echo -e "$(printf '─%.0s' {1..72})"
     else
@@ -108,24 +114,24 @@ preview_theme() {
         echo -e "[ ${name} ]"
     fi
 
-
-    echo -en "\033[48:2:$(rgb_escapes "${COLOR[background]:-${COLOR[0]}}")m"
+    ebg "${COLOR[background]:-${COLOR[0]}}"
     for i in {0..7}; do
         [[ "${COLOR[$i]}" == "${COLOR[background]:-${COLOR[0]}}" ]] && \
-            echo -en "\033[38:2:$(rgb_escapes "#FFFFFF")m${COLOR[$i]}  " || \
-            echo -en "\033[38:2:$(rgb_escapes "${COLOR[$i]}")m${COLOR[$i]}  "
+            efg "#FFFFFF"      "${COLOR[$i]}\x20\x20" || \
+            efg "${COLOR[$i]}" "${COLOR[$i]}\x20\x20"
     done
     echo -e "\033[0m"
 
-    echo -en "\033[48:2:$(rgb_escapes "${COLOR[background]:-${COLOR[0]}}")m"
+    ebg "${COLOR[background]:-${COLOR[0]}}"
     for i in {8..15}; do
         [[ "${COLOR[$i]}" == "${COLOR[background]:-${COLOR[0]}}" ]] && \
-            echo -en "\033[38:2:$(rgb_escapes "#FFFFFF")m${COLOR[$i]}  " || \
-            echo -en "\033[38:2:$(rgb_escapes "${COLOR[$i]}")m${COLOR[$i]}  "
+            efg "#FFFFFF"      "${COLOR[$i]}\x20\x20" || \
+            efg "${COLOR[$i]}" "${COLOR[$i]}\x20\x20"
     done
     echo -e "\033[0m"
 
-    [[ ! ${SHORT_PREVIEW} ]] && echo -e "$(printf '─%.0s' {1..72})"
+    [[ ! ${SHORT_PREVIEW} ]] && \
+        echo -e "$(printf '─%.0s' {1..72})"
 }
 
 
@@ -153,7 +159,7 @@ apply() {
 
 
 install_xrdb_colors() {
-    DEST="$CACHE/xrdb"
+    local DEST="$CACHE/xrdb"
     apply "$TEMPLATES/xrdb" "$DEST"
     xrdb -merge "$DEST" || return 1
 }

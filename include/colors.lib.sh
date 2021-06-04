@@ -84,11 +84,6 @@ rgb_format() {
 }
 
 
-rgb_escapes() {
-    printf "%03d:%03d:%03d" $(rgb "${1}")
-    return
-}
-
 
 rgb_normalize() {
     for i in ${COLOR_KEYS[@]}; do
@@ -102,6 +97,25 @@ rgba_normalize() {
         [[ "${COLOR[$i]}" ]] && \
             COLOR[$i]="$(rgb_format '#${R}${G}${B}${A}' "${COLOR[$i]}")"
     done
+}
+
+
+ebg() {
+    local color=${1}; shift
+    echo -en "\033[$(printf "48:2:%03d:%03d:%03d" $(rgb "${color}"))m"
+    echo -en "${@}"
+}
+
+efg() {
+    local color=${1}; shift
+    echo -en "\033[$(printf "38:2:%03d:%03d:%03d" $(rgb "${color}"))m"
+    echo -en "${@}"
+}
+
+ers() {
+    local color=${1}; shift
+    echo -en "\033[0m"
+    echo -en "${@}"
 }
 
 
