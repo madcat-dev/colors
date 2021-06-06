@@ -1,13 +1,18 @@
 #!/usr/bin/env bash
 
-# Initialise
-BASE="$(realpath `dirname "$0"`)"
 
-source "$BASE/../include/errors.lib.sh" || \
-    source "$BASE/errors.lib.sh"
+fatal() {
+    echo -e "\033[${CL_FATAL:-"38:2:207:0:0"}m${@}\033[0m" >&2
+    kill $$ 
+}
 
-source "$BASE/../include/colors.lib.sh" || \
-    source "$BASE/colors.lib.sh"
+int() {
+    local value
+    printf -v value "%d" ${1/+/} > /dev/null 2>&1
+
+    [[ ${value} && ${value} == ${1/+/} ]] && \
+        echo $value || echo ""
+}
 
 
 set_background() {
@@ -17,9 +22,12 @@ set_background() {
     local top=$(int ${2:-undefined}); top=${top:-0}
     local bottom=$(int ${3:-undefined}); bottom=${bottom:-0}
 
-    FADE_COLOR=${FADE_COLOR:-#000000FF}
-    local FADE_IN="$(  rgb_format 'rgba($r,$g,$b,$alpha)' "$FADE_COLOR" )"
-    local FADE_OUT="$( rgb_format 'rgba($r,$g,$b,0)'      "$FADE_COLOR" )"
+    local FADE_IN="rgba(0,0,0,1)"
+    local FADE_OUT="rgba(0,0,0,0)"
+    if [[ ${FADE_VARIANT} ]]; then
+        FADE_IN="rgba(255,255,255,1)"
+        FADE_OUT="rgba(255,255,255,0)"
+    fi
 
     [[ $top -lt 0 ]] && \
         fatal "Invalid fade value"
@@ -103,14 +111,6 @@ while [ -n "$1" ]; do
         shift
         ;;
 
-    --fade-color|-c)
-        [[ ! $(rgb "${2}" --no-kill) ]] && \
-            fatal "Invalid color '${2}' from ${1} argument"
-        
-        FADE_COLOR="${2}"
-        shift
-        ;;
-
     --width|-W)
         VAL=$(int ${2:-"undefined"})
         [[ ! $VAL || $VAL -le 0 ]] && \
@@ -127,6 +127,13 @@ while [ -n "$1" ]; do
 
         HEIGHT=$VAL
         shift
+        ;;
+
+    --light)
+        FADE_VARIANT="light"
+        ;;
+    --dark)
+        FADE_VARIANT=""
         ;;
 
     *)

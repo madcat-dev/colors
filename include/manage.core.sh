@@ -1,5 +1,6 @@
 #
 # Any wrappers from colors manager
+# require: errors.lib.sh
 # require: colors.lib.sh
 #
 

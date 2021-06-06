@@ -1,4 +1,6 @@
 
+# require: errors.lib.sh
+
 declare -A COLOR
 
 
@@ -44,8 +46,7 @@ rgb() {
     local RGB=( $(rgba "${1}" "${2}") )
 
     [[ ${RGB_STRONG} && ${#1} != 7 ]] && \
-        echo -e "\033[31mInvalid rgb color '${1}', terminate\033[0m" >&2 && \
-        kill $$
+        fatal "Invalid rgb color '${1}'"
 
     echo "${RGB[0]} ${RGB[1]} ${RGB[2]}"
     return
@@ -62,8 +63,7 @@ rgba() {
     fi
 
     [[ ! "${2}" ]] && \
-        echo -e "\033[31mInvalid color '${1}', terminate\033[0m" >&2 && \
-        kill $$
+        fatal "Invalid color '${1}'"
 }
 
 
@@ -156,8 +156,7 @@ saturation() {
     [[ ! ${ERROR} ]] && \
         printf "#%02X%02X%02X%s" $r $g $b "$ALPHA" && return
 
-    echo -e "\033[31mInvalid color '${1}', terminate\033[0m" >&2 && \
-        kill $$
+    fatal "Invalid color '${1}'"
 }
 
 

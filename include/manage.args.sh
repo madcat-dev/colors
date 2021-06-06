@@ -1,5 +1,6 @@
 #
 # Arguments parser from colors manager
+# require: errors.lib.sh
 # require: colors.lib.sh
 #
 
@@ -31,7 +32,7 @@ Usage: ${0} [theme] [install] [ARGS...]
 
     --image|-I "path"   - generate new color theme from image
 
-    --setwal [fade height (px)]
+    --setwal [top-fade height (px)]
                         - set background wallpaper (feh use)
                           picture must be specified in the --image parameter
 

@@ -145,7 +145,7 @@ if [[ ${SET_WALLPAPER} ]]; then
         error "Please specify the image first with --image" && exit 1
 
     $BASE/bin/setwal "$IMAGE" --fade-top ${SET_WALLPAPER:-80} \
-        --fade-color $([[ ${BRIGHT_VARIANT} ]] && echo "#000000FF" || echo "#FFFFFFFF")
+        $([[ ! ${BRIGHT_VARIANT} ]] && echo "--light")
 fi
 
 
