@@ -24,7 +24,8 @@ set_background() {
 
     local FADE_IN="rgba(0,0,0,1)"
     local FADE_OUT="rgba(0,0,0,0)"
-    if [[ ${FADE_VARIANT} ]]; then
+
+    if [[ ${FADE_LIGHT_VARIANT} ]]; then
         FADE_IN="rgba(255,255,255,1)"
         FADE_OUT="rgba(255,255,255,0)"
     fi
@@ -130,10 +131,10 @@ while [ -n "$1" ]; do
         ;;
 
     --light)
-        FADE_VARIANT="light"
+        FADE_LIGHT_VARIANT="light"
         ;;
     --dark)
-        FADE_VARIANT=""
+        FADE_LIGHT_VARIANT=""
         ;;
 
     *)

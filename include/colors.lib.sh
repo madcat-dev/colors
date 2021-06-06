@@ -101,13 +101,13 @@ rgba_normalize() {
 
 ebg() {
     local color=${1}; shift
-    echo -en "\033[$(printf "48:2:%03d:%03d:%03d" $(rgb "${color}"))m"
+    echo -en "\033[$(printf "48;2;%03d;%03d;%03d" $(rgb "${color}"))m"
     echo -en "${@}"
 }
 
 efg() {
     local color=${1}; shift
-    echo -en "\033[$(printf "38:2:%03d:%03d:%03d" $(rgb "${color}"))m"
+    echo -en "\033[$(printf "38;2;%03d;%03d;%03d" $(rgb "${color}"))m"
     echo -en "${@}"
 }
 
