@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Initialise
-BASE="$(realpath `dirname "$0"`)"
+BASE="$(realpath "$(dirname "$0")")"
 TEMPLATES="$BASE/templates"
 AVAILABLE=( $(ls $BASE/schemes) )
 CACHE="$HOME/.cache/colors"
