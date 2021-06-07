@@ -11,10 +11,8 @@ source "$BASE/include/errors.lib.sh"
 source "$BASE/include/colors.lib.sh"
 source "$BASE/include/manage.core.sh"
 
-mkdir -p "$CACHE" > /dev/null 2>&1
-source "$BASE/config" > /dev/null 2>&1
-
-declare -A _colors=()
+mkdir  -p "$CACHE" > /dev/null 2>&1
+[[ -e "$BASE/config" ]] && source "$BASE/config"
 
 
 # Restore current color scheme
@@ -29,9 +27,9 @@ for i in ${COLOR_KEYS[@]}; do
 done
 echo -e ")" >> $CURRENT
 
-# Load main config
-[[ -e "$BASE/config" ]] && source "$BASE/config"
 
+# Reload main config
+[[ -e "$BASE/config" ]] && source "$BASE/config"
 
 # Parse command-line args
 source "$BASE/include/manage.args.sh"
@@ -45,7 +43,7 @@ if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
     BRIGHT_VARIANT="-dark"
 fi
 
-# Get theme from image file
+# Create scheme from image file
 if [[ ${IMAGE} ]]; then
     [[ ! -e "${IMAGE/\~/$HOME}" ]] && \
         fatal "Image file '${IMAGE/\~/$HOME}' not existing"
@@ -64,7 +62,7 @@ if [[ ! -f "${NAME/\~/$HOME}" ]]; then
 	NAME="$BASE/schemes/$NAME"
 
 	[[ ! -f "${NAME}" ]] && \
-		fatal "Color theme '$NAME' not existing!"
+		fatal "Color scheme '$NAME' not existing!"
 fi
 
 
@@ -76,7 +74,7 @@ rgb_normalize --normalise-clear-colors
 
 ORIGIN_BLACK=${COLOR[0]}
 
-# Preview without external config
+# Preview without modifiers
 [[ ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
 # Set saturation
@@ -129,10 +127,9 @@ GTK_THEME_NAME="FlatColor"
 # Default icon-theme with colors modified variant
 GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
 
-# Preview with external config
+# Preview with all modifiers
 rgb_normalize --normalise-modified-colors
 [[ ! ${CLEAN_THEME_PREVIEW} ]] && preview_theme
-
 
 
 #
