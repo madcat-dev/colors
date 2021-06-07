@@ -1,9 +1,8 @@
 
 
-USE_256C=${USE_256C:-true}
 
-if [[ "$USE_256C" ]]; then
-    # 256-colors terminal
+# check 256-colors terminal
+if [[ $(tput colors) -eq 256 ]]; then
     CL_NORMAL=${CL_NORMAL:-"38;2;208;208;208"}
     CL_SUCCESS=${CL_SUCCESS:-"38;2;144;165;126"}
     CL_WARNING=${CL_WARNING:-"38;2;215;157;101"}
@@ -40,6 +39,6 @@ error() {
 
 fatal() {
     echo -e "\033[${CL_FATAL}m${@}\033[0m" >&2
-    kill $$ 
+    kill $$
 }
 

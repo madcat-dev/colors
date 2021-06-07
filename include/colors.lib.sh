@@ -48,8 +48,8 @@ rgb() {
     [[ ${RGB_STRONG} && ${#1} != 7 ]] && \
         fatal "Invalid rgb color '${1}'"
 
-    echo "${RGB[0]} ${RGB[1]} ${RGB[2]}"
-    return
+    [[ ${RGB} ]] && \
+        echo "${RGB[0]} ${RGB[1]} ${RGB[2]}"
 }
 
 rgba() {
