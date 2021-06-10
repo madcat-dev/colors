@@ -53,16 +53,35 @@ preview() {
 
 
 RESTORE=true
-PREVIEW=true
 
 while [ -n "$1" ]; do
     case "${1}" in
+    --default|-d)
+        RESTORE=""
+        ;;
     *)
+        SOURCE=$(int ${1:-"undefined"})
+        [[ $SOURCE && $SOURCE -le 15 && $SOURCE -ge 0 ]] && \
+            SOURCE=${COLOR[$SOURCE]}
+
+        SOURCE=${SOURCE:-$(format '#${R}${G}${B}' "${1}" --no-kill)}
+
+        [[ ! ${SOURCE} ]] && \
+            fatal "FUCK"
+
+        VAL=$(int ${2:-"undefined"})
+        [[ ! $VAL || $VAL -gt 100 || $VAL -lt -100 ]] && \
+            fatal "Invalid parameter '${2}' from saturation value"
+
+        SATURATION=$VAL
+        shift
         ;;
     esac
     shift
 done
 
 [[ ${RESTORE} ]] && restore_xrdb_colors
-[[ ${PREVIEW} ]] && preview
+
+
+preview
 
