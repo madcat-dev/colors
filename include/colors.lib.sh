@@ -20,20 +20,15 @@ COLOR_KEYS=(
 int() {
     local value
     printf -v value "%d" ${1/+/} > /dev/null 2>&1
-
     [[ ${value} && ${value} == ${1/+/} ]] && \
-        echo $value || echo ""
+        echo $value
 }
 
 
 at() {
     local value=${1:-undefined}; shift
-
-    while [ -n "$1" ]; do
-        [[ "$value" == "$1" ]] && \
-            echo "true" && break
-        shift
-    done
+    [[ " ${@} " == *" $value "* ]] && \
+        echo true
 }
 
 
@@ -42,17 +37,7 @@ xrdbq() {
 }
 
 
-rgb() {
-    local RGB=( $(rgba "${1}" "${2}") )
-
-    [[ ${RGB_STRONG} && ${#1} != 7 ]] && \
-        fatal "Invalid rgb color '${1}'"
-
-    [[ ${RGB} ]] && \
-        echo "${RGB[0]} ${RGB[1]} ${RGB[2]}"
-}
-
-rgba() {
+__rgba_parser() {
     local RGBA="${1}"
 
     [[ ${#RGBA} == 7 ]] && RGBA="${RGBA}FF"
@@ -67,63 +52,55 @@ rgba() {
 }
 
 
-rgb_format() {
-    local RGBA=( $(rgba "${2}") )
-    local r=${RGBA[0]}
-    local g=${RGBA[1]}
-    local b=${RGBA[2]}
-    local a=${RGBA[3]}
-    local R=$(printf "%02X" $r)
-    local G=$(printf "%02X" $g)
-    local B=$(printf "%02X" $b)
-    local A=$(printf "%02X" $a)
-    local alpha=$(echo "$a / 255" | bc -l)
+format() {
+    local RGBA=( $(__rgba_parser "${2}" "${3}") )
+    [[ ! ${RGBA} ]] && return
+
+    local r=${RGBA[0]}                          # integer 0..255
+    local g=${RGBA[1]}                          # integer 0..255
+    local b=${RGBA[2]}                          # integer 0..255
+    local a=${RGBA[3]}                          # integer 0..255
+
+    local R=$(printf "%02X" $r)                 # hex 00..FF
+    local G=$(printf "%02X" $g)                 # hex 00..FF
+    local B=$(printf "%02X" $b)                 # hex 00..FF
+    local A=$(printf "%02X" $a)                 # hex 00..FF
+
+    local alpha=$(echo "$a / 255" | bc -l)      # float 0.0 - 1.0
 
     alpha=${alpha:0:6}
     eval "echo -e \"${1}\""
 }
 
 
-rgb_normalize() {
-    for i in ${COLOR_KEYS[@]}; do
-        [[ "${COLOR[$i]}" ]] && \
-            COLOR[$i]="$(rgb_format '#${R}${G}${B}' "${COLOR[$i]}")"
-    done
-}
-
-rgba_normalize() {
-    for i in ${COLOR_KEYS[@]}; do
-        [[ "${COLOR[$i]}" ]] && \
-            COLOR[$i]="$(rgb_format '#${R}${G}${B}${A}' "${COLOR[$i]}")"
-    done
-}
-
-
 ebg() {
     local color=${1}; shift
-    echo -en "\033[$(printf "48;2;%03d;%03d;%03d" $(rgb "${color}"))m"
+    echo -en "\033[$(
+        printf "48;2;%03d;%03d;%03d" $(format '$r $g $b' "${color}")
+    )m"
     echo -en "${@}"
 }
 
 efg() {
     local color=${1}; shift
-    echo -en "\033[$(printf "38;2;%03d;%03d;%03d" $(rgb "${color}"))m"
+    echo -en "\033[$(
+        printf "38;2;%03d;%03d;%03d" $(format '$r $g $b' "${color}")
+    )m"
     echo -en "${@}"
 }
 
 ers() {
-    local color=${1}; shift
     echo -en "\033[0m"
     echo -en "${@}"
 }
 
 
 saturation() {
-    local RGB=( $(rgb "${1}") )
-    local ALPHA=${1:7:2}
+    local RGB=( $(format '$r $g $b $A' "${1}") )
     local r=${RGB[0]}
     local g=${RGB[1]}
     local b=${RGB[2]}
+    local ALPHA=${RGB[3]}
     local value=$(int "${2}")
 
     [[ ! ${value} ]] && ERROR=true

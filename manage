@@ -70,7 +70,12 @@ fi
 unset      COLOR
 declare -A COLOR
 source  "${NAME/\~/$HOME}"
-rgb_normalize --normalise-clear-colors
+
+# normalise clear colors
+for i in ${COLOR_KEYS[@]}; do
+    [[ "${COLOR[$i]}" ]] && \
+        COLOR[$i]="$(format '#${R}${G}${B}' "${COLOR[$i]}")"
+done
 
 ORIGIN_BLACK=${COLOR[0]}
 
@@ -128,7 +133,11 @@ GTK_THEME_NAME="FlatColor"
 GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
 
 # Preview with all modifiers
-rgb_normalize --normalise-modified-colors
+# normalise-modified-colors
+for i in ${COLOR_KEYS[@]}; do
+    [[ "${COLOR[$i]}" ]] && \
+        COLOR[$i]="$(format '#${R}${G}${B}' "${COLOR[$i]}")"
+done
 [[ ! ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
 

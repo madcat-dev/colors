@@ -75,10 +75,11 @@ while [ -n "$1" ]; do
         [[ ! $(at "${2}" ${COLOR_KEYS[@]}) ]] && \
             fatal "Invalid parameter '${2}' from ${1} argument"
 
-        [[ ! $(rgb "${3}" --no-kill) ]] && \
+        VAL=$(format '#${R}${G}${B}' "${3}" --no-kill)
+        [[ ! ${VAL} ]] && \
             fatal "Invalid color '${3}' from ${1} argument"
         
-        _colors[${2}]="${3}"
+        _colors[${2}]=$VAL
         shift; shift
         ;;
 
