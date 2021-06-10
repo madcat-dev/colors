@@ -5,7 +5,7 @@ BASE="$(realpath "$(dirname "$0")")"
 source "$BASE/../include/errors.lib.sh"
 source "$BASE/../include/colors.lib.sh"
 
-# Default colors
+# Default colors (Tango theme)
 COLOR=(
     [0]=#282a2e
     [1]=#a54242
