@@ -10,11 +10,9 @@ Usage: ${0} [theme] [install] [ARGS...]
     --color|-c index #color 
                         - set custom theme color by index
 
-    --saturation|-s value
-                        - change all colors intensity by a given value
+    --value|-v value    - change all colors intensity by a given value
 
-    --relative-saturation|-S
-                        - change 8..15 colors intensity relatively base colors.
+    --relative-value|-V - change 8..15 colors intensity relatively base colors.
                           This function forcibly changes the color relative to 
                           the main one. The change value can be set in the 
                           BRIGHTNEST variable, default: 10.
@@ -49,13 +47,13 @@ Usage: ${0} [theme] [install] [ARGS...]
 Order of applying modifiers:
     - get theme from image (if given)
     - load color scheme (if given)
-    - apply saturation
+    - apply value
     - set special colors value
     - load preselected config or default
     - aplly dark/light theme mode
     - apply black-color modifier (if given)
     - apply custom colors values
-    - apply brightnest of relative saturation (always)
+    - apply brightnest of relative value (always)
 
 Available schemes:
     \033[33m$(echo $(ls `dirname "$0"`/schemes))\033[0m
@@ -83,17 +81,17 @@ while [ -n "$1" ]; do
         shift; shift
         ;;
 
-    --saturation|-s)
+    --value|-v)
         VAL=$(int ${2:-"undefined"})
         [[ ! $VAL || $VAL -gt 100 || $VAL -lt -100 ]] && \
             fatal "Invalid parameter '${2}' from ${1} argument"
 
-        SATURATION=$VAL
+        RGB_VALUE=$VAL
         shift
         ;;
 
-    --relative-saturation|-S)
-        RELATIVE_SATURATION=true
+    --relative-value|-V)
+        RELATIVE_VALUE=true
         ;;
 
     --black|-b)

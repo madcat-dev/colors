@@ -10,34 +10,35 @@
     mkdir -p "$CACHE" > /dev/null 2>&1
 
 
-function displaytime {
-    local T=$1
-    local W=$((T/60/60/24/7))
-    local D=$((T/60/60/24%7))
-    local H=$((T/60/60%24))
-    local M=$((T/60%60))
-    local S=$((T%60))
+# Extended color names list 
+COLOR_KEYS=(
+    0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+    foreground
+    background
+    selection_foreground
+    selection_background
+    cursor
+    url_color
+    highlight
+)
 
-    if [[ $W > 0 ]]; then
-        printf '%d weeks ' $W
-        printf '%d days ' $D
-    else
-        if [[ $D > 0 ]]; then
-            printf '%d days ' $D
-            printf '%d hours ' $H
-        else
-            [[ $H > 0 ]] && printf '%d hours ' $H
-            [[ $M > 0 ]] && printf '%d minutes ' $M
-            [[ $H = 0 ]] && printf '%d seconds ' $S
-        fi
-    fi
-    printf 'ago'
+
+fill_special_colors() {
+    [[ ${COLOR[foreground]} ]]           || COLOR[foreground]=${COLOR[15]:-#FFFFFF}
+    [[ ${COLOR[background]} ]]           || COLOR[background]=${COLOR[0]:-#000000}
+    [[ ${COLOR[cursor]} ]]               || COLOR[cursor]=${COLOR[8]:-#FFFFFF}
+    [[ ${COLOR[highlight]} ]]            || COLOR[highlight]=${COLOR[9]:-#FF0000}
+    [[ ${COLOR[url_color]} ]]            || COLOR[url_color]=${COLOR[12]:-#0000FF}
+    [[ ${COLOR[selection_foreground]} ]] || COLOR[selection_foreground]=${COLOR[0]:-#000000}
+    [[ ${COLOR[selection_background]} ]] || COLOR[selection_background]=${COLOR[7]:-#FFFFFF}
 }
 
 
 ecolor() {
-    ebg ${1} "#\033[0m"
-    efg ${1} "${1:1}\033[0m"
+    printf "\033[48;2;%03d;%03d;%03dm" $(format '$r $g $b' ${1}) 
+    echo -en "#\033[0m"
+    printf "\033[38;2;%03d;%03d;%03dm" $(format '$r $g $b' ${1}) 
+    echo -en "${1:1}\033[0m"
 }
 
 
@@ -78,36 +79,10 @@ preview_theme() {
             "cursor:     $(ecolor ${COLOR[cursor]:-${COLOR[8]}})" \
             "url_color: $(ecolor ${COLOR[url_color]:-${COLOR[12]}})" \
             "highlight: $(ecolor ${COLOR[highlight]:-${COLOR[9]}})"
-
-        echo -e "$(printf '─%.0s' {1..70})"
-        echo -e "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
-        echo -e "$(printf '─%.0s' {1..70})"
-    else
-        name=$(basename ${NAME:-UNKNOWN})
-        len=$(echo "70 - ${#name} - 4" | bc -s)
-
-        echo -en `printf '─%.0s' $(seq $len)`
-        echo -e "[ ${name} ]"
     fi
 
-    ebg "${COLOR[background]:-${COLOR[0]}}"
-    for i in {0..7}; do
-        [[ "${COLOR[$i]}" == "${COLOR[background]:-${COLOR[0]}}" ]] && \
-            efg "#FFFFFF"      "${COLOR[$i]}\x20\x20" || \
-            efg "${COLOR[$i]}" "${COLOR[$i]}\x20\x20"
-    done
-    echo -e "\033[0m"
-
-    ebg "${COLOR[background]:-${COLOR[0]}}"
-    for i in {8..15}; do
-        [[ "${COLOR[$i]}" == "${COLOR[background]:-${COLOR[0]}}" ]] && \
-            efg "#FFFFFF"      "${COLOR[$i]}\x20\x20" || \
-            efg "${COLOR[$i]}" "${COLOR[$i]}\x20\x20"
-    done
-    echo -e "\033[0m"
-
-    [[ ! ${SHORT_PREVIEW} ]] && \
-        echo -e "$(printf '─%.0s' {1..70})"
+    name=$(basename ${NAME:-UNKNOWN})
+    preview "$name"
 }
 
 
@@ -240,8 +215,8 @@ install_gtk_icon_theme() {
 
         if [[ -e "$THEME_DIR/colors.sh" ]]; then
             "$THEME_DIR/colors.sh" $COLORS_VARIANT  \
-                $(saturation "$COLORS_VARIANT" +10) \
-                $(saturation "$COLORS_VARIANT" +20) \
+                $(rgb_value "$COLORS_VARIANT" +10) \
+                $(rgb_value "$COLORS_VARIANT" +20) \
                 "$BRIGHT_VARIANT" || return 1
         fi
 

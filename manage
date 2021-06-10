@@ -7,8 +7,7 @@ AVAILABLE=( $(ls $BASE/schemes) )
 CACHE="$HOME/.cache/colors"
 DIFF=$(date '+%s')
 
-source "$BASE/include/errors.lib.sh"
-source "$BASE/include/colors.lib.sh"
+source "$BASE/bin/rgb-mod"
 source "$BASE/include/manage.core.sh"
 
 mkdir  -p "$CACHE" > /dev/null 2>&1
@@ -82,15 +81,16 @@ ORIGIN_BLACK=${COLOR[0]}
 # Preview without modifiers
 [[ ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
-# Set saturation
-if [[ ${SATURATION} ]]; then
+# Set color value
+if [[ ${RGB_VALUE} ]]; then
     for i in {0..15}; do
-        COLOR[$i]=$(saturation "${COLOR[$i]}" $SATURATION)
+        COLOR[$i]=$(rgb_value "${COLOR[$i]}" $RGB_VALUE)
     done
 fi
 
 # Set specials colors
 fill_special_colors --fill-missing-items 
+
 
 # Load main config (theme config parameters is replaced by this)
 if [[ ${CONFIG} ]]; then
@@ -102,9 +102,11 @@ else
     [[ -e "$BASE/config" ]] && source "$BASE/config"
 fi
 
+
 # Replace defined font and check it
 [[ ${_GTK_FONT_NAME} ]] && \
     GTK_FONT_NAME="${_GTK_FONT_NAME}"
+
 
 # Set color 0 from background color
 [[ ${_BLACK_VALUE} ]] && \
@@ -112,25 +114,29 @@ fi
 
 if [[ ${BLACK_VALUE} ]]; then
     COLOR[background]=${ORIGIN_BLACK:-#010101}
-    COLOR[0]=$(saturation "${COLOR[background]}" $BLACK_VALUE)
+    COLOR[0]=$(rgb_value "${COLOR[background]}" $BLACK_VALUE)
 fi
+
 
 # Replace defined colors
 for i in ${!_colors[@]}; do
     COLOR[$i]=${_colors[$i]}
 done
 
+
 # Set brightnest
 for i in {1..7}; do
     j=$(echo "$i + 8" | bc -s)
-    [[ ${COLOR[$i]} == ${COLOR[$j]} || ${RELATIVE_SATURATION} ]] && \
-        COLOR[$j]=$(saturation "${COLOR[$i]}" ${BRIGHTNEST:-10})
+    [[ ${COLOR[$i]} == ${COLOR[$j]} || ${RELATIVE_VALUE} ]] && \
+        COLOR[$j]=$(rgb_value "${COLOR[$i]}" ${BRIGHTNEST:-10})
 done
+
 
 # Default gtk-theme
 GTK_THEME_NAME="FlatColor"
 # Default icon-theme with colors modified variant
 GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
+
 
 # Preview with all modifiers
 # normalise-modified-colors

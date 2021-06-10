@@ -1,0 +1,262 @@
+#!/usr/bin/env bash
+
+# is using as library
+[[ "${0}" != "${BASH_SOURCE}" ]] && \
+    COLOR_MOD_1EBE2_LIB=true || COLOR_MOD_1EBE2_LIB=""
+
+
+# -----------------------------------------------------------------------------
+# Notify functions
+# -----------------------------------------------------------------------------
+
+normal() {
+    [[ $(tput colors) -eq 256 ]] && \
+        echo -e "\033[38;2;208;208;208m${@}\033[0m" >&2 || \
+        echo -e "\033[37m${@}\033[0m" >&2
+}
+
+success() {
+    [[ $(tput colors) -eq 256 ]] && \
+        echo -e "\033[38;2;144;165;126m${@}\033[0m" >&2 || \
+        echo -e "\033[32m${@}\033[0m" >&2
+}
+
+warning() {
+    [[ $(tput colors) -eq 256 ]] && \
+        echo -e "\033[38;2;215;157;101m${@}\033[0m" >&2 || \
+        echo -e "\033[33m${@}\033[0m" >&2
+}
+
+error() {
+    [[ $(tput colors) -eq 256 ]] && \
+        echo -e "\033[38;2;162;102;102m${@}\033[0m" >&2 || \
+        echo -e "\033[31m${@}\033[0m" >&2
+    [[ ${ERROR_IS_FATAL} ]] && \
+        kill $$ && exit 1
+}
+
+fatal() {
+    [[ $(tput colors) -eq 256 ]] && \
+        echo -e "\033[38;2;207;0;0m${@}\033[0m" >&2 || \
+        echo -e "\033[31;1m${@}\033[0m" >&2
+    kill $$ && exit 1
+}
+
+
+# -----------------------------------------------------------------------------
+# Math and utilites
+# -----------------------------------------------------------------------------
+
+int() {
+    local value
+    printf -v value "%d" ${1/+/} > /dev/null 2>&1
+    [[ ${value} && ${value} == ${1/+/} ]] && \
+        echo $value
+}
+
+round() {
+    local val
+    LC_NUMERIC=C printf -v val "%.${2:-0}f" "${1/./,}" 2>/dev/null && \
+        echo ${val/,/.}
+}
+
+at() {
+    local value=${1:-undefined}; shift
+    [[ " ${@} " == *" $value "* ]] && \
+        echo true
+}
+
+xrdbq() {
+    xrdb -query | grep -w "${1}:" | cut -f 2
+}
+
+function displaytime {
+    local T=$1
+    local W=$((T/60/60/24/7))
+    local D=$((T/60/60/24%7))
+    local H=$((T/60/60%24))
+    local M=$((T/60%60))
+    local S=$((T%60))
+
+    if [[ $W > 0 ]]; then
+        printf '%d weeks ' $W
+        printf '%d days ' $D
+    else
+        if [[ $D > 0 ]]; then
+            printf '%d days ' $D
+            printf '%d hours ' $H
+        else
+            [[ $H > 0 ]] && printf '%d hours ' $H
+            [[ $M > 0 ]] && printf '%d minutes ' $M
+            [[ $H = 0 ]] && printf '%d seconds ' $S
+        fi
+    fi
+    printf 'ago'
+}
+
+
+# -----------------------------------------------------------------------------
+# Colors functions
+# -----------------------------------------------------------------------------
+
+# Default colors (Tango theme)
+declare -A COLOR=(
+    [0]=#282a2e      [8]=#373b41
+    [1]=#a54242      [9]=#cc6666
+    [2]=#8c9440     [10]=#b5bd68
+    [3]=#de935f     [11]=#f0c674
+    [4]=#5f819d     [12]=#81a2be
+    [5]=#85678f     [13]=#b294bb
+    [6]=#5e8d87     [14]=#8abeb7
+    [7]=#707880     [15]=#c5c8c6
+)
+
+#
+# args: <format str> <#color>
+#
+format() {
+    local RGBA="${2}"
+
+    [[ ${#RGBA} != 9 ]] && RGBA="${RGBA}FF"
+
+    if [[ ${#RGBA} == 9 && ${RGBA:0:1} == "#" ]]; then
+        printf -v RGBA "%d %d %d %d" \
+            0x${RGBA:1:2} 0x${RGBA:3:2} 0x${RGBA:5:2} 0x${RGBA:7} 2>/dev/null && \
+            RGBA=( $RGBA )
+    fi
+
+    [[ ${#RGBA[@]} -ne 4 ]] && \
+        fatal "Invalid color '${2}'" && return
+
+    local r=${RGBA[0]}                                  # integer 0..255
+    local g=${RGBA[1]}                                  # integer 0..255
+    local b=${RGBA[2]}                                  # integer 0..255
+    local a=${RGBA[3]:-255}                             # integer 0..255
+
+    local R=$(printf "%02X" $r)                         # hex 00..FF
+    local G=$(printf "%02X" $g)                         # hex 00..FF
+    local B=$(printf "%02X" $b)                         # hex 00..FF
+    local A=$(printf "%02X" $a)                         # hex 00..FF
+
+    local alpha=$(round $(echo "$a / 255" | bc -l) 4)   # float 0.0 - 1.0
+
+    local max=$r
+    [[ $g -gt $max ]] && max=$g
+    [[ $b -gt $max ]] && max=$b
+    local value=$(round $(echo "$max / 255 * 100" | bc -l))
+
+    eval "echo -e \"${1}\""
+}
+
+
+rgb_value() {
+    local RGB=( $(format '$r $g $b $A $value' "${1}") )
+    local value=$(int ${2})
+    local r=${RGB[0]}
+    local g=${RGB[1]}
+    local b=${RGB[2]}
+    local v=${RGB[4]}
+
+    value=$(round $(echo "2.55 * ${value:-0}" | bc -l 2>/dev/null))
+
+    # red
+    if [[ "$v" -eq 0 || "$r" -gt 0 ]]; then
+        r=$(( $r + ${value:-0} ))
+        [[ $r -gt 255 ]] && r=255
+        [[ $r -lt 0 ]]   && r=0
+    fi
+
+    # green
+    if [[ "$v" -eq 0 || "$g" -gt 0 ]]; then
+        g=$(( $g + ${value:-0} ))
+        [[ $g -gt 255 ]] && g=255
+        [[ $g -lt 0 ]]   && g=0
+    fi
+
+    # blue
+    if [[ "$v" -eq 0 || "$b" -gt 0 ]]; then
+        b=$(( $b + ${value:-0} ))
+        [[ $b -gt 255 ]] && b=255
+        [[ $b -lt 0 ]]   && b=0
+    fi
+
+    printf "#%02X%02X%02X" $r $g $b
+}
+
+rgb_inverse() {
+    local RGB=( $(format '$r $g $b' "${1}") )
+    local r=$(( 255 - ${RGB[0]} ))
+    local g=$(( 255 - ${RGB[1]} ))
+    local b=$(( 255 - ${RGB[2]} ))
+
+    printf "#%02X%02X%02X" $r $g $b
+}
+
+
+# -----------------------------------------------------------------------------
+# Any colors utils
+# -----------------------------------------------------------------------------
+
+preview() {
+    local name=${1:-xrdb}
+    local len=$(echo "70 - ${#name} - 4" | bc -s)
+
+    echo -en $(printf '─%.0s' $(seq $len)); echo -e "[ ${name} ]"
+    echo -e  "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
+    echo -e  "$(printf '─%.0s' {1..70})"
+
+    for i in {0..7}; do
+        printf "\033[38;2;%03d;%03d;%03dm" $(format '$r $g $b' ${COLOR[$i]}) 
+        echo -en "$([[ $i -gt 0 ]] && echo "  ")${COLOR[$i]}"
+    done
+    echo -e "\033[0m"
+
+    for i in {8..15}; do
+        printf "\033[38;2;%03d;%03d;%03dm" $(format '$r $g $b' ${COLOR[$i]}) 
+        echo -en "$([[ $i -gt 8 ]] && echo "  ")${COLOR[$i]}"
+    done
+    echo -e "\033[0m"
+
+    echo -e "$(printf '─%.0s' {1..70})"
+}
+
+
+
+# -----------------------------------------------------------------------------
+
+# run in library mode?
+[[ ${COLOR_MOD_1EBE2_LIB} ]] && return
+
+# -----------------------------------------------------------------------------
+
+restore_xrdb_colors() {
+    for i in {0..15}; do
+        local val=$(format '#${R}${G}${B}' $(xrdbq "color$i"))
+        [[ ${val} ]] && \
+            COLOR[$i]=$val
+    done
+}
+
+
+BASE="$(realpath "$(dirname "$0")")"
+RESTORE=true
+
+while [ -n "$1" ]; do
+    case "${1}" in
+    --default|-d)
+        RESTORE=""
+        ;;
+    *)
+        ;;
+    esac
+    shift
+done
+
+[[ ${RESTORE} ]] && restore_xrdb_colors
+
+preview
+
+
+#echo "rgb_value:   ${COLOR[3]} -> $(rgb_value ${COLOR[3]} "+10")"
+#echo "rgb_value:   ${COLOR[3]} -> $(rgb_value ${COLOR[3]} "-10")"
+#echo "rgb_inverse: ${COLOR[3]} -> $(rgb_inverse ${COLOR[3]})"
