@@ -62,7 +62,7 @@ while [ -n "$1" ]; do
     *)
         SOURCE=$(int ${1:-"undefined"})
         [[ $SOURCE && $SOURCE -le 15 && $SOURCE -ge 0 ]] && \
-            SOURCE=${COLOR[$SOURCE]}
+            SOURCE=${COLOR[$SOURCE]} || SOURCE=""
 
         SOURCE=${SOURCE:-$(format '#${R}${G}${B}' "${1}" --no-kill)}
 
