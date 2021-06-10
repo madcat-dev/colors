@@ -1,6 +1,5 @@
 
 
-
 # check 256-colors terminal
 if [[ $(tput colors) -eq 256 ]]; then
     CL_NORMAL=${CL_NORMAL:-"38;2;208;208;208"}
@@ -15,7 +14,6 @@ CL_SUCCESS=${CL_SUCCESS:-"32"}
 CL_WARNING=${CL_WARNING:-"33"}
 CL_ERROR=${CL_ERROR:-"31"}
 CL_FATAL=${CL_FATAL:-"31;1"}
-
 
 
 normal() {

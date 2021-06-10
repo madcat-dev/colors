@@ -40,9 +40,12 @@ xrdbq() {
 __rgba_parser() {
     local RGBA="${1}"
 
-    [[ ${#RGBA} == 7 ]] && RGBA="${RGBA}FF"
+    if [[ ${#RGBA} == 7 && ${RGBA:0:1} == "#" ]]; then
+        printf -v RGBA "%d %d %d" 0x${RGBA:1:2} 0x${RGBA:3:2} 0x${RGBA:5:2} > /dev/null 2>&1 && \
+        echo -e ${RGBA} && return
+    fi
 
-    if ! [[ ${#RGBA} != 7 && ${#RGBA} != 9 &&  ${RGBA:0:1} != "#" ]]; then
+    if [[ ${#RGBA} == 9 &&  ${RGBA:0:1} == "#" ]]; then
         printf -v RGBA "%d %d %d %d" 0x${RGBA:1:2} 0x${RGBA:3:2} 0x${RGBA:5:2} 0x${RGBA:7:2} > /dev/null 2>&1 && \
         echo -e ${RGBA} && return
     fi
@@ -59,7 +62,7 @@ format() {
     local r=${RGBA[0]}                          # integer 0..255
     local g=${RGBA[1]}                          # integer 0..255
     local b=${RGBA[2]}                          # integer 0..255
-    local a=${RGBA[3]}                          # integer 0..255
+    local a=${RGBA[3]:-255}                     # integer 0..255
 
     local R=$(printf "%02X" $r)                 # hex 00..FF
     local G=$(printf "%02X" $g)                 # hex 00..FF

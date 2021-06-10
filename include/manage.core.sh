@@ -64,7 +64,7 @@ preview_theme() {
         [[ ${GTK_FONT_NAME} ]] && \
             printf "%-15s%s\n"      "Font name:"    "${GTK_FONT_NAME}"
 
-        echo -e "$(printf '─%.0s' {1..72})"
+        echo -e "$(printf '─%.0s' {1..70})"
 
         printf '%-68s%s\n' \
             "background: $(ecolor ${COLOR[background]:-${COLOR[0]}})" \
@@ -79,12 +79,12 @@ preview_theme() {
             "url_color: $(ecolor ${COLOR[url_color]:-${COLOR[12]}})" \
             "highlight: $(ecolor ${COLOR[highlight]:-${COLOR[9]}})"
 
-        echo -e "$(printf '─%.0s' {1..72})"
-        echo -e "   BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
-        echo -e "$(printf '─%.0s' {1..72})"
+        echo -e "$(printf '─%.0s' {1..70})"
+        echo -e "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
+        echo -e "$(printf '─%.0s' {1..70})"
     else
         name=$(basename ${NAME:-UNKNOWN})
-        len=$(echo "72 - ${#name} - 4" | bc -s)
+        len=$(echo "70 - ${#name} - 4" | bc -s)
 
         echo -en `printf '─%.0s' $(seq $len)`
         echo -e "[ ${name} ]"
@@ -107,7 +107,7 @@ preview_theme() {
     echo -e "\033[0m"
 
     [[ ! ${SHORT_PREVIEW} ]] && \
-        echo -e "$(printf '─%.0s' {1..72})"
+        echo -e "$(printf '─%.0s' {1..70})"
 }
 
 

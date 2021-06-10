@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+BASE="$(realpath "$(dirname "$0")")"
+
+source "$BASE/../include/errors.lib.sh"
+source "$BASE/../include/colors.lib.sh"
+
+# Default colors
+COLOR=(
+    [0]=#282a2e
+    [1]=#a54242
+    [2]=#8c9440
+    [3]=#de935f
+    [4]=#5f819d
+    [5]=#85678f
+    [6]=#5e8d87
+    [7]=#707880
+    [8]=#373b41
+    [9]=#cc6666
+    [10]=#b5bd68
+    [11]=#f0c674
+    [12]=#81a2be
+    [13]=#b294bb
+    [14]=#8abeb7
+    [15]=#c5c8c6
+)
+
+restore_xrdb_colors() {
+    for i in {0..15}; do
+        value=$(format '#${R}${G}${B}' "$(xrdbq "color$i")" --no-kill)
+        [[ ${value} ]] && \
+            COLOR[$i]=$value
+    done
+}
+
+preview() {
+    echo -e "$(printf '─%.0s' {1..70})"
+    echo -e "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
+    echo -e "$(printf '─%.0s' {1..70})"
+
+    for i in {0..7}; do
+        efg "${COLOR[$i]}" "${COLOR[$i]}\x20\x20"
+    done
+    echo -e "\033[0m"
+
+    for i in {8..15}; do
+        efg "${COLOR[$i]}" "${COLOR[$i]}\x20\x20"
+    done
+    echo -e "\033[0m"
+
+    echo -e "$(printf '─%.0s' {1..70})"
+}
+
+
+RESTORE=true
+PREVIEW=true
+
+while [ -n "$1" ]; do
+    case "${1}" in
+    *)
+        ;;
+    esac
+    shift
+done
+
+[[ ${RESTORE} ]] && restore_xrdb_colors
+[[ ${PREVIEW} ]] && preview
+
