@@ -8,7 +8,7 @@ CACHE="$HOME/.cache/colors"
 DIFF=$(date '+%s')
 
 source "$BASE/bin/rgb-mod"
-source "$BASE/include/manage.core.sh"
+source "$BASE/inc/manage.core.sh"
 
 mkdir  -p "$CACHE" > /dev/null 2>&1
 [[ -e "$BASE/config" ]] && source "$BASE/config"
@@ -31,7 +31,7 @@ echo -e ")" >> $CURRENT
 [[ -e "$BASE/config" ]] && source "$BASE/config"
 
 # Parse command-line args
-source "$BASE/include/manage.args.sh"
+source "$BASE/inc/manage.args.sh"
 
 
 # Select prefered brightnest variant
