@@ -7,7 +7,7 @@ AVAILABLE=( $(ls $BASE/schemes) )
 CACHE="$HOME/.cache/colors"
 DIFF=$(date '+%s')
 
-source "$BASE/bin/rgb-mod"
+source "$BASE/bin/rgb-util"
 source "$BASE/inc/manage.core.sh"
 
 mkdir  -p "$CACHE" > /dev/null 2>&1
