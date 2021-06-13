@@ -215,8 +215,8 @@ install_gtk_icon_theme() {
 
         if [[ -e "$THEME_DIR/colors.sh" ]]; then
             "$THEME_DIR/colors.sh" $COLORS_VARIANT  \
-                $(rgb_value "$COLORS_VARIANT" +10) \
-                $(rgb_value "$COLORS_VARIANT" +20) \
+                $(rgb_value "$COLORS_VARIANT" +10%) \
+                $(rgb_value "$COLORS_VARIANT" +20%) \
                 "$BRIGHT_VARIANT" || return 1
         fi
 

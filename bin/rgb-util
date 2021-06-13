@@ -34,7 +34,7 @@ error() {
         echo -e "\033[31m${@}\033[0m" >&2
 
     if [[ ${ERROR_IS_FATAL} ]]; then
-        kill $$; sleep 300
+        kill -9 $$; sleep 300
     fi
 }
 
@@ -43,7 +43,7 @@ fatal() {
         echo -e "\033[38;2;207;0;0m${@}\033[0m" >&2 || \
         echo -e "\033[31;1m${@}\033[0m" >&2
 
-    kill $$; sleep 300
+    kill -9 $$; sleep 300
 }
 
 
@@ -98,17 +98,6 @@ ugrad() {
     local val=$(grad ${1})
     [[ $val -lt 0 ]] && \
         echo $(( 360 + $val )) || echo $val
-}
-
-limited() {
-    local val=$(int ${1})
-    local lim=$(int ${2:-255})
-
-    if [[ ${val} ]]; then
-        [[ $val -gt $lim ]] && val=$lim
-        [[ $val -lt    0 ]] && val=0
-    fi
-    echo "$val"
 }
 
 min() {
@@ -197,22 +186,28 @@ declare -A COLOR=(
     [7]=#707880     [15]=#c5c8c6
 )
 
-rgb() {
+isrgb() {
     local RGB
     if [[ ${#1} == 7 && ${1:0:1} == "#" ]]; then
         printf -v RGB "%d %d %d" \
             0x${1:1:2} 0x${1:3:2} 0x${1:5:2} 2>/dev/null && \
-            echo "$RGB" && return
+            echo "$RGB"
     fi
+}
+
+rgb() {
+    local val=$(isrgb ${1%.*})
+    [[ ${val} ]] && \
+        echo $val && return
 
     fatal "Invalid color '${1}'"
 }
 
 rgb_to_hex() {
     printf "#%02X%02X%02X" \
-        $(byte ${1}) \
-        $(byte ${2}) \
-        $(byte ${3})
+        $(uint8 ${1}) \
+        $(uint8 ${2}) \
+        $(uint8 ${3})
 }
 
 rgb_to_hsv() {
@@ -261,7 +256,7 @@ hsv_to_rgb() {
         fatal "Invalid saturation value"
     fi
 
-    v=$(byte $(round $(echo "$v * 2.55" | bc -l)))
+    v=$(round $(echo "$v * 2.55" | bc -l))
     [[ $s -eq 0 ]] && \
         rgb_to_hex $v $v $v && return
 
@@ -345,7 +340,7 @@ rgb_value() {
 
     # absolute value
     [[ "${val[1]}" == "abs" ]] && \
-        delta=$(( $delta - $s ))
+        delta=$(( $delta - $v ))
 
     v=$(( $v + $delta ))
     [[ $v -lt   0 ]] && s=0
@@ -543,7 +538,6 @@ while [ -n "$1" ]; do
         ;;
 
     *)
-        rgb "${1}" >/dev/null
         _source="${1}"
         ;;
     esac

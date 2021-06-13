@@ -75,7 +75,21 @@ ORIGIN_BLACK=${COLOR[0]}
 # Preview without modifiers
 [[ ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
-# Set color value
+# Set color hue: position in the spectrum {0..360}
+if [[ ${RGB_HUE} ]]; then
+    for i in {0..15}; do
+        COLOR[$i]=$(rgb_hue "${COLOR[$i]}" $RGB_HUE)
+    done
+fi
+
+# Set color saturation: color saturation ("purity") {0..100}
+if [[ ${RGB_SATURATION} ]]; then
+    for i in {0..15}; do
+        COLOR[$i]=$(rgb_saturation "${COLOR[$i]}" $RGB_SATURATION)
+    done
+fi
+
+# Set color value: color brightness {0..100}
 if [[ ${RGB_VALUE} ]]; then
     for i in {0..15}; do
         COLOR[$i]=$(rgb_value "${COLOR[$i]}" $RGB_VALUE)
@@ -118,11 +132,11 @@ for i in ${!_colors[@]}; do
 done
 
 
-# Set brightnest
+# Set relative colors value
 for i in {1..7}; do
     j=$(echo "$i + 8" | bc -s)
     [[ ${COLOR[$i]} == ${COLOR[$j]} || ${RELATIVE_VALUE} ]] && \
-        COLOR[$j]=$(rgb_value "${COLOR[$i]}" ${BRIGHTNEST:-10})
+        COLOR[$j]=$(rgb_value "${COLOR[$i]}" ${BRIGHTNEST:-"+10%"})
 done
 
 

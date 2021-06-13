@@ -10,9 +10,9 @@ Usage: ${0} [theme] [install] [ARGS...]
     --color|-c index #color 
                         - set custom theme color by index
 
-    --value|-v value    - change all colors intensity by a given value
+    --value|-V value    - change all colors intensity by a given value
 
-    --relative-value|-V - change 8..15 colors intensity relatively base colors.
+    --relative-value|-R - change 8..15 colors intensity relatively base colors.
                           This function forcibly changes the color relative to 
                           the main one. The change value can be set in the 
                           BRIGHTNEST variable, default: 10.
@@ -73,33 +73,38 @@ while [ -n "$1" ]; do
         [[ ! $(at "${2}" ${COLOR_KEYS[@]}) ]] && \
             fatal "Invalid parameter '${2}' from ${1} argument"
 
-        VAL=$(format '#${R}${G}${B}' "${3}" --no-kill)
-        [[ ! ${VAL} ]] && \
+        [[ ! $(isrgb ${3}) ]] && \
             fatal "Invalid color '${3}' from ${1} argument"
         
-        _colors[${2}]=$VAL
+        _colors[${2}]="${3}"
         shift; shift
         ;;
 
-    --value|-v)
-        VAL=$(int ${2:-"undefined"})
-        [[ ! $VAL || $VAL -gt 100 || $VAL -lt -100 ]] && \
-            fatal "Invalid parameter '${2}' from ${1} argument"
-
-        RGB_VALUE=$VAL
+    --hue|-H)
+        parse_value "${2}" >/dev/null
+        RGB_HUE="${2}"
         shift
         ;;
 
-    --relative-value|-V)
+    --saturation|-S)
+        parse_value "${2}" >/dev/null
+        RGB_SATURATION="${2}"
+        shift
+        ;;
+
+    --value|-V)
+        parse_value "${2}" >/dev/null
+        RGB_VALUE="${2}"
+        shift
+        ;;
+
+    --relative-value|-R)
         RELATIVE_VALUE=true
         ;;
 
     --black|-b)
-        VAL=$(int ${2:-"undefined"})
-        [[ ! $VAL || $VAL -gt 100 || $VAL -lt -100 ]] && \
-            fatal "Invalid parameter '${2}' from ${1} argument"
-
-        _BLACK_VALUE=$VAL
+        parse_value "${2}" >/dev/null
+        _BLACK_VALUE="${2}"
         shift
         ;;
 
@@ -122,8 +127,8 @@ while [ -n "$1" ]; do
         ;;
 
     --setwal)
-        VAL=$(int ${2})
-        [[ $VAL ]] && shift
+        [[ $(isint ${2}) ]] && \
+            VAL=${2} &&shift
 
         SET_WALLPAPER=${VAL:-80}
         ;;
