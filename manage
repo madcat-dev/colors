@@ -19,7 +19,7 @@ CURRENT="$CACHE/theme.$(hostname)"
 
 echo -e "declare -A COLOR\nexport COLOR=(" > $CURRENT
 for i in ${COLOR_KEYS[@]}; do
-    [[ $(int $i) ]] && \
+    [[ ${i} -ge 0 && ${i} -le 15 ]] && \
         cl=$(xrdbq "color$i") || cl=$(xrdbq "*.$i")
 
     [[ ${cl} ]] && echo -e "\t[$i]=\"$cl\"" >> $CURRENT
@@ -69,12 +69,6 @@ fi
 unset      COLOR
 declare -A COLOR
 source  "${NAME/\~/$HOME}"
-
-# normalise clear colors
-for i in ${COLOR_KEYS[@]}; do
-    [[ "${COLOR[$i]}" ]] && \
-        COLOR[$i]="$(format '#${R}${G}${B}' "${COLOR[$i]}")"
-done
 
 ORIGIN_BLACK=${COLOR[0]}
 
@@ -139,11 +133,6 @@ GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
 
 
 # Preview with all modifiers
-# normalise-modified-colors
-for i in ${COLOR_KEYS[@]}; do
-    [[ "${COLOR[$i]}" ]] && \
-        COLOR[$i]="$(format '#${R}${G}${B}' "${COLOR[$i]}")"
-done
 [[ ! ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
 

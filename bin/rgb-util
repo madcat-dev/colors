@@ -4,6 +4,7 @@
 [[ "${0}" != "${BASH_SOURCE}" ]] && \
     RGB_UTIL_1EBE2_LIB=true || RGB_UTIL_1EBE2_LIB=""
 
+LC_ALL=C
 
 # -----------------------------------------------------------------------------
 # Notify functions
@@ -31,28 +32,72 @@ error() {
     [[ $(tput colors) -eq 256 ]] && \
         echo -e "\033[38;2;162;102;102m${@}\033[0m" >&2 || \
         echo -e "\033[31m${@}\033[0m" >&2
-    [[ ${ERROR_IS_FATAL} ]] && \
-        kill $$ && exit 1
+
+    if [[ ${ERROR_IS_FATAL} ]]; then
+        kill $$; sleep 300
+    fi
 }
 
 fatal() {
     [[ $(tput colors) -eq 256 ]] && \
         echo -e "\033[38;2;207;0;0m${@}\033[0m" >&2 || \
         echo -e "\033[31;1m${@}\033[0m" >&2
-    kill $$ && exit 1
+
+    kill $$; sleep 300
 }
 
 
 # -----------------------------------------------------------------------------
-# Math and utilites
+# Math and types utilites
 # -----------------------------------------------------------------------------
 
+isint() {
+    local tmp
+    printf -v tmp "%d" ${1/+/} 2>/dev/null
+    [[ ${tmp} && ${tmp} == ${1/+/} ]] && \
+        echo "$tmp" || return 1
+}
+
 int() {
-    local val=${1%.*}
-    local value
-    printf -v value "%d" ${val/+/} > /dev/null 2>&1
-    [[ ${value} && ${value} == ${val/+/} ]] && \
-        echo $value
+    local val=$(isint ${1%.*})
+    [[ ${val} ]] && \
+        echo $val && return
+
+    fatal "Not integer value: '${1}'"
+}
+
+byte() {
+    local val=$(isint ${1%.*})
+    [[ ${val} && $val -ge 0 && $val -le 255 ]] && \
+        echo $val && return
+
+    fatal "Not byte value: '${1}'"
+}
+
+int8() {
+    local val=$(int ${1})
+
+    [[ $val -lt -128 ]] && val=-128
+    [[ $val -gt  127 ]] && val=127
+    echo $val
+}
+
+uint8() {
+    local val=$(int ${1})
+
+    [[ $val -lt   0 ]] && val=0
+    [[ $val -gt 255 ]] && val=255
+    echo $val
+}
+
+grad() {
+    echo $(( $(int ${1}) % 360 ))
+}
+
+ugrad() {
+    local val=$(grad ${1})
+    [[ $val -lt 0 ]] && \
+        echo $(( 360 + $val )) || echo $val
 }
 
 limited() {
@@ -94,10 +139,39 @@ max() {
     echo "${MAX}"
 }
 
+isfloat() {
+    local tmp
+    printf -v tmp "%f" ${1/+/} 2>/dev/null
+    [[ ${1/+/} && ${tmp} ]] && \
+        echo "$tmp" || return 1
+}
+
+float() {
+    local val=$(isfloat ${1})
+    [[ ${val} ]] && \
+        echo $val && return
+
+    fatal "Not float value: '${1}'"
+}
+
 round() {
-    local val
-    LC_NUMERIC=C printf -v val "%.${2:-0}f" "${1/./,}" 2>/dev/null && \
-        echo ${val/,/.}
+    local val=$(float ${1})
+    printf -v val "%.${2:-0}f" "$val" 2>/dev/null || return 1
+    echo ${val}
+}
+
+floor() {
+    local val=$(float ${1})
+    val=( ${val/./ } )
+    [[ ${val} -lt 0 && ${val[1]} -gt 0 ]] && \
+        echo $(( $val - 1 )) || echo $val
+}
+
+ceil() {
+    local val=$(float ${1})
+    val=( ${val/./ } )
+    [[ ${val} -ge 0 && ${val[1]} -gt 0 ]] && \
+        echo $(( $val + 1 )) || echo $val
 }
 
 at() {
@@ -106,8 +180,244 @@ at() {
         echo true
 }
 
+
+# -----------------------------------------------------------------------------
+# Colors functions
+# -----------------------------------------------------------------------------
+
+# Default colors (Tango theme)
+declare -A COLOR=(
+    [0]=#282a2e      [8]=#373b41
+    [1]=#a54242      [9]=#cc6666
+    [2]=#8c9440     [10]=#b5bd68
+    [3]=#de935f     [11]=#f0c674
+    [4]=#5f819d     [12]=#81a2be
+    [5]=#85678f     [13]=#b294bb
+    [6]=#5e8d87     [14]=#8abeb7
+    [7]=#707880     [15]=#c5c8c6
+)
+
+rgb() {
+    local RGB
+    if [[ ${#1} == 7 && ${1:0:1} == "#" ]]; then
+        printf -v RGB "%d %d %d" \
+            0x${1:1:2} 0x${1:3:2} 0x${1:5:2} 2>/dev/null && \
+            echo "$RGB" && return
+    fi
+
+    fatal "Invalid color '${1}'"
+}
+
+rgb_to_hex() {
+    printf "#%02X%02X%02X" \
+        $(byte ${1}) \
+        $(byte ${2}) \
+        $(byte ${3})
+}
+
+rgb_to_hsv() {
+    local RGB=( $(rgb ${1}) )
+    local r=${RGB[0]}  # integer 0..255
+    local g=${RGB[1]}  # integer 0..255
+    local b=${RGB[2]}  # integer 0..255
+
+    local maxc=$(max $r $g $b)
+    local minc=$(min $r $g $b)
+
+    # Value: color brightness {0..100}
+    local v=$(round $(echo "$maxc / 2.55" | bc -l))
+
+    [[ "$minc" == "$maxc" ]] && \
+        echo "0 0 $v" && return
+
+    # Saturation: color saturation ("purity") {0..100}
+    local s=$(round $(echo "($maxc - $minc) / $maxc * 100" | bc -l))
+
+    # Hue: position in the spectrum {0..360}
+    local h=0
+    local rc=$(echo "($maxc - $r) / ($maxc - $minc)" | bc -l)
+    local gc=$(echo "($maxc - $g) / ($maxc - $minc)" | bc -l)
+    local bc=$(echo "($maxc - $b) / ($maxc - $minc)" | bc -l)
+
+    if [[ $r == $maxc ]]; then
+        h=$(echo "$bc - $gc" | bc -l)
+    elif [[ $g == $maxc ]]; then
+        h=$(echo "2.0 + $rc - $bc" | bc -l)
+    else
+        h=$(echo "4.0 + $gc - $rc" | bc -l)
+    fi
+
+    h=$(round $(echo "($h / 6.0) * 360" | bc -l))
+
+    echo "$h $s $v"
+}
+
+hsv_to_rgb() {
+    local h=$(ugrad ${1})
+    local s=$(int ${2})
+    local v=$(int ${3})
+
+    if [[ $s -lt 0 || $s -gt 100 ]]; then
+        fatal "Invalid saturation value"
+    fi
+
+    v=$(byte $(round $(echo "$v * 2.55" | bc -l)))
+    [[ $s -eq 0 ]] && \
+        rgb_to_hex $v $v $v && return
+
+    h=$(echo "$h / 360" | bc -l)
+    s=$(echo "$s / 100" | bc -l)
+
+    local i=$(floor $(echo "$h * 6.0" | bc -s)) # XXX assume int() truncates!
+    local f=$(echo "$h * 6.0 - $i" | bc -l)
+    local p=$(round $(echo "$v * (1.0 - $s)" | bc -l))
+    local q=$(round $(echo "$v * (1.0 - $s * $f)" | bc -l))
+    local t=$(round $(echo "$v * (1.0 - $s * (1.0 - $f))" | bc -l))
+
+    i=$(( $i % 6 ))
+
+    [[ $i -eq 0 ]] && \
+        rgb_to_hex $v $t $p && return
+    [[ $i -eq 1 ]] && \
+        rgb_to_hex $q $v $p && return
+    [[ $i -eq 2 ]] && \
+        rgb_to_hex $p $v $t && return
+    [[ $i -eq 3 ]] && \
+        rgb_to_hex $p $q $v && return
+    [[ $i -eq 4 ]] && \
+        rgb_to_hex $t $p $v && return
+    [[ $i -eq 5 ]] && \
+        rgb_to_hex $v $p $q && return
+
+    fatal "Error of hsv conversion"
+}
+
+
+rgb_hue() {
+    local HSV=( $(rgb_to_hsv "${1}") )
+    local h=${HSV[0]}
+    local val=( $(parse_value ${2}) )
+    local delta=${val[0]}
+
+    # percent value
+    [[ ${val[2]} ]] && \
+        delta=$(round $(echo "$delta * 3.6" | bc -l))
+
+    # absolute value
+    [[ "${val[1]}" == "abs" ]] && \
+        delta=$(( $delta - $h ))
+
+    hsv_to_rgb \
+        $(( $h + $delta )) \
+        ${HSV[1]} \
+        ${HSV[2]} 
+}
+
+rgb_saturation() {
+    local HSV=( $(rgb_to_hsv "${1}") )
+    local s=${HSV[1]}
+    local val=( $(parse_value ${2}) )
+    local delta=$(int ${val[0]})
+
+    # absolute value
+    [[ "${val[1]}" == "abs" ]] && \
+        delta=$(( $delta - $s ))
+
+    s=$(( $s + $delta ))
+    [[ $s -lt   0 ]] && s=0
+    [[ $s -gt 100 ]] && s=100
+
+    hsv_to_rgb \
+        ${HSV[0]} \
+        $s \
+        ${HSV[2]} 
+}
+
+rgb_value() {
+    local HSV=( $(rgb_to_hsv "${1}") )
+    local v=${HSV[2]}
+    local val=( $(parse_value ${2}) )
+    local delta=$(int ${val[0]})
+
+    # percent value
+    [[ ! ${val[2]} ]] && \
+        delta=$(round $(echo "$delta / 2.55" | bc -l))
+
+    # absolute value
+    [[ "${val[1]}" == "abs" ]] && \
+        delta=$(( $delta - $s ))
+
+    v=$(( $v + $delta ))
+    [[ $v -lt   0 ]] && s=0
+    [[ $v -gt 100 ]] && s=100
+
+    hsv_to_rgb \
+        ${HSV[0]} \
+        ${HSV[1]} \
+        $v
+}
+
+rgb_inverse() {
+    local RGB=( $(rgb ${1}) )
+    rgb_to_hex \
+        $((255 - ${RGB[0]})) \
+        $((255 - ${RGB[1]})) \
+        $((255 - ${RGB[2]}))
+}
+
+
+#
+# args: <format str> <#color>
+#
+format() {
+    local RGB=( $(rgb "${2}") )
+    local HSV=( $(rgb_to_hsv "${2}") )
+
+    local r=${RGB[0]}  # color 0..255
+    local g=${RGB[1]}  # color 0..255
+    local b=${RGB[2]}  # color 0..255
+
+    local h=${HSV[0]}  # Hue: position in the spectrum 0..360
+    local s=${HSV[1]}  # Luminance: color saturation ("purity") 0..100
+    local v=${HSV[2]}  # Saturation: color brightness 0..100
+
+    local R=$(printf "%02X" $r)  # hex color 00..FF
+    local G=$(printf "%02X" $g)  # hex color 00..FF
+    local B=$(printf "%02X" $b)  # hex color 00..FF
+
+    eval "echo -e \"${1}\""
+}
+
+
+# -----------------------------------------------------------------------------
+# Others utils
+# -----------------------------------------------------------------------------
+
 xrdbq() {
     xrdb -query | grep -w "${1}:" | cut -f 2
+}
+
+preview() {
+    local name=${1:-xrdb}
+    local len=$(echo "70 - ${#name} - 4" | bc -s)
+
+    echo -en $(printf '─%.0s' $(seq $len)); echo -e "[ ${name} ]"
+    echo -e  "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
+    echo -e  "$(printf '─%.0s' {1..70})"
+
+    for i in {0..7}; do
+        printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${COLOR[$i]}) 
+        echo -en "$([[ $i -gt 0 ]] && echo "  ")${COLOR[$i]}"
+    done
+    echo -e "\033[0m"
+
+    for i in {8..15}; do
+        printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${COLOR[$i]}) 
+        echo -en "$([[ $i -gt 8 ]] && echo "  ")${COLOR[$i]}"
+    done
+    echo -e "\033[0m"
+
+    echo -e "$(printf '─%.0s' {1..70})"
 }
 
 function displaytime {
@@ -135,197 +445,22 @@ function displaytime {
 }
 
 
-# -----------------------------------------------------------------------------
-# Colors functions
-# -----------------------------------------------------------------------------
+parse_value() {
+    local val=${1}
+    local md="abs"
+    local pc
 
-# Default colors (Tango theme)
-declare -A COLOR=(
-    [0]=#282a2e      [8]=#373b41
-    [1]=#a54242      [9]=#cc6666
-    [2]=#8c9440     [10]=#b5bd68
-    [3]=#de935f     [11]=#f0c674
-    [4]=#5f819d     [12]=#81a2be
-    [5]=#85678f     [13]=#b294bb
-    [6]=#5e8d87     [14]=#8abeb7
-    [7]=#707880     [15]=#c5c8c6
-)
+    [[ "+-" == *"${val:0:1}"* ]] && md="rel"
 
-rgb() {
-    local RGB
-    if [[ ${#1} == 7 && ${1:0:1} == "#" ]]; then
-        printf -v RGB "%d %d %d" \
-            0x${1:1:2} 0x${1:3:2} 0x${1:5:2} 2>/dev/null && \
-            echo "$RGB" && return
-    fi
-    fatal "Invalid color '${1}'"
-}
-
-rgb_to_hex() {
-    local r=$(limited ${1})  # integer 0..255
-    local g=$(limited ${2})  # integer 0..255
-    local b=$(limited ${3})  # integer 0..255
-    printf "#%02X%02X%02X" $r $g $b
-}
-
-rgb_to_hsv() {
-    local RGB=( $(rgb ${1}) )
-    local r=${RGB[0]}  # integer 0..255
-    local g=${RGB[1]}  # integer 0..255
-    local b=${RGB[2]}  # integer 0..255
-
-    local maxc=$(max $r $g $b)
-    local minc=$(min $r $g $b)
-
-    # Value: color brightness {0..100}
-    local v=$(round $(echo "$maxc / 255 * 100" | bc -l))
-
-    [[ "$minc" == "$maxc" ]] && \
-        echo "0 0 $v $l" && return
-
-    # Saturation: color saturation ("purity") {0..100}
-    local s=$(round $(echo "($maxc - $minc) / $maxc * 100" | bc -l))
-
-    # Hue: position in the spectrum {0..360}
-    local h=0
-    local rc=$(echo "($maxc - $r) / ($maxc - $minc)" | bc -l)
-    local gc=$(echo "($maxc - $g) / ($maxc - $minc)" | bc -l)
-    local bc=$(echo "($maxc - $b) / ($maxc - $minc)" | bc -l)
-
-    if [[ $r == $maxc ]]; then
-        h=$(echo "$bc - $gc" | bc -l)
-    elif [[ $g == $maxc ]]; then
-        h=$(echo "2.0 + $rc - $bc" | bc -l)
+    if [[ ${val:$((${#val} - 1))} == "%" ]]; then
+        val=$(float "${val:0:$((${#val} - 1))}")
+        pc="%"
     else
-        h=$(echo "4.0 + $gc - $rc" | bc -l)
-    fi
-    h=$(round $(echo "($h / 6.0) * 360" | bc -l))
-    
-    echo "$h $s $v"
-}
-
-hsv_to_rgb() {
-    local h=$(( $(int ${1}) % 360 ))
-    local s=$(limited ${2} 100)
-    local v=$(limited ${3} 100)
-
-    v=$(round $(echo "$v / 100 * 255" | bc -l))
-    [[ $s -eq 0 ]] && \
-        rgb_to_hex $v $v $v && return
-
-    h=$(echo "$h / 360" | bc -l)
-    s=$(echo "$s / 100" | bc -l)
-
-    local i=$(int 0$(echo "$h * 6.0" | bc -s)) # XXX assume int() truncates!
-    local f=$(echo "$h * 6.0 - $i" | bc -l)
-    local p=$(round $(echo "$v * (1.0 - $s)" | bc -l))
-    local q=$(round $(echo "$v * (1.0 - $s * $f)" | bc -l))
-    local t=$(round $(echo "$v * (1.0 - $s * (1.0 - $f))" | bc -l))
-
-    i=$(( $i % 6 ))
-
-    [[ $i -eq 0 ]] && \
-        rgb_to_hex $v $t $p && return
-    [[ $i -eq 1 ]] && \
-        rgb_to_hex $q $v $p && return
-    [[ $i -eq 2 ]] && \
-        rgb_to_hex $p $v $t && return
-    [[ $i -eq 3 ]] && \
-        rgb_to_hex $p $q $v && return
-    [[ $i -eq 4 ]] && \
-        rgb_to_hex $t $p $v && return
-    [[ $i -eq 5 ]] && \
-        rgb_to_hex $v $p $q && return
-}
-
-
-#
-# args: <format str> <#color>
-#
-format() {
-    local RGB=( $(rgb "${2}") )
-    local HSV=( $(rgb_to_hsv "${2}") )
-
-    local r=${RGB[0]}  # color 0..255
-    local g=${RGB[1]}  # color 0..255
-    local b=${RGB[2]}  # color 0..255
-
-    local h=${HSV[0]}  # Hue: position in the spectrum 0..360
-    local s=${HSV[1]}  # Luminance: color saturation ("purity") 0..100
-    local v=${HSV[2]}  # Saturation: color brightness 0..100
-
-    local R=$(printf "%02X" $r)  # hex color 00..FF
-    local G=$(printf "%02X" $g)  # hex color 00..FF
-    local B=$(printf "%02X" $b)  # hex color 00..FF
-
-    eval "echo -e \"${1}\""
-}
-
-
-rgb_value() {
-    local RGB=( $(format '$r $g $b $v' "${1}") )
-    local value=$(int ${2})
-    local r=${RGB[0]}
-    local g=${RGB[1]}
-    local b=${RGB[2]}
-    local v=${RGB[3]}
-
-    value=$(round $(echo "2.55 * ${value:-0}" | bc -l 2>/dev/null))
-
-    # red
-    if [[ "$v" -eq 0 || "$r" -gt 0 ]]; then
-        r=$(( $r + ${value:-0} ))
+        val=$(int "$val")
     fi
 
-    # green
-    if [[ "$v" -eq 0 || "$g" -gt 0 ]]; then
-        g=$(( $g + ${value:-0} ))
-    fi
-
-    # blue
-    if [[ "$v" -eq 0 || "$b" -gt 0 ]]; then
-        b=$(( $b + ${value:-0} ))
-    fi
-
-    rgb_to_hex $r $g $b
+    echo "$val $md $pc"
 }
-
-rgb_inverse() {
-    local RGB=( $(format '$r $g $b' "${1}") )
-    local r=$(( 255 - ${RGB[0]} ))
-    local g=$(( 255 - ${RGB[1]} ))
-    local b=$(( 255 - ${RGB[2]} ))
-    rgb_to_hex $r $g $b
-}
-
-
-# -----------------------------------------------------------------------------
-# Any colors utils
-# -----------------------------------------------------------------------------
-
-preview() {
-    local name=${1:-xrdb}
-    local len=$(echo "70 - ${#name} - 4" | bc -s)
-
-    echo -en $(printf '─%.0s' $(seq $len)); echo -e "[ ${name} ]"
-    echo -e  "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
-    echo -e  "$(printf '─%.0s' {1..70})"
-
-    for i in {0..7}; do
-        printf "\033[38;2;%03d;%03d;%03dm" $(format '$r $g $b' ${COLOR[$i]}) 
-        echo -en "$([[ $i -gt 0 ]] && echo "  ")${COLOR[$i]}"
-    done
-    echo -e "\033[0m"
-
-    for i in {8..15}; do
-        printf "\033[38;2;%03d;%03d;%03dm" $(format '$r $g $b' ${COLOR[$i]}) 
-        echo -en "$([[ $i -gt 8 ]] && echo "  ")${COLOR[$i]}"
-    done
-    echo -e "\033[0m"
-
-    echo -e "$(printf '─%.0s' {1..70})"
-}
-
 
 
 # -----------------------------------------------------------------------------
@@ -337,42 +472,97 @@ preview() {
 
 restore_xrdb_colors() {
     for i in {0..15}; do
-        local val=$(format '#${R}${G}${B}' $(xrdbq "color$i"))
-        [[ ${val} ]] && \
-            COLOR[$i]=$val
+        local val=$(xrdbq "color$i")
+        COLOR[$i]=$(rgb_to_hex $(rgb $val))
     done
+}
+
+verbose() {
+    local _dl
+    printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${1})
+    echo -en "${1}\033[0m("
+
+    if [[ ${HUE} ]]; then
+        [[ ${_dl} ]] && echo -en ", "
+        echo -en "hue ${HUE}"
+        _dl=true
+    fi
+
+    if [[ ${SAT} ]]; then
+        [[ ${_dl} ]] && echo -en ", "
+        echo -en "saturation ${SAT}"
+        _dl=true
+    fi
+
+    if [[ ${VAL} ]]; then
+        [[ ${_dl} ]] && echo -en ", "
+        echo -en "value ${VAL}"
+        _dl=true
+    fi
+
+    echo -en "): "
+    printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${2})
+    echo -en "${2}\033[0m"
 }
 
 
 BASE="$(realpath "$(dirname "$0")")"
-RESTORE=true
+RESTORE=${RESTORE:-true}
+VERBOSE=${VERBOSE:-true}
 
 while [ -n "$1" ]; do
     case "${1}" in
     --default|-d)
         RESTORE=""
         ;;
-    --test)
-        TESTS=true
+
+    --hue|-H)
+        parse_value "${2}" >/dev/null
+        HUE="${2}"
+        shift
         ;;
+
+    --saturation|-S)
+        parse_value "${2}" >/dev/null
+        SAT="${2}"
+        shift
+        ;;
+
+    --value|-V)
+        parse_value "${2}" >/dev/null
+        VAL="${2}"
+        shift
+        ;;
+
+    --verbose)
+        VERBOSE=true
+        ;;
+
+    --no-verbose|-n)
+        VERBOSE=""
+        ;;
+
     *)
+        rgb "${1}" >/dev/null
+        _source="${1}"
         ;;
     esac
     shift
 done
 
-[[ ${RESTORE} ]] && restore_xrdb_colors
-
-preview
-
-if [[ ${TESTS} ]]; then
-    T=${COLOR[3]}
-    echo "rgb($T): $(rgb $T)"
-    echo "---"
-    echo "rgb_to_hsv($T): $(rgb_to_hsv $T)"
-    echo "hsv_to_rgb($(rgb_to_hsv $T)): $(hsv_to_rgb $(rgb_to_hsv $T))"
-    echo "---"
-    echo "rgb_value(#000000, +10): $(rgb_value "#000000" +10)"
-    echo "rgb_value(#220000, +10): $(rgb_value "#220000" +10)"
-    echo "rgb_value($T, +10): $(rgb_value $T +10)"
+if [[ ! ${_source} ]]; then
+    [[ ${RESTORE} ]] && restore_xrdb_colors
+    preview
+    exit 0
 fi
+
+_out="$_source"
+
+[[ ${HUE} ]] && _out=$(rgb_hue "$_out" "$HUE")
+[[ ${SAT} ]] && _out=$(rgb_saturation "$_out" "$SAT")
+[[ ${VAL} ]] && _out=$(rgb_value "$_out" "$VAL")
+
+[[ ${VERBOSE} ]] && \
+    echo -e "$(verbose $_source $_out)" >&2
+
+echo "$_out"

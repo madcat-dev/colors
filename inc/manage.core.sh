@@ -35,9 +35,9 @@ fill_special_colors() {
 
 
 ecolor() {
-    printf "\033[48;2;%03d;%03d;%03dm" $(format '$r $g $b' ${1}) 
+    printf "\033[48;2;%03d;%03d;%03dm" $(rgb ${1}) 
     echo -en "#\033[0m"
-    printf "\033[38;2;%03d;%03d;%03dm" $(format '$r $g $b' ${1}) 
+    printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${1}) 
     echo -en "${1:1}\033[0m"
 }
 
