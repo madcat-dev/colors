@@ -10,7 +10,12 @@ Usage: ${0} [theme] [install] [ARGS...]
     --color|-c index #color 
                         - set custom theme color by index
 
-    --value|-V value    - change all colors intensity by a given value
+    --hue|-H value      - change all colors position in the spectrum
+    --saturation|-S     - change all colors color saturation ("purity")
+    --value|-V value    - change all colors brightness
+                          the value can be an absolute, relative, positive 
+                          number, negative number, or expressed as a percentage
+                          example: 10, +10, -23, +12%, -34%
 
     --relative-value|-R - change 8..15 colors intensity relatively base colors.
                           This function forcibly changes the color relative to 
