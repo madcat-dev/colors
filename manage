@@ -22,7 +22,7 @@ for i in ${COLOR_KEYS[@]}; do
     [[ ${i} -ge 0 && ${i} -le 15 ]] && \
         cl=$(xrdbq "color$i") || cl=$(xrdbq "*.$i")
 
-    [[ ${cl} ]] && echo -e "\t[$i]=\"$cl\"" >> $CURRENT
+    [[ ${cl} && $(isrgb "$cl") ]] && echo -e "\t[$i]=\"$cl\"" >> $CURRENT
 done
 echo -e ")" >> $CURRENT
 
@@ -66,9 +66,8 @@ fi
 
 
 # Load color theme
-unset      COLOR
-declare -A COLOR
-source  "${NAME/\~/$HOME}"
+unset COLOR; declare -A COLOR
+source "${NAME/\~/$HOME}"
 
 ORIGIN_BLACK=$(get 0)
 
