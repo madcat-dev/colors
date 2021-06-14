@@ -565,8 +565,8 @@ if [[ ! ${_source} ]]; then
     exit 0
 fi
 
-[[ ${SHOW_INFO} ]] && \
-    echo -e "$(info $_source)" >&2
+[[ ${SHOW_INFO} && ${VERBOSE} ]] && \
+    echo -e "src: $(info $_source)" >&2
 
 _out="$_source"
 
@@ -574,7 +574,11 @@ _out="$_source"
 [[ ${SAT} ]] && _out=$(rgb_saturation "$_out" "$SAT")
 [[ ${VAL} ]] && _out=$(rgb_value "$_out" "$VAL")
 
-[[ ${VERBOSE} && "$_out" != "$_source" ]] && \
-    echo -e "$(verbose $_source $_out)" >&2
+if [[ ${VERBOSE} && "$_out" != "$_source" ]]; then
+    echo -e "mod: $(verbose $_source $_out)" >&2
+
+    [[ ${SHOW_INFO} ]] && \
+        echo -e "res: $(info $_out)" >&2
+fi
 
 echo "$_out"
