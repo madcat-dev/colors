@@ -37,7 +37,10 @@ Usage: ${0} [theme] [install] [ARGS...]
     --config|-C "path"  - use external config from path
                           default use config.GTK_THEME_NAME if exists  
 
-    --image|-I "path"   - generate new color theme from image
+    --color-black-base|-BB
+                        - generate new color scheme from 'black' color
+
+    --image|-I "path"   - generate new color scheme from image
 
     --setwal [top-fade height (px)]
                         - set background wallpaper (feh use)

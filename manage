@@ -91,7 +91,7 @@ elif [[ ${NAME} ]]; then
 
 # Resolve colors scheme name
 else
-    NAME=${NAME:-xrdb}
+    NAME="xrdb"
 fi
 
 
