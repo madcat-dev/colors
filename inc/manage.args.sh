@@ -11,7 +11,8 @@ Usage: ${0} [theme] [install] [ARGS...]
                         - set custom theme color by index
 
     --hue|-H value      - change all colors position in the spectrum
-    --saturation|-S     - change all colors color saturation ("purity")
+    --saturation|-S value
+                        - change all colors color saturation ("purity")
     --value|-V value    - change all colors brightness
                           the value can be an absolute, relative, positive 
                           number, negative number, or expressed as a percentage

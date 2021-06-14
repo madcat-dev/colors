@@ -70,7 +70,7 @@ unset      COLOR
 declare -A COLOR
 source  "${NAME/\~/$HOME}"
 
-ORIGIN_BLACK=${COLOR[0]}
+ORIGIN_BLACK=$(get 0)
 
 # Preview without modifiers
 [[ ${CLEAN_THEME_PREVIEW} ]] && preview_theme
@@ -78,23 +78,24 @@ ORIGIN_BLACK=${COLOR[0]}
 # Set color hue: position in the spectrum {0..360}
 if [[ ${RGB_HUE} ]]; then
     for i in {0..15}; do
-        COLOR[$i]=$(rgb_hue "${COLOR[$i]}" $RGB_HUE)
+        COLOR[$i]=$(rgb_hue "$(get $i)" $RGB_HUE)
     done
 fi
 
 # Set color saturation: color saturation ("purity") {0..100}
 if [[ ${RGB_SATURATION} ]]; then
     for i in {0..15}; do
-        COLOR[$i]=$(rgb_saturation "${COLOR[$i]}" $RGB_SATURATION)
+        COLOR[$i]=$(rgb_saturation "$(get $i)" $RGB_SATURATION)
     done
 fi
 
 # Set color value: color brightness {0..100}
 if [[ ${RGB_VALUE} ]]; then
     for i in {0..15}; do
-        COLOR[$i]=$(rgb_value "${COLOR[$i]}" $RGB_VALUE)
+        COLOR[$i]=$(rgb_value "$(get $i)" $RGB_VALUE)
     done
 fi
+
 
 # Set specials colors
 fill_special_colors --fill-missing-items 
@@ -122,7 +123,7 @@ fi
 
 if [[ ${BLACK_VALUE} ]]; then
     COLOR[background]=${ORIGIN_BLACK:-#010101}
-    COLOR[0]=$(rgb_value "${COLOR[background]}" $BLACK_VALUE)
+    COLOR[0]=$(rgb_value "$(get background)" $BLACK_VALUE)
 fi
 
 
@@ -135,15 +136,15 @@ done
 # Set relative colors value
 for i in {1..7}; do
     j=$(echo "$i + 8" | bc -s)
-    [[ ${COLOR[$i]} == ${COLOR[$j]} || ${RELATIVE_VALUE} ]] && \
-        COLOR[$j]=$(rgb_value "${COLOR[$i]}" ${BRIGHTNEST:-"+10%"})
+    [[ $(get $i) == $(get $j) || ${RELATIVE_VALUE} ]] && \
+        COLOR[$j]=$(rgb_value "$(get $i)" ${BRIGHTNEST:-"+10%"})
 done
 
 
 # Default gtk-theme
 GTK_THEME_NAME="FlatColor"
 # Default icon-theme with colors modified variant
-GTK_ICON_THEME_NAME="Tela-${COLOR[cursor]:-default}${BRIGHT_VARIANT}"
+GTK_ICON_THEME_NAME="Tela-$(get cursor)${BRIGHT_VARIANT}"
 
 
 # Preview with all modifiers

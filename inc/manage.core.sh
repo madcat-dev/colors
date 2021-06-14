@@ -23,14 +23,58 @@ COLOR_KEYS=(
 )
 
 
+get() {
+    local _rgb
+
+    if [[ ${COLOR[${1}]} ]]; then
+        _rgb=${COLOR[${1}]}
+    else
+        case "${1}" in
+            foreground)
+                _rgb=${COLOR[7]:-#FFFFFF}
+                ;;
+            background)
+                _rgb=${COLOR[0]:-#000000}
+                ;;
+            cursor)
+                _rgb=${COLOR[8]:-#FFFFFF}
+                ;;
+            highlight)
+                _rgb=${COLOR[9]:-#FF0000}
+                ;;
+            url_color)
+                _rgb=${COLOR[12]:-#0000FF}
+                ;;
+            selection_foreground)
+                [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]] && \
+                    _rgb=${COLOR[0]:-#000000} || \
+                    _rgb=${COLOR[7]:-#FFFFFF}
+                ;;
+            selection_background)
+                [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]] && \
+                    _rgb=${COLOR[7]:-#FFFFFF} || \
+                    _rgb=${COLOR[0]:-#000000}
+                ;;
+            *)
+                ;;
+        esac
+    fi
+
+    [[ ${_rgb} && $(isrgb "$_rgb") ]] && \
+        echo "$_rgb" && return
+
+    fatal "Color '${1}' invalid or not existing"
+}
+
+
 fill_special_colors() {
-    [[ ${COLOR[foreground]} ]]           || COLOR[foreground]=${COLOR[15]:-#FFFFFF}
-    [[ ${COLOR[background]} ]]           || COLOR[background]=${COLOR[0]:-#000000}
-    [[ ${COLOR[cursor]} ]]               || COLOR[cursor]=${COLOR[8]:-#FFFFFF}
-    [[ ${COLOR[highlight]} ]]            || COLOR[highlight]=${COLOR[9]:-#FF0000}
-    [[ ${COLOR[url_color]} ]]            || COLOR[url_color]=${COLOR[12]:-#0000FF}
-    [[ ${COLOR[selection_foreground]} ]] || COLOR[selection_foreground]=${COLOR[0]:-#000000}
-    [[ ${COLOR[selection_background]} ]] || COLOR[selection_background]=${COLOR[7]:-#FFFFFF}
+    [[ ${COLOR[foreground]} ]]           || COLOR[foreground]=$(get foreground)
+    [[ ${COLOR[background]} ]]           || COLOR[background]=$(get background)
+    [[ ${COLOR[cursor]} ]]               || COLOR[cursor]=$(get cursor)
+    [[ ${COLOR[highlight]} ]]            || COLOR[highlight]=$(get highlight)
+    [[ ${COLOR[url_color]} ]]            || COLOR[url_color]=$(get url_color)
+    [[ ${COLOR[selection_foreground]} ]] || COLOR[selection_foreground]=$(get selection_foreground)
+    [[ ${COLOR[selection_background]} ]] || COLOR[selection_background]=$(get selection_background)
 }
 
 
@@ -68,17 +112,17 @@ preview_theme() {
         echo -e "$(printf '─%.0s' {1..70})"
 
         printf '%-68s%s\n' \
-            "background: $(ecolor ${COLOR[background]:-${COLOR[0]}})" \
-            "selection_background: $(ecolor ${COLOR[selection_background]:-${COLOR[7]}})"
+            "background: $(ecolor $(get background))" \
+            "selection_background: $(ecolor $(get selection_background))"
 
         printf '%-68s%s\n' \
-            "foreground: $(ecolor ${COLOR[foreground]:-${COLOR[15]}})" \
-            "selection_foreground: $(ecolor ${COLOR[selection_foreground]:-${COLOR[0]}})"
+            "foreground: $(ecolor $(get foreground))" \
+            "selection_foreground: $(ecolor $(get selection_foreground))"
 
         printf '%-68s%-68s%-70s\n' \
-            "cursor:     $(ecolor ${COLOR[cursor]:-${COLOR[8]}})" \
-            "url_color: $(ecolor ${COLOR[url_color]:-${COLOR[12]}})" \
-            "highlight: $(ecolor ${COLOR[highlight]:-${COLOR[9]}})"
+            "cursor:     $(ecolor $(get cursor))" \
+            "url_color: $(ecolor $(get url_color))" \
+            "highlight: $(ecolor $(get highlight))"
     fi
 
     name=$(basename ${NAME:-UNKNOWN})
@@ -232,10 +276,10 @@ install_shell_colors() {
     echo -e ""               >> "$DEST" || return 1
 
     for i in ${COLOR_KEYS[@]}; do
-        if [[ $(int $i) ]]; then
-            echo -e "color$i='${COLOR[$i]}'"  >> "$DEST" || return 1
+        if [[ $(isint $i) ]]; then
+            echo -e "color$i='$(get $i)'"  >> "$DEST" || return 1
         else
-            echo -e "color_$i='${COLOR[$i]}'" >> "$DEST" || return 1
+            echo -e "color_$i='$(get $i)'" >> "$DEST" || return 1
         fi
     done
 }
@@ -271,6 +315,6 @@ store_configuration() {
 
     echo "# colors" >> "$f" || return 1
     for i in ${!COLOR[@]}; do
-        echo "COLOR[$i]=\"${COLOR[$i]}\"" >> "$f" || return 1
+        echo "COLOR[$i]=\"$(get $i)\"" >> "$f" || return 1
     done
 }
