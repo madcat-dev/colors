@@ -13,8 +13,8 @@ Usage: ${0} [theme] [install] [ARGS...]
     --hue|-H value      - change all colors position in the spectrum
     --saturation|-S value
                         - change all colors color saturation ("purity")
-    --value|-V value    - change all colors brightness
-                          the value can be an absolute, relative, positive 
+    --value|-V value    - change all colors brightness.
+                          The value can be an absolute, relative, positive 
                           number, negative number, or expressed as a percentage
                           example: 10, +10, -23, +12%, -34%
 
@@ -23,6 +23,9 @@ Usage: ${0} [theme] [install] [ARGS...]
                           the main one. The change value can be set in the 
                           BRIGHTNEST variable, default: 10.
                           Color '0' is excluded in modifier list
+
+    --no-relative-value|-D
+                        - disable relatively base colors
 
     --black|-b value    - сhanging color 0 (black) by increasing the percentage
                           of background intensity by a given value.
@@ -106,6 +109,10 @@ while [ -n "$1" ]; do
 
     --relative-value|-R)
         RELATIVE_VALUE=true
+        ;;
+
+    --no-relative-value|-D)
+        NO_RELATIVE_VALUE=true
         ;;
 
     --black|-b)

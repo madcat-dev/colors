@@ -14,17 +14,14 @@ mkdir  -p "$CACHE" > /dev/null 2>&1
 [[ -e "$BASE/config" ]] && source "$BASE/config"
 
 
-# Restore current color scheme
-CURRENT="$CACHE/theme.$(hostname)"
-
-echo -e "declare -A COLOR\nexport COLOR=(" > $CURRENT
+# Restore current color scheme from xrdb
 for i in ${COLOR_KEYS[@]}; do
     [[ ${i} -ge 0 && ${i} -le 15 ]] && \
         cl=$(xrdbq "color$i") || cl=$(xrdbq "*.$i")
 
-    [[ ${cl} && $(isrgb "$cl") ]] && echo -e "\t[$i]=\"$cl\"" >> $CURRENT
+    [[ ${cl} && $(isrgb "$cl") ]] && \
+        COLOR[$i]="$cl"
 done
-echo -e ")" >> $CURRENT
 
 
 # Reload main config
@@ -42,33 +39,37 @@ if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
     BRIGHT_VARIANT="-dark"
 fi
 
+
 # Create scheme from image file
 if [[ ${IMAGE} ]]; then
     [[ ! -e "${IMAGE/\~/$HOME}" ]] && \
         fatal "Image file '${IMAGE/\~/$HOME}' not existing"
 
-    new_theme=$(mktemp -u "$CACHE/theme.XXXXXXXXX")
-    $BASE/bin/wal.py "${IMAGE/\~/$HOME}" ${LIGHT} "$new_theme" || \
+    NAME=$(mktemp -u "$CACHE/theme.XXXXXXXXX")
+    $BASE/bin/wal.py "${IMAGE/\~/$HOME}" ${LIGHT} "$NAME" || \
         fatal "Error of generating color theme"
 
-    NAME="$new_theme"
+    unset COLOR; declare -A COLOR
+    source "${NAME/\~/$HOME}"
+
+# Load selected colors scheme
+elif [[ ${NAME} ]]; then
+    if [[ ! -f "${NAME/\~/$HOME}" ]]; then
+        NAME="$BASE/schemes/$NAME"
+
+        [[ ! -f "${NAME}" ]] && \
+            fatal "Color scheme '$NAME' not existing!"
+    fi
+
+    unset COLOR; declare -A COLOR
+    source "${NAME/\~/$HOME}"
 fi
 
-# Resolve colors theme name
-NAME=${NAME:-${CURRENT}}
 
-if [[ ! -f "${NAME/\~/$HOME}" ]]; then
-	NAME="$BASE/schemes/$NAME"
+# Resolve colors scheme name
+NAME=${NAME:-xrdb}
 
-	[[ ! -f "${NAME}" ]] && \
-		fatal "Color scheme '$NAME' not existing!"
-fi
-
-
-# Load color theme
-unset COLOR; declare -A COLOR
-source "${NAME/\~/$HOME}"
-
+# Store original color scheme
 ORIGIN_BLACK=$(get 0)
 
 # Preview without modifiers
@@ -133,11 +134,13 @@ done
 
 
 # Set relative colors value
-for i in {1..7}; do
-    j=$(echo "$i + 8" | bc -s)
-    [[ $(get $i) == $(get $j) || ${RELATIVE_VALUE} ]] && \
-        COLOR[$j]=$(rgb_value "$(get $i)" ${BRIGHTNEST:-"+10%"})
-done
+if [[ ! ${NO_RELATIVE_VALUE} ]]; then
+    for i in {1..7}; do
+        j=$(echo "$i + 8" | bc -s)
+        [[ $(get $i) == $(get $j) || ${RELATIVE_VALUE} ]] && \
+            COLOR[$j]=$(rgb_value "$(get $i)" ${BRIGHTNEST:-"+10%"})
+    done
+fi
 
 
 # Default gtk-theme

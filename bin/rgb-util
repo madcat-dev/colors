@@ -475,7 +475,7 @@ restore_xrdb_colors() {
 verbose() {
     local _dl
     printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${1})
-    echo -en "${1}\033[0m("
+    echo -en "${1}\033[0m ("
 
     if [[ ${HUE} ]]; then
         [[ ${_dl} ]] && echo -en ", "
@@ -498,6 +498,17 @@ verbose() {
     echo -en "): "
     printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${2})
     echo -en "${2}\033[0m"
+}
+
+info() {
+    local _rgb=( $(rgb ${1}) )
+    local _hsv=( $(rgb_to_hsv ${1}) )
+
+    printf "\033[38;2;%03d;%03d;%03dm" ${_rgb[@]}
+    echo -en "${1}\033[0m "
+    echo -en "rgb(${_rgb[0]}, ${_rgb[1]}, ${_rgb[2]})"
+    echo -en " "
+    echo -en "hsv(${_hsv[0]}, ${_hsv[1]}, ${_hsv[2]})"
 }
 
 
@@ -537,6 +548,10 @@ while [ -n "$1" ]; do
         VERBOSE=""
         ;;
 
+    --info)
+        SHOW_INFO=true
+        ;;
+
     *)
         _source="${1}"
         ;;
@@ -550,13 +565,16 @@ if [[ ! ${_source} ]]; then
     exit 0
 fi
 
+[[ ${SHOW_INFO} ]] && \
+    echo -e "$(info $_source)" >&2
+
 _out="$_source"
 
 [[ ${HUE} ]] && _out=$(rgb_hue "$_out" "$HUE")
 [[ ${SAT} ]] && _out=$(rgb_saturation "$_out" "$SAT")
 [[ ${VAL} ]] && _out=$(rgb_value "$_out" "$VAL")
 
-[[ ${VERBOSE} ]] && \
+[[ ${VERBOSE} && "$_out" != "$_source" ]] && \
     echo -e "$(verbose $_source $_out)" >&2
 
 echo "$_out"
