@@ -62,7 +62,7 @@ if [[ ${COLOR_BLACK_BASE} ]]; then
         COLOR[foreground]=$(rgb_value $(get 0) -10%)
     fi
 
-    NO_RELATIVE_VALUE=true
+    #NO_RELATIVE_VALUE=true
     NAME="bb-${COLOR_BLACK_BASE}"
 
 # Create scheme from image file
