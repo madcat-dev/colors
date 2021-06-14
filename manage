@@ -16,7 +16,7 @@ mkdir  -p "$CACHE" > /dev/null 2>&1
 
 # Restore current color scheme from xrdb
 for i in ${COLOR_KEYS[@]}; do
-    [[ ${i} -ge 0 && ${i} -le 15 ]] && \
+    [[ $(isint $i) ]] && \
         cl=$(xrdbq "color$i") || cl=$(xrdbq "*.$i")
 
     [[ ${cl} && $(isrgb "$cl") ]] && \
@@ -40,8 +40,33 @@ if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
 fi
 
 
+if [[ ${COLOR_BLACK_BASE} ]]; then
+    hsv=( $(rgb_to_hsv $COLOR_BLACK_BASE) )
+    vstep=$(( (100 - ${hsv[2]}) / 7 ))
+
+    COLOR[0]=$COLOR_BLACK_BASE
+    COLOR[8]=$(rgb_saturation $(rgb_value $COLOR_BLACK_BASE \
+        "+$(round $(echo "$vstep * 2.33" | bc -l))%") $(( ${hsv[1]} / 2 )))
+
+    for i in {1..7}; do
+        new=$(rgb_value $COLOR_BLACK_BASE "+$(( $i * $vstep))%")
+        COLOR[$i]=$new
+        COLOR[$(( $i + 8 ))]=$new
+    done
+
+    if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
+        COLOR[background]=$(rgb_value $(get 0) -10%)
+        COLOR[foreground]=$(rgb_value $(get 7) -3%)
+    else
+        COLOR[background]=$(rgb_value $(get 7) -3%)
+        COLOR[foreground]=$(rgb_value $(get 0) -10%)
+    fi
+
+    NO_RELATIVE_VALUE=true
+    NAME="bb-${COLOR_BLACK_BASE}"
+
 # Create scheme from image file
-if [[ ${IMAGE} ]]; then
+elif [[ ${IMAGE} ]]; then
     [[ ! -e "${IMAGE/\~/$HOME}" ]] && \
         fatal "Image file '${IMAGE/\~/$HOME}' not existing"
 
@@ -63,11 +88,13 @@ elif [[ ${NAME} ]]; then
 
     unset COLOR; declare -A COLOR
     source "${NAME/\~/$HOME}"
+
+# Resolve colors scheme name
+else
+    NAME=${NAME:-xrdb}
 fi
 
 
-# Resolve colors scheme name
-NAME=${NAME:-xrdb}
 
 # Store original color scheme
 ORIGIN_BLACK=$(get 0)

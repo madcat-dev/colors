@@ -134,6 +134,13 @@ while [ -n "$1" ]; do
         shift
         ;;
 
+    --color-black-base|-BB)
+        [[ ! $(isrgb ${2}) ]] && \
+            fatal "Invalid color '${2}' from ${1} argument"
+
+        COLOR_BLACK_BASE="${2}"
+        shift
+        ;;
     --image|-I)
         IMAGE="${2}"
         shift
