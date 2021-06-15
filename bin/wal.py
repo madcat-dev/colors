@@ -23,7 +23,7 @@ TERMINAL_COLORS = [
     '# white',
 ]
 
-THEME_PATTERN = """#!/bin/bash
+THEME_PATTERN = """#!/usr/bin/env bash
 
 declare -A COLOR
 
@@ -150,7 +150,7 @@ def hex_to_rgb(color):
 
 def rgb_to_hex(color):
     """Convert an rgb color to hex."""
-    return "#%02x%02x%02x" % (*color,)
+    return "#%02X%02X%02X" % (*color,)
 
 
 def saturate_color(color, amount):
