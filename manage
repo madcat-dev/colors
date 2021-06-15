@@ -97,7 +97,7 @@ fi
 
 
 # Store original color scheme
-ORIGIN_BLACK=$(get 0)
+ORIGIN_BLACK=${_colors[0]:-$(get 0)}
 
 # Preview without modifiers
 [[ ${CLEAN_THEME_PREVIEW} ]] && preview_theme
@@ -152,6 +152,7 @@ fi
 if [[ ${BLACK_VALUE} ]]; then
     COLOR[background]=${ORIGIN_BLACK:-#010101}
     COLOR[0]=$(rgb_value "$(get background)" $BLACK_VALUE)
+    _colors[0]=""
 fi
 
 # Set background color from modified black color
@@ -165,7 +166,8 @@ fi
 
 # Replace defined colors
 for i in ${!_colors[@]}; do
-    COLOR[$i]=${_colors[$i]}
+    [[ ${_colors[$i]} ]] && \
+        COLOR[$i]=${_colors[$i]}
 done
 
 
