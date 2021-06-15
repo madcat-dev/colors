@@ -179,6 +179,7 @@ if [[ ! ${NO_RELATIVE_VALUE} ]]; then
 fi
 
 
+# Hardcode set gtk-theme and icon-theme
 # Default gtk-theme
 GTK_THEME_NAME="FlatColor"
 # Default icon-theme with colors modified variant
