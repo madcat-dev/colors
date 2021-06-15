@@ -31,6 +31,11 @@ Usage: ${0} [theme] [install] [ARGS...]
                           of background intensity by a given value.
                           This function using original black color
 
+    --backgroun|-bg value
+                        - сhanging background by increasing the percentage
+                          of color 0 (black) intensity by a given value.
+                          This function using original black color
+
     --font|-f "font"    - set base font, example "Noto Sans 11"
                           (replace GTK_FONT_NAME from config file)
                     
@@ -121,6 +126,12 @@ while [ -n "$1" ]; do
     --black|-b)
         parse_value "${2}" >/dev/null
         _BLACK_VALUE="${2}"
+        shift
+        ;;
+
+    --background|-bg)
+        parse_value "${2}" >/dev/null
+        _BACKGROUND_VALUE="${2}"
         shift
         ;;
 
