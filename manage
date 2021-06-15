@@ -134,6 +134,7 @@ if [[ ${CONFIG} ]]; then
         fatal "Configuration '${CONFIG/\~/$HOME}' not existing"
 
     source "${CONFIG/\~/$HOME}"
+    NAME="$(basename "${CONFIG/\~/$HOME}")"
 else
     [[ -e "$BASE/config" ]] && source "$BASE/config"
 fi
