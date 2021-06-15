@@ -31,7 +31,7 @@ get() {
     else
         case "${1}" in
             foreground)
-                _rgb=${COLOR[7]:-#FFFFFF}
+                _rgb=${COLOR[15]:-#FFFFFF}
                 ;;
             background)
                 _rgb=${COLOR[0]:-#000000}
