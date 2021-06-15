@@ -37,7 +37,7 @@ Usage: ${0} [theme] [install] [ARGS...]
     --config|-C "path"  - use external config from path
                           default use config.GTK_THEME_NAME if exists  
 
-    --color-black-base|-BB
+    --color-black-base|-B
                         - generate new color scheme from 'black' color
 
     --image|-I "path"   - generate new color scheme from image
@@ -137,7 +137,7 @@ while [ -n "$1" ]; do
         shift
         ;;
 
-    --color-black-base|-BB)
+    --color-black-base|-B)
         [[ ! $(isrgb ${2}) ]] && \
             fatal "Invalid color '${2}' from ${1} argument"
 
