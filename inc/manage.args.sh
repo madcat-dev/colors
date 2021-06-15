@@ -28,13 +28,11 @@ Usage: ${0} [theme] [install] [ARGS...]
                         - disable relatively base colors
 
     --black|-b value    - сhanging color 0 (black) by increasing the percentage
-                          of background intensity by a given value.
-                          This function using original black color
+                          of background intensity by a given value
 
     --backgroun|-bg value
                         - сhanging background by increasing the percentage
-                          of color 0 (black) intensity by a given value.
-                          This function using original black color
+                          of color 0 (black) intensity by a given value
 
     --font|-f "font"    - set base font, example "Noto Sans 11"
                           (replace GTK_FONT_NAME from config file)
@@ -62,14 +60,15 @@ Usage: ${0} [theme] [install] [ARGS...]
     --list|-l           - show a list of available schemes 
 
 Order of applying modifiers:
-    - get theme from image (if given)
-    - load color scheme (if given)
+    - load color scheme (if given) / from image / from color
+    - apply hue
+    - apply saturation
     - apply value
-    - set special colors value
+    - fill special colors value (background, foreground, cursor, ...)
     - load preselected config or default
-    - aplly dark/light theme mode
-    - apply black-color modifier (if given)
     - apply custom colors values
+    - apply black-color modifier (if needed)
+    - apply background-color modifier (if needed)
     - apply brightnest of relative value (always)
 
 Available schemes:

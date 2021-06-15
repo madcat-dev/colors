@@ -95,10 +95,6 @@ else
 fi
 
 
-
-# Store original color scheme
-ORIGIN_BLACK=${_colors[0]:-$(get 0)}
-
 # Preview without modifiers
 [[ ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
@@ -140,30 +136,6 @@ else
 fi
 
 
-# Replace defined font and check it
-[[ ${_GTK_FONT_NAME} ]] && \
-    GTK_FONT_NAME="${_GTK_FONT_NAME}"
-
-
-# Set background to black and modify black color value
-[[ ${_BLACK_VALUE} ]] && \
-    BLACK_VALUE="${_BLACK_VALUE}"
-
-if [[ ${BLACK_VALUE} ]]; then
-    COLOR[background]=${ORIGIN_BLACK:-#010101}
-    COLOR[0]=$(rgb_value "$(get background)" $BLACK_VALUE)
-    _colors[0]=""
-fi
-
-# Set background color from modified black color
-[[ ${_BACKGROUND_VALUE} ]] && \
-    BACKGROUND_VALUE="${_BACKGROUND_VALUE}"
-
-if [[ ${BACKGROUND_VALUE} ]]; then
-    COLOR[background]=$(rgb_value "${ORIGIN_BLACK:-#010101}" $BACKGROUND_VALUE)
-fi
-
-
 # Replace defined colors
 for i in ${!_colors[@]}; do
     [[ ${_colors[$i]} ]] && \
@@ -171,10 +143,28 @@ for i in ${!_colors[@]}; do
 done
 
 
+# Set background to black and modify black color value
+[[ ${_BLACK_VALUE} ]] && \
+    BLACK_VALUE="${_BLACK_VALUE}"
+
+if [[ ${BLACK_VALUE} ]]; then
+    COLOR[background]="$(get 0)"
+    COLOR[0]=$(rgb_value "$(get background)" $BLACK_VALUE)
+fi
+
+# Set background color from modified black color
+[[ ${_BACKGROUND_VALUE} ]] && \
+    BACKGROUND_VALUE="${_BACKGROUND_VALUE}"
+
+if [[ ${BACKGROUND_VALUE} ]]; then
+    COLOR[background]=$(rgb_value "$(get 0)" $BACKGROUND_VALUE)
+fi
+
+
 # Set relative colors value
 if [[ ! ${NO_RELATIVE_VALUE} ]]; then
     for i in {1..7}; do
-        j=$(echo "$i + 8" | bc -s)
+        j=$(( $i + 8 ))
         [[ $(get $i) == $(get $j) || ${RELATIVE_VALUE} ]] && \
             COLOR[$j]=$(rgb_value "$(get $i)" ${BRIGHTNEST:-"+10%"})
     done
@@ -186,6 +176,9 @@ fi
 GTK_THEME_NAME="FlatColor"
 # Default icon-theme with colors modified variant
 GTK_ICON_THEME_NAME="Tela-$(get cursor)${BRIGHT_VARIANT}"
+# Replace defined font and check it
+[[ ${_GTK_FONT_NAME} ]] && \
+    GTK_FONT_NAME="${_GTK_FONT_NAME}"
 
 
 # Preview with all modifiers
