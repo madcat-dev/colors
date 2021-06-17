@@ -41,6 +41,8 @@ fi
 
 
 if [[ ${COLOR_BLACK_BASE} ]]; then
+    unset COLOR; declare -A COLOR
+
     hsv=( $(rgb_to_hsv $COLOR_BLACK_BASE) )
     vstep=$(( (100 - ${hsv[2]}) / 7 ))
 
@@ -54,15 +56,13 @@ if [[ ${COLOR_BLACK_BASE} ]]; then
         COLOR[$(( $i + 8 ))]=$new
     done
 
-    if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
-        COLOR[background]=$(rgb_value $(get 0) -10%)
-        COLOR[foreground]=$(rgb_value $(get 7) -3%)
-    else
-        COLOR[background]=$(rgb_value $(get 7) -3%)
-        COLOR[foreground]=$(rgb_value $(get 0) -10%)
+    if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} != 1 ]]; then
+        _color_0=$(get 0)
+        COLOR[0]=$(get 7)
+        COLOR[7]=$_color_0
+        COLOR[15]=$_color_0
     fi
 
-    #NO_RELATIVE_VALUE=true
     NAME="bb-${COLOR_BLACK_BASE}"
 
 # Create scheme from image file
@@ -98,6 +98,7 @@ fi
 # Preview without modifiers
 [[ ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
+
 # Set color hue: position in the spectrum {0..360}
 if [[ ${RGB_HUE} ]]; then
     for i in {0..15}; do
@@ -118,10 +119,6 @@ if [[ ${RGB_VALUE} ]]; then
         COLOR[$i]=$(rgb_value "$(get $i)" $RGB_VALUE)
     done
 fi
-
-
-# Set specials colors
-fill_special_colors --fill-missing-items 
 
 
 # Load main config (theme config parameters is replaced by this)
@@ -169,6 +166,10 @@ if [[ ! ${NO_RELATIVE_VALUE} ]]; then
             COLOR[$j]=$(rgb_value "$(get $i)" ${BRIGHTNEST:-"+10%"})
     done
 fi
+
+
+# Set specials colors
+fill_special_colors --fill-missing-items 
 
 
 # Hardcode set gtk-theme and icon-theme
