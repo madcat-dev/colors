@@ -7,9 +7,6 @@ declare -A COLOR
 # -----------------------------------------------------------------------------
 
 export COLOR=(
-    [name]="Clean and Green"
-    [description]=""
-
     ## terminal colors+
     # black
     [0]=#39373D

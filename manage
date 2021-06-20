@@ -176,7 +176,7 @@ fill_special_colors --fill-missing-items
 # Default gtk-theme
 GTK_THEME_NAME="FlatColor"
 # Default icon-theme with colors modified variant
-GTK_ICON_THEME_NAME="Tela-$(get cursor)${BRIGHT_VARIANT}"
+GTK_ICON_THEME_NAME="Tela"
 # Replace defined font and check it
 [[ ${_GTK_FONT_NAME} ]] && \
     GTK_FONT_NAME="${_GTK_FONT_NAME}"
@@ -203,6 +203,7 @@ fi
 [[ ! ${INSTALL} ]] && exit 0
 
 echo -e "-- Install theme '${NAME/$HOME/\~}'\n"
+source "$BASE/inc/manage.installers.sh"
 
 # Install XRDB colors
 normal "[ ] Install xrdb colors"
@@ -245,21 +246,19 @@ install_gtk4_colors && \
 
 
 # Install GTK theme
-if [[ "${GTK_THEME_NAME}" && ! -e "$HOME/.themes/${GTK_THEME_NAME}" ]]; then
-    normal "[ ] Install gtk theme '${GTK_THEME_NAME}'"
-    install_gtk_theme "${GTK_THEME_NAME}" && \
-        success "[+] Gtk theme '${GTK_THEME_NAME}' installed" || \
-        error   "[-] Gtk theme '${GTK_THEME_NAME}' not installed"
+if [[ ! -e "$HOME/.themes/${GTK_THEME_NAME:-unknown}" ]]; then
+    normal "[ ] Install FlatColor gtk theme"
+    install_FlatColor_gtk_theme && \
+        success "[+] Gtk theme 'FlatColor' installed" || \
+        error   "[-] Gtk theme 'FlatColor' not installed"
 fi
 
 
 # Install Icons theme
-if [[ "${GTK_ICON_THEME_NAME}" && ! -e "$HOME/.icons/${GTK_ICON_THEME_NAME:-unknown}" ]]; then
-    echo -e "[ ] Install icons theme '${GTK_ICON_THEME_NAME}'"
-    install_gtk_icon_theme "${GTK_ICON_THEME_NAME}" "${BRIGHT_VARIANT}" && \
-        success "[+] Icons theme '${GTK_ICON_THEME_NAME}' installed"    || \
-        error   "[-] Icons theme '${GTK_ICON_THEME_NAME}' not installed"
-fi
+echo -e "[ ] Install Tela icons theme"
+install_Tela_icon_theme "${BRIGHT_VARIANT}" && \
+    success "[+] Icons theme 'Tela' installed"    || \
+    error   "[-] Icons theme 'Tela' not installed"
 
 
 # Store Shell colors

@@ -7,9 +7,6 @@ declare -A COLOR
 # -----------------------------------------------------------------------------
 
 export COLOR=(
-    [name]="Losao"
-    [description]="https://www.reddit.com/r/unixporn/comments/nbxxgk/bspwm_polybar_just_presenting_my_desktop_after_a/"
-
     # terminal colors+
     # black
     [0]=#2F2E2C

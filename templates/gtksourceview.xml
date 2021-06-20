@@ -5,8 +5,7 @@ Adaptive color scheme, based from https://github.com/arcticicestudio/nord-gedit
 <style-scheme id="color_manager" name="Color Manager" filename="gtksourceview.xml" version="1.0">
   <author>Madcat</author>
   <description>
-      Color Manager ${COLOR[name]} theme.
-      ${COLOR[description]}
+      Adaptive color scheme
   </description>
   <color name="color_bg" value="${COLOR[background]}" />
   <color name="color_fg" value="${COLOR[foreground]}" />

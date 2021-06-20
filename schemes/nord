@@ -8,9 +8,6 @@ declare -A COLOR
 # -----------------------------------------------------------------------------
 
 export COLOR=(
-    [name]="Nord"
-    [description]="https://www.nordtheme.com/"
-
     # terminal colors+
     # black
     [0]=#3B4252

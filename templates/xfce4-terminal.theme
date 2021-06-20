@@ -1,5 +1,4 @@
 [Scheme]
-Name=${COLOR[name]}
 ColorCursorUseDefault=FALSE
 ColorCursor=${COLOR[cursor]}
 ColorForeground=${COLOR[foreground]}
