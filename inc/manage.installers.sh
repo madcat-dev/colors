@@ -88,8 +88,8 @@ install_Tela_icon_theme() {
         error "- Icons theme 'Tela' not existing" && \
         return 1
 
-    rm   -rf "$HOME/.icons/${THEME}" > /dev/null 2>&1
     mkdir -p "$HOME/.icons" > /dev/null 2>&1
+    rm   -rf "$HOME/.icons/${THEME}" > /dev/null 2>&1
     tar -xzf "$TEMPLATES/Tela.tar.gz" -C "$HOME/.icons/"
 
     [[ ! -e "$HOME/.icons/Tela" ]] && \
