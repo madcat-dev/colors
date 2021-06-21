@@ -203,10 +203,6 @@ if [[ ${SAVE_CONFIG} ]]; then
 fi
 
 
-#
-# Install theme files
-#
-
 # Set background image
 if [[ ${SET_WALLPAPER} ]]; then
     [[ ! ${IMAGE} ]] && \
@@ -216,9 +212,9 @@ if [[ ${SET_WALLPAPER} ]]; then
         $([[ ! ${BRIGHT_VARIANT} ]] && echo "--light")
 fi
 
+
 # Install theme
 if [[ ${INSTALL} ]]; then
     source "$BASE/inc/manage.installers.sh"
     source "$BASE/inc/manage.install"
 fi
-
