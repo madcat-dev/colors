@@ -1,0 +1,91 @@
+#
+# required: manage, manage.core.sh, manage.installers.sh
+#
+
+echo -e "-- Install theme '${NAME/$HOME/\~}'\n"
+
+# Install XRDB colors
+normal "[ ] Install xrdb colors"
+install_xrdb_colors && \
+    success "[+] Xrdb colors installed" || \
+    error   "[-] Xrdb colors not installed"
+
+
+# Install TERMINALS colors
+normal "[ ] Install terminals colors"
+install_terminals_colors && \
+    success "[+] Terminals colors installed" || \
+    error   "[-] Terminals colors not installed"
+
+
+# Install ROFI colors
+normal "[ ] Install rofi colors"
+apply "$TEMPLATES/rofi.rasi" "$CACHE/colors.rasi" && \
+    success "[+] Rofi colors installed" || \
+    error   "[-] Rofi colors not installed"
+
+
+# Install GTK colors
+normal "[ ] Install gtk 2.0 colors"
+install_gtk2_colors && \
+    success "[+] Gtk 2.0 colors installed" || \
+    error   "[-] Gtk 2.0 colors not installed"
+
+
+normal "[ ] Install gtk 3.0 colors"
+install_gtk3_colors && \
+    success "[+] Gtk 3.0 colors installed" || \
+    error   "[-] Gtk 3.0 colors not installed"
+
+
+normal "[ ] Install gtk 4.0 colors"
+install_gtk4_colors && \
+    success "[+] Gtk 4.0 colors installed" || \
+    error   "[-] Gtk 4.0 colors not installed"
+
+
+# Install GTK theme
+if [[ ! -e "$HOME/.themes/${GTK_THEME_NAME:-unknown}" ]]; then
+    normal "[ ] Install FlatColor gtk theme"
+    install_FlatColor_gtk_theme && \
+        success "[+] Gtk theme 'FlatColor' installed" || \
+        error   "[-] Gtk theme 'FlatColor' not installed"
+fi
+
+
+# Install Icons theme
+echo -e "[ ] Install Tela icons theme"
+install_Tela_icon_theme "${BRIGHT_VARIANT}" && \
+    success "[+] Icons theme 'Tela' installed"    || \
+    error   "[-] Icons theme 'Tela' not installed"
+
+
+# Store Shell colors
+normal "[ ] Store shell colors theme"
+install_shell_colors "$CACHE/colors.sh" && \
+    success "[+] Shell colors theme stored to '${CACHE/$HOME/\~}/colors.sh'" || \
+    fatal   "[-] Shell colors theme is not stored"
+
+
+# Store telegram theme
+normal "[ ] Store telegram colors theme"
+$BASE/bin/telegram-palette-gen \
+    --palette  "$CACHE/colors.sh" \
+    --template "$TEMPLATES/colors.tpg-constants"  && \
+    success "[+] Telegram colors theme is stored" || \
+    error   "[-] Telegram colors theme is not stored"
+
+
+# Save last config
+normal "[ ] Save your configuration"
+CC_CONF=$(mktemp "$CACHE/config.XXXXXXXXX")
+store_configuration "$CC_CONF" && \
+    success "[+] Your configuration is saved to '${CC_CONF/$HOME/\~}' file" || \
+    error   "[-] Your configuration is not saved"
+
+
+# Restart wm
+bspc wm -r
+
+DIFF=$((`date '+%s'` - $DIFF))
+success "\nCompleted with $(displaytime $DIFF)..."
