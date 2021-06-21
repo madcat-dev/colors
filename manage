@@ -7,7 +7,7 @@ AVAILABLE=( $(ls $BASE/schemes) )
 CACHE="$HOME/.cache/colors"
 DIFF=$(date '+%s')
 
-source "$BASE/bin/rgb-util"
+source "$BASE/bin/rgb"
 source "$BASE/inc/manage.core.sh"
 
 mkdir  -p "$CACHE" > /dev/null 2>&1
@@ -184,6 +184,23 @@ GTK_ICON_THEME_NAME="Tela"
 
 # Preview with all modifiers
 [[ ! ${CLEAN_THEME_PREVIEW} ]] && preview_theme
+
+
+# Save scheme to path
+if [[ ${SAVE_SCHEME} ]]; then
+    normal "[ ] Save scheme to '${SAVE_SCHEME/$HOME/\~}'"
+    apply "$TEMPLATES/default.scheme" "${SAVE_SCHEME}" && \
+        success "[+] Scheme is saved" || \
+        error   "[-] Scheme is not saved"
+fi
+
+# Save config to path
+if [[ ${SAVE_CONFIG} ]]; then
+    normal "[ ] Save configuration to '${SAVE_CONFIG/$HOME/\~}'"
+    store_configuration "${SAVE_CONFIG}" && \
+        success "[+] Configuration is saved" || \
+        error   "[-] Configuration is not saved"
+fi
 
 
 #

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+declare -A COLOR
+
+# -----------------------------------------------------------------------------
+# Theme ${NAME}
+# -----------------------------------------------------------------------------
+
+export COLOR=(
+    # terminal colors+
+    # black
+    [0]=${COLOR[0]}
+    [8]=${COLOR[8]}
+
+    # red
+    [1]=${COLOR[1]}
+    [9]=${COLOR[9]}
+
+    # green
+    [2]=${COLOR[2]}
+    [10]=${COLOR[10]}
+
+    # yellow
+    [3]=${COLOR[3]}
+    [11]=${COLOR[11]}
+
+    # blue
+    [4]=${COLOR[4]}
+    [12]=${COLOR[12]}
+
+    # magenta
+    [5]=${COLOR[5]}
+    [13]=${COLOR[13]}
+
+    # cyan
+    [6]=${COLOR[6]}
+    [14]=${COLOR[14]}
+
+    # white
+    [7]=${COLOR[7]}
+    [15]=${COLOR[15]}
+)

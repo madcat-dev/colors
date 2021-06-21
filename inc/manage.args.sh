@@ -52,6 +52,9 @@ Usage: ${0} [theme] [install] [ARGS...]
     --light             - gtk application prefer light theme
     --dark              - gtk application prefer dark theme
     
+    --save-scheme path  - save scheme to path
+    --save-config path  - save config to path
+
     --cls|-             - theme preview without extended configs
     --short             - short preview color scheme
     --purge             - clear cache
@@ -171,6 +174,21 @@ while [ -n "$1" ]; do
         ;;
     --dark)
         GTK_APPLICATION_PREFER_DARK_THEME=1
+        ;;
+
+    --save-scheme)
+        [[ ! ${2} || ${2:0:1} == "-" ]] && \
+            fatal "Invalid parameter '${2}' from ${1} argument"
+
+        SAVE_SCHEME=${2}
+        shift
+        ;;
+    --save-config)
+        [[ ! ${2} || ${2:0:1} == "-" ]] && \
+            fatal "Invalid parameter '${2}' from ${1} argument"
+
+        SAVE_CONFIG=${2}
+        shift
         ;;
 
     --cls|-)

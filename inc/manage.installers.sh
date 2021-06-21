@@ -80,6 +80,7 @@ install_FlatColor_gtk_theme() {
 
 install_Tela_icon_theme() {
     local BRIGHT_VARIANT="${1}"
+    local THEME="$HOME/.icons/Tela"
 
     [[ ${BRIGHT_VARIANT} ]] &&
         BRIGHT_VARIANT="-dark"
@@ -88,11 +89,11 @@ install_Tela_icon_theme() {
         error "- Icons theme 'Tela' not existing" && \
         return 1
 
-    mkdir -p "$HOME/.icons" > /dev/null 2>&1
-    rm   -rf "$HOME/.icons/${THEME}" > /dev/null 2>&1
+    mkdir -p "$(dirname "$THEME")" > /dev/null 2>&1
+    rm   -rf "$THEME" > /dev/null 2>&1
     tar -xzf "$TEMPLATES/Tela.tar.gz" -C "$HOME/.icons/"
 
-    [[ ! -e "$HOME/.icons/Tela" ]] && \
+    [[ ! -e "$THEME" ]] && \
         error "- Icons theme 'Tela' not prepeared" && \
         return 1
 
@@ -100,29 +101,29 @@ install_Tela_icon_theme() {
 
     if [[ ${BRIGHT_VARIANT} ]]; then
         sed  -i "s/#565656/#aaaaaa/g" \
-            "$HOME/.icons/Tela"/{16,22,24}/actions/*.svg || return 1
+            "$THEME"/{16,22,24}/actions/*.svg || return 1
 
         sed  -i "s/#727272/#aaaaaa/g" \
-            "$HOME/.icons/Tela"/{16,22,24}/{places,devices}/*.svg || return 1
+            "$THEME"/{16,22,24}/{places,devices}/*.svg || return 1
 
         sed  -i "s/#555555/#aaaaaa/g" \
-            "$HOME/.icons/Tela"/symbolic/{actions,apps,categories,devices}/*.svg || return 1
+            "$THEME"/symbolic/{actions,apps,categories,devices}/*.svg || return 1
 
         sed  -i "s/#555555/#aaaaaa/g" \
-            "$HOME/.icons/Tela"/symbolic/{emblems,emotes,mimetypes,places,status}/*.svg || return 1
+            "$THEME"/symbolic/{emblems,emotes,mimetypes,places,status}/*.svg || return 1
     fi
 
     sed  -i "s/#5294E2/$COLORS_VARIANT/gi" \
-        "$HOME/.icons/Tela"/scalable/places/default-*.svg || return 1
+        "$THEME"/scalable/places/default-*.svg || return 1
 
     sed  -i "s/#66bcff/$(rgb_value "$COLORS_VARIANT" +10%)/gi" \
-        "$HOME/.icons/Tela"/scalable/places/default-*.svg || return 1
+        "$THEME"/scalable/places/default-*.svg || return 1
 
     sed  -i "s/#b29aff/$(rgb_value "$COLORS_VARIANT" +20%)/gi" \
-        "$HOME/.icons/Tela"/scalable/places/default-*.svg || return 1
+        "$THEME"/scalable/places/default-*.svg || return 1
 
     sed  -i "s/#5294E2/$COLORS_VARIANT/gi" \
-        "$HOME/.icons/Tela"/16/places/folder*.svg || return 1
+        "$THEME"/16/places/folder*.svg || return 1
 }
 
 

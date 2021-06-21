@@ -173,6 +173,8 @@ store_configuration() {
         GTK_XFT_RGBA
     )
 
+    mkdir -p "$(dirname "$f")" > /dev/null 2>&1
+
     echo "#!/usr/bin/env bash" > "$f" || return 1
     for i in ${KEYS[@]}; do
         value="${!i}"
