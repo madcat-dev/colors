@@ -178,7 +178,7 @@ while [ -n "$1" ]; do
 
     --setwal)
         [[ $(isint ${2}) ]] && \
-            VAL=${2} &&shift
+            VAL=${2} && shift
 
         SET_WALLPAPER=${VAL:-80}
         ;;

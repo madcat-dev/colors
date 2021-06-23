@@ -141,14 +141,16 @@ apply() {
     mkdir -p "$(dirname "$DEST")" > /dev/null 2>&1
 
     while IFS=\# read -r data end; do
-        data=$( eval echo -e \"${data//\"/\\\"}\" )
-        end=$(  eval echo -e \"${end//\"/\\\"}\"  )
+		data="${data//\"/\\x22}"
+		data="${data//\*/\\x2A}"
+        data=$( eval echo -e \"${data}\" )
+
+		end="${end//\"/\\x22}"
+		end="${end//\*/\\x2A}"
+        end=$(  eval echo -e \"${end}\"  )
 
         [[ "$end" ]] && end="#$end"
-
-        if [[ "$data$end" ]]; then
-            echo -e "$data$end" >> $DEST 2>/dev/null || return 1
-        fi
+        echo -e "$data$end" >> $DEST 2>/dev/null || return 1
     done < $SRCE
 }
 

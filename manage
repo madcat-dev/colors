@@ -13,6 +13,9 @@ GTK_THEME_NAME="FlatColor"
 # Default icon-theme with colors modified variant
 GTK_ICON_THEME_NAME="Tela"
 
+[[ -e "$HOME/.wallpaper.jpg" ]] && \
+    WALLPAPER="$HOME/.wallpaper.jpg"
+
 source "$BASE/bin/rgb"
 source "$BASE/inc/manage.core.sh"
 

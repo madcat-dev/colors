@@ -67,6 +67,13 @@ install_shell_colors "$CACHE/colors.sh" && \
     fatal   "[-] Shell colors theme is not stored"
 
 
+# Store CSS colors
+normal "[ ] Store CSS colors valiables"
+apply "$TEMPLATES/colors.css" "$CACHE/colors.css" && \
+    success "[+] CSS colors valiables stored to '${CACHE/$HOME/\~}/colors.css'" || \
+    fatal   "[-] CSS colors valiables is not stored"
+
+
 # Store telegram theme
 normal "[ ] Store telegram colors theme"
 $BASE/bin/telegram-palette-gen \
