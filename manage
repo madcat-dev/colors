@@ -7,6 +7,12 @@ AVAILABLE=( $(ls $BASE/schemes) )
 CACHE="$HOME/.cache/colors"
 DIFF=$(date '+%s')
 
+# Hardcode set gtk-theme and icon-theme
+# Default gtk-theme
+GTK_THEME_NAME="FlatColor"
+# Default icon-theme with colors modified variant
+GTK_ICON_THEME_NAME="Tela"
+
 source "$BASE/bin/rgb"
 source "$BASE/inc/manage.core.sh"
 
@@ -135,8 +141,11 @@ fi
 
 # Replace defined colors
 for i in ${!_colors[@]}; do
-    [[ ${_colors[$i]} ]] && \
+    if [[ $(isrgb ${_colors[$i]}) ]]; then
         COLOR[$i]=${_colors[$i]}
+    else
+        COLOR[$i]=$(rgb_value $(get "$i") "${_colors[$i]}")
+    fi
 done
 
 
@@ -157,6 +166,14 @@ if [[ ${BACKGROUND_VALUE} ]]; then
     COLOR[background]=$(rgb_value "$(get 0)" $BACKGROUND_VALUE)
 fi
 
+# Set black-light (8) color from modified black color
+[[ ${_BLACK_LIGHT_VALUE} ]] && \
+    BLACK_LIGHT_VALUE="${_BLACK_LIGHT_VALUE}"
+
+if [[ ${BLACK_LIGHT_VALUE} ]]; then
+    COLOR[8]=$(rgb_value "$(get 0)" $BLACK_LIGHT_VALUE)
+fi
+
 
 # Set relative colors value
 if [[ ! ${NO_RELATIVE_VALUE} ]]; then
@@ -172,11 +189,6 @@ fi
 fill_special_colors --fill-missing-items 
 
 
-# Hardcode set gtk-theme and icon-theme
-# Default gtk-theme
-GTK_THEME_NAME="FlatColor"
-# Default icon-theme with colors modified variant
-GTK_ICON_THEME_NAME="Tela"
 # Replace defined font and check it
 [[ ${_GTK_FONT_NAME} ]] && \
     GTK_FONT_NAME="${_GTK_FONT_NAME}"
