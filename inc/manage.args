@@ -76,6 +76,7 @@ Order of applying modifiers:
     - apply custom colors values
     - apply black-color modifier (if needed)
     - apply background-color modifier (if needed)
+    - apply black-light-color modifier (if needed)
     - apply brightnest of relative value (always)
 
 Available schemes:
