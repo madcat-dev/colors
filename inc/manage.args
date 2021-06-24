@@ -27,17 +27,6 @@ Usage: ${0} [theme] [install] [ARGS...]
     --no-relative-value|-D
                         - disable relatively base colors
 
-    --black|-b value    - сhanging color 0 (black) by increasing the percentage
-                          of background intensity by a given value
-
-    --black-light|-bl value
-                        - сhanging black-light (8) by increasing the percentage
-                          of color 0 (black) intensity by a given value
-
-    --backgroun|-bg value
-                        - сhanging background by increasing the percentage
-                          of color 0 (black) intensity by a given value
-
     --font|-f "font"    - set base font, example "Noto Sans 11"
                           (replace GTK_FONT_NAME from config file)
                     
@@ -74,9 +63,6 @@ Order of applying modifiers:
     - fill special colors value (background, foreground, cursor, ...)
     - load preselected config or default
     - apply custom colors values
-    - apply black-color modifier (if needed)
-    - apply background-color modifier (if needed)
-    - apply black-light-color modifier (if needed)
     - apply brightnest of relative value (always)
 
 Available schemes:
@@ -85,7 +71,7 @@ ENDDATA
 )
 
 
-declare -A _colors=()
+_commands=()
 
 while [ -n "$1" ]; do
     case "${1}" in
@@ -94,61 +80,90 @@ while [ -n "$1" ]; do
         ;;
 
     --color|-c)
-        [[ ! $(at "${2}" ${COLOR_KEYS[@]}) ]] && \
-            fatal "Invalid parameter '${2}' from ${1} argument"
+        _dest= _value= _mod= _srce=
 
-        if [[ $(isrgb ${3}) ]]; then
-            echo "this rgb" > /dev/null
-        else
-            parse_value "${3}" >/dev/null
-        fi
-        
-        _colors[${2}]="${3}"
-        shift; shift
+        _dest="${2}"; shift
+        [[ ! $(at "${_dest}" ${COLOR_KEYS[@]}) ]] && \
+            fatal "Invalid parameter '${_dest}' from --color argument"
+
+        while [ -n "$2" ]; do
+            if [[ $(isrgb "${2}") ]]; then
+                _srce="${2}"
+
+            elif [[ $(at "${2}" ${COLOR_KEYS[@]}) ]]; then
+                [[ ${_srce} ]] && \
+                    _value="${2}" || \
+                    _srce="${2}"
+
+            elif [[ " H S V h s v " == *" ${2} "* ]]; then
+                _mod="${2}"
+                _value="${3}"; shift
+                [[ ! $(isparsed_value "$_value") ]] && \
+                    fatal "Invalid parameter '${_value}' from --color argument"
+
+            elif [[ " H S V h s v " == *" ${2:0:1} "* ]]; then
+                _mod="${2:0:1}"
+                _value="${2:1}"
+                [[ ! $(isparsed_value "$_value") ]] && \
+                    fatal "Invalid parameter '${_value}' from --color argument"
+
+            elif [[ $(isparsed_value "${2}") ]]; then
+                _value="${2}"
+
+            else
+                break
+            fi
+
+            shift
+        done
+
+        _commands+=( "${_dest} ${_value:-NONE} ${_mod:-V} ${_srce:-$_dest}" )
         ;;
 
     --hue|-H)
-        parse_value "${2}" >/dev/null
-        RGB_HUE="${2}"
+        [[ ! $(isparsed_value "${2}") ]] && \
+            fatal "Invalid parameter '${2}' from ${1} argument"
+
+        _commands+=( "--hue ${2}" )
         shift
         ;;
 
     --saturation|-S)
-        parse_value "${2}" >/dev/null
-        RGB_SATURATION="${2}"
+        [[ ! $(isparsed_value "${2}") ]] && \
+            fatal "Invalid parameter '${2}' from ${1} argument"
+
+        _commands+=( "--saturation ${2}" )
         shift
         ;;
 
     --value|-V)
-        parse_value "${2}" >/dev/null
-        RGB_VALUE="${2}"
+        [[ ! $(isparsed_value "${2}") ]] && \
+            fatal "Invalid parameter '${2}' from ${1} argument"
+
+        _commands+=( "--value ${2}" )
         shift
         ;;
 
-    --relative-value|-R)
-        RELATIVE_VALUE=true
+    --relative|-R)
+        _val= _mod=
+
+        if [[ $(isparsed_value "${2}") ]]; then
+            _val="${2}"; shift
+        fi
+
+        if [[ " force F f " == *" ${2} "* ]]; then
+            _mod="${2}"; shift
+        fi
+
+        if [[ ! "${_val}" && $(isparsed_value "${2}") ]]; then
+            _val="${2}"; shift
+        fi
+
+        _commands+=( "--relative ${_val:-+10%} ${_mod}" )
         ;;
 
-    --no-relative-value|-D)
-        NO_RELATIVE_VALUE=true
-        ;;
-
-    --black|-b)
-        parse_value "${2}" >/dev/null
-        _BLACK_VALUE="${2}"
-        shift
-        ;;
-
-    --black-light|-bl)
-        parse_value "${2}" >/dev/null
-        _BLACK_LIGHT_VALUE="${2}"
-        shift
-        ;;
-
-    --background|-bg)
-        parse_value "${2}" >/dev/null
-        _BACKGROUND_VALUE="${2}"
-        shift
+    --fill)
+        _commands+=( "--fill" )
         ;;
 
     --font|-f)
@@ -171,6 +186,7 @@ while [ -n "$1" ]; do
         COLOR_BLACK_BASE="${2}"
         shift
         ;;
+
     --image|-I)
         IMAGE="${2}"
         shift

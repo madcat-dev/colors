@@ -1,6 +1,6 @@
 /* CSS variables */
 
-:root {{
+:root {
     --wallpaper: url("${WALLPAPER}");
 
     /* Special */
@@ -25,4 +25,4 @@
     --color13: ${COLOR[13]};
     --color14: ${COLOR[14]};
     --color15: ${COLOR[15]};
-}}
+}

@@ -440,10 +440,23 @@ function displaytime {
 }
 
 
+isparsed_value() {
+    local val="${1}"
+
+    if [[ ${val:$((${#val} - 1))} == "%" ]]; then
+        [[ $(isfloat "${val:0:$((${#val} - 1))}") ]] && echo true
+    else
+        [[ $(isint "$val") ]] && echo true
+    fi
+}
+
 parse_value() {
-    local val=${1}
+    local val="${1}"
     local md="abs"
     local pc
+
+    [[ ! $(isparsed_value "$val") ]] && \
+        fatal "Not a parsed value" && return
 
     [[ "+-" == *"${val:0:1}"* ]] && md="rel"
 

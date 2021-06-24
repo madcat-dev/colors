@@ -108,28 +108,6 @@ fi
 [[ ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
 
-# Set color hue: position in the spectrum {0..360}
-if [[ ${RGB_HUE} ]]; then
-    for i in {0..15}; do
-        COLOR[$i]=$(rgb_hue "$(get $i)" $RGB_HUE)
-    done
-fi
-
-# Set color saturation: color saturation ("purity") {0..100}
-if [[ ${RGB_SATURATION} ]]; then
-    for i in {0..15}; do
-        COLOR[$i]=$(rgb_saturation "$(get $i)" $RGB_SATURATION)
-    done
-fi
-
-# Set color value: color brightness {0..100}
-if [[ ${RGB_VALUE} ]]; then
-    for i in {0..15}; do
-        COLOR[$i]=$(rgb_value "$(get $i)" $RGB_VALUE)
-    done
-fi
-
-
 # Load main config (theme config parameters is replaced by this)
 if [[ ${CONFIG} ]]; then
     [[ ! -e ${CONFIG/\~/$HOME} ]] && \
@@ -143,49 +121,66 @@ fi
 
 
 # Replace defined colors
-for i in ${!_colors[@]}; do
-    if [[ $(isrgb ${_colors[$i]}) ]]; then
-        COLOR[$i]=${_colors[$i]}
-    else
-        COLOR[$i]=$(rgb_value $(get "$i") "${_colors[$i]}")
-    fi
+for i in ${!_commands[@]}; do
+    MOD=( ${_commands[$i]} )
+
+    _dst="${MOD[0]}"
+    _val="${MOD[1]}"
+    _mod="${MOD[2]}"
+    _src="${MOD[3]}"
+
+    echo -e "cmd: $_dst, $_val, $_mod, $_src"
+
+    case "${_dst}" in
+    --hue)
+        for i in {0..15}; do
+            COLOR[$i]=$(rgb_hue "$(get $i)" "$_val")
+        done
+        ;;
+
+    --saturation)
+        for i in {0..15}; do
+            COLOR[$i]=$(rgb_saturation "$(get $i)" "$_val")
+        done
+        ;;
+
+    --value)
+        for i in {0..15}; do
+            COLOR[$i]=$(rgb_value "$(get $i)" "$_val")
+        done
+        ;;
+
+    --relative)
+        for i in {1..7}; do
+            j=$(( $i + 8 ))
+            [[ $(get $i) == $(get $j) || ${_mod} ]] && \
+                COLOR[$j]=$(rgb_value "$(get $i)" "$_val")
+        done
+        ;;
+
+    --fill)
+        fill_special_colors
+        ;;
+
+    *)
+        [[ ! $(isrgb "$_src") ]] && \
+            _src="$(get "$_src")"
+
+        COLOR[$_dst]="$_src"
+        
+        if [[ $(isparsed_value "$_val") ]]; then
+            [[ "Hh" == *"$_mod"* ]] && \
+                COLOR[$_dst]=$(rgb_hue "$_src" "$_val")
+
+            [[ "Ss" == *"$_mod"* ]] && \
+                COLOR[$_dst]=$(rgb_saturation "$_src" "$_val")
+
+            [[ "Vv" == *"$_mod"* ]] && \
+                COLOR[$_dst]=$(rgb_value "$_src" "$_val")
+        fi
+        ;;
+    esac
 done
-
-
-# Set background to black and modify black color value
-[[ ${_BLACK_VALUE} ]] && \
-    BLACK_VALUE="${_BLACK_VALUE}"
-
-if [[ ${BLACK_VALUE} ]]; then
-    COLOR[background]="$(get 0)"
-    COLOR[0]=$(rgb_value "$(get background)" $BLACK_VALUE)
-fi
-
-# Set background color from modified black color
-[[ ${_BACKGROUND_VALUE} ]] && \
-    BACKGROUND_VALUE="${_BACKGROUND_VALUE}"
-
-if [[ ${BACKGROUND_VALUE} ]]; then
-    COLOR[background]=$(rgb_value "$(get 0)" $BACKGROUND_VALUE)
-fi
-
-# Set black-light (8) color from modified black color
-[[ ${_BLACK_LIGHT_VALUE} ]] && \
-    BLACK_LIGHT_VALUE="${_BLACK_LIGHT_VALUE}"
-
-if [[ ${BLACK_LIGHT_VALUE} ]]; then
-    COLOR[8]=$(rgb_value "$(get 0)" $BLACK_LIGHT_VALUE)
-fi
-
-
-# Set relative colors value
-if [[ ! ${NO_RELATIVE_VALUE} ]]; then
-    for i in {1..7}; do
-        j=$(( $i + 8 ))
-        [[ $(get $i) == $(get $j) || ${RELATIVE_VALUE} ]] && \
-            COLOR[$j]=$(rgb_value "$(get $i)" ${BRIGHTNEST:-"+10%"})
-    done
-fi
 
 
 # Set specials colors
@@ -232,4 +227,7 @@ fi
 if [[ ${INSTALL} ]]; then
     source "$BASE/inc/manage.installers.sh"
     source "$BASE/inc/manage.install"
+
+    # Restart wm
+    bspc wm -r
 fi
