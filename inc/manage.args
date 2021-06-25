@@ -166,6 +166,10 @@ while [ -n "$1" ]; do
         _commands+=( "--fill" )
         ;;
 
+    --auto)
+        AUTO_RESOLVE=true
+        ;;
+
     --font|-f)
         [[ ! ${2} || ${2:0:1} == "-" ]] && \
             fatal "Invalid parameter '${2}' from ${1} argument"

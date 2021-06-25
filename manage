@@ -120,6 +120,14 @@ else
 fi
 
 
+if [[ ${AUTO_RESOLVE} ]]; then
+    _base=$(get 0)
+    COLOR[background]="${_base}"
+    COLOR[0]=$(rgb_value "${_base}" "+10%")
+    COLOR[8]=$(rgb_value "${_base}" "+25%")
+fi
+
+
 # Replace defined colors
 for i in ${!_commands[@]}; do
     MOD=( ${_commands[$i]} )
@@ -129,7 +137,7 @@ for i in ${!_commands[@]}; do
     _mod="${MOD[2]}"
     _src="${MOD[3]}"
 
-    echo -e "cmd: $_dst, $_val, $_mod, $_src"
+    #echo -e "cmd: $_dst, $_val, $_mod, $_src"
 
     case "${_dst}" in
     --hue)
