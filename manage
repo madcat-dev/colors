@@ -235,6 +235,7 @@ fi
 if [[ ${INSTALL} ]]; then
     source "$BASE/inc/manage.installers.sh"
     source "$BASE/inc/manage.install"
+    source "$BASE/inc/manage.logo"
 
     # Restart wm
     bspc wm -r
