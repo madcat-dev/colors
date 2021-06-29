@@ -120,11 +120,20 @@ else
 fi
 
 
-if [[ ${AUTO_RESOLVE} ]]; then
+if [[ ${AUTO_RESOLVE} == 1 ]]; then
     _base=$(get 0)
     COLOR[background]="${_base}"
     COLOR[0]=$(rgb_value "${_base}" "+10%")
     COLOR[8]=$(rgb_value "${_base}" "+25%")
+
+elif [[ ${AUTO_RESOLVE} == 2 ]]; then
+    _base=$(get 0)
+    COLOR[background]=$(rgb_value "${_base}" "-10%")
+    COLOR[8]=$(rgb_value "${_base}" "+15%")
+
+elif [[ ${AUTO_RESOLVE} ]]; then
+    fatal "Invalid mode '${AUTO_RESOLVE}' from auto resolve colors"
+    exit 1
 fi
 
 

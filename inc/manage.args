@@ -167,7 +167,10 @@ while [ -n "$1" ]; do
         ;;
 
     --auto)
-        AUTO_RESOLVE=true
+        [[ $(isint ${2}) ]] && \
+            VAL=${2} && shift
+
+        AUTO_RESOLVE=${VAL:-1}
         ;;
 
     --font|-f)
