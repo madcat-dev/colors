@@ -186,7 +186,7 @@ store_configuration() {
     done
 
     echo "# colors" >> "$f" || return 1
-    for i in ${!COLOR[@]}; do
+    for i in ${COLOR_KEYS[@]}; do
         echo "COLOR[$i]=\"$(get $i)\"" >> "$f" || return 1
     done
 }

@@ -82,14 +82,3 @@ $BASE/bin/telegram-palette-gen \
     success "[+] Telegram colors theme is stored" || \
     error   "[-] Telegram colors theme is not stored"
 
-
-# Save last config
-normal "[ ] Save your configuration"
-CC_CONF=$(mktemp "$CACHE/config.XXXXXXXXX")
-store_configuration "$CC_CONF" && \
-    success "[+] Your configuration is saved to '${CC_CONF/$HOME/\~}' file" || \
-    error   "[-] Your configuration is not saved"
-
-
-DIFF=$((`date '+%s'` - $DIFF))
-success "\nCompleted with $(displaytime $DIFF)..."
