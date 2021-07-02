@@ -166,11 +166,11 @@ while [ -n "$1" ]; do
         _commands+=( "--fill" )
         ;;
 
-    --auto)
+    --mode)
         [[ $(isint ${2}) ]] && \
             VAL=${2} && shift
 
-        AUTO_RESOLVE=${VAL:-1}
+        AUTO_MODE=${VAL:-1}
         ;;
 
     --font|-f)
