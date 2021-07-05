@@ -271,5 +271,6 @@ if [[ ${INSTALL} ]]; then
     success "\nCompleted with $(displaytime $DIFF)..."
 
     # Restart wm
-    bspc wm -r
+    [[ "${DESKTOP_SESSION}" == "bspwm" ]] && \
+        bspc wm -r
 fi
