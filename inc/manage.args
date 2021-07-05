@@ -74,6 +74,8 @@ ENDDATA
 _commands=()
 
 while [ -n "$1" ]; do
+    VAL=
+
     case "${1}" in
     install)
         INSTALL=yes
@@ -170,7 +172,7 @@ while [ -n "$1" ]; do
         [[ $(isint ${2}) ]] && \
             VAL=${2} && shift
 
-        AUTO_MODE=${VAL:-1}
+        _commands+=( "--mode ${VAL:-1}" )
         ;;
 
     --font|-f)
@@ -199,7 +201,7 @@ while [ -n "$1" ]; do
         shift
         ;;
 
-    --setwal)
+    --set-wal)
         [[ $(isint ${2}) ]] && \
             VAL=${2} && shift
 
