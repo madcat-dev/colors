@@ -116,10 +116,10 @@ install_Tela_icon_theme() {
     sed  -i "s/#5294E2/$COLORS_VARIANT/gi" \
         "$THEME"/scalable/places/default-*.svg || return 1
 
-    sed  -i "s/#66bcff/$(rgb_value "$COLORS_VARIANT" +10%)/gi" \
+    sed  -i "s/#66bcff/$(rgb_value "$COLORS_VARIANT" +10)/gi" \
         "$THEME"/scalable/places/default-*.svg || return 1
 
-    sed  -i "s/#b29aff/$(rgb_value "$COLORS_VARIANT" +20%)/gi" \
+    sed  -i "s/#b29aff/$(rgb_value "$COLORS_VARIANT" +20)/gi" \
         "$THEME"/scalable/places/default-*.svg || return 1
 
     sed  -i "s/#5294E2/$COLORS_VARIANT/gi" \
@@ -140,4 +140,17 @@ install_shell_colors() {
             echo -e "color_$i='$(get $i)'" >> "$DEST" || return 1
         fi
     done
+}
+
+
+install_steam_theme() {
+    DEST="$HOME/.local/share/Steam/skins/${STEAM_THEME_NAME:-Adaptive}/resource/styles"
+
+    apply "$TEMPLATES/steam/steam.styles" \
+        "${DEST}/steam.styles" || \
+        return 1
+
+    apply "$TEMPLATES/steam/gameoverlay.styles" \
+        "${DEST}/gameoverlay.styles" || \
+        return 1
 }

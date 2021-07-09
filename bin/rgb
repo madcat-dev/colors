@@ -295,8 +295,9 @@ rgb_hue() {
     local delta=${val[0]}
 
     # percent value
-    [[ ${val[2]} ]] && \
-        delta=$(round $(echo "$delta * 3.6" | bc -l))
+    if [[ ${val[2]} ]]; then
+		delta=$(round $(echo "$h / 100 * ${val[0]}" | bc -l))
+	fi
 
     # absolute value
     [[ "${val[1]}" == "abs" ]] && \
@@ -313,6 +314,11 @@ rgb_saturation() {
     local s=${HSV[1]}
     local val=( $(parse_value ${2}) )
     local delta=$(int ${val[0]})
+
+    # percent value
+    if [[ ${val[2]} ]]; then
+        delta=$(round $(echo "$s / 100 * ${val[0]}" | bc -l))
+	fi
 
     # absolute value
     [[ "${val[1]}" == "abs" ]] && \
@@ -335,10 +341,11 @@ rgb_value() {
     local delta=$(int ${val[0]})
 
     # percent value
-    [[ ! ${val[2]} ]] && \
-        delta=$(round $(echo "$delta / 2.55" | bc -l))
+    if [[ ${val[2]} ]]; then
+        delta=$(round $(echo "$v / 100 * ${val[0]}" | bc -l))
+	fi
 
-    # absolute value
+	# absolute value
     [[ "${val[1]}" == "abs" ]] && \
         delta=$(( $delta - $v ))
 
@@ -458,7 +465,9 @@ parse_value() {
     [[ ! $(isparsed_value "$val") ]] && \
         fatal "Not a parsed value" && return
 
-    [[ "+-" == *"${val:0:1}"* ]] && md="rel"
+    if [[ "+-" == *"${val:0:1}"* ]]; then 
+		md="rel"
+	fi
 
     if [[ ${val:$((${#val} - 1))} == "%" ]]; then
         val=$(float "${val:0:$((${#val} - 1))}")

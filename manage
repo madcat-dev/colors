@@ -12,6 +12,8 @@ DIFF=$(date '+%s')
 GTK_THEME_NAME="FlatColor"
 # Default icon-theme with colors modified variant
 GTK_ICON_THEME_NAME="Tela"
+# Default steam theme name
+STEAM_THEME_NAME="Adaptive"
 
 [[ -e "$HOME/.wallpaper.jpg" ]] && \
     WALLPAPER="$HOME/.wallpaper.jpg"
@@ -57,10 +59,10 @@ if [[ ${COLOR_BLACK_BASE} ]]; then
 
     COLOR[0]=$COLOR_BLACK_BASE
     COLOR[8]=$(rgb_saturation $(rgb_value $COLOR_BLACK_BASE \
-        "+$(round $(echo "$vstep * 2.33" | bc -l))%") $(( ${hsv[1]} / 2 )))
+        "+$(round $(echo "$vstep * 2.33" | bc -l))") $(( ${hsv[1]} / 2 )))
 
     for i in {1..7}; do
-        new=$(rgb_value $COLOR_BLACK_BASE "+$(( $i * $vstep))%")
+        new=$(rgb_value $COLOR_BLACK_BASE "+$(( $i * $vstep))")
         COLOR[$i]=$new
         COLOR[$(( $i + 8 ))]=$new
     done
@@ -164,22 +166,22 @@ for i in ${!_commands[@]}; do
             COLOR[background]="${_base}"
 
             if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
-                COLOR[0]=$(rgb_value "${_base}" "+10%")
-                COLOR[8]=$(rgb_value "${_base}" "+25%")
+                COLOR[0]=$(rgb_value "${_base}" "+10")
+                COLOR[8]=$(rgb_value "${_base}" "+25")
             else
-                COLOR[0]=$(rgb_value "${_base}" "-10%")
-                COLOR[8]=$(rgb_value "${_base}" "-25%")
+                COLOR[0]=$(rgb_value "${_base}" "-10")
+                COLOR[8]=$(rgb_value "${_base}" "-25")
             fi
 
         elif [[ ${_val} == 2 ]]; then
             _base=$(get 0)
 
             if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
-                COLOR[background]=$(rgb_value "${_base}" "-10%")
-                COLOR[8]=$(rgb_value "${_base}" "+15%")
+                COLOR[background]=$(rgb_value "${_base}" "-10")
+                COLOR[8]=$(rgb_value "${_base}" "+15")
             else
-                COLOR[background]=$(rgb_value "${_base}" "+10%")
-                COLOR[8]=$(rgb_value "${_base}" "-15%")
+                COLOR[background]=$(rgb_value "${_base}" "+10")
+                COLOR[8]=$(rgb_value "${_base}" "-15")
             fi
 
         elif [[ ${_val} ]]; then

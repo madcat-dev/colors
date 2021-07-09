@@ -161,7 +161,7 @@ while [ -n "$1" ]; do
             _val="${2}"; shift
         fi
 
-        _commands+=( "--relative ${_val:-+10%} ${_mod}" )
+        _commands+=( "--relative ${_val:-+10} ${_mod}" )
         ;;
 
     --fill)

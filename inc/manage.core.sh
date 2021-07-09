@@ -31,13 +31,13 @@ get() {
     else
         case "${1}" in
             foreground)
-                _rgb=${COLOR[15]:-#FFFFFF}
+                _rgb=${COLOR[7]:-#FFFFFF}
                 ;;
             background)
                 _rgb=${COLOR[0]:-#000000}
                 ;;
             cursor)
-                _rgb=$(rgb_value ${COLOR[2]:-#FFFFFF} +5%)
+                _rgb=$(rgb_value ${COLOR[2]:-#FFFFFF})
                 ;;
             highlight)
                 _rgb=${COLOR[9]:-#FF0000}
@@ -56,7 +56,7 @@ get() {
                     _rgb=${COLOR[0]:-#000000}
                 ;;
             8)
-                _rgb=$(rgb_value ${COLOR[0]:-#0A0A0A} +15%)
+                _rgb=$(rgb_value ${COLOR[0]:-#0A0A0A} +15)
                 ;;
             9)
                 _rgb=${COLOR[1]:-#a54242}
@@ -77,7 +77,7 @@ get() {
                 _rgb=${COLOR[6]:-#5e8d87}
                 ;;
             15)
-                _rgb=$(rgb_value ${COLOR[7]:-#c8c8c8} +10%)
+                _rgb=$(rgb_value ${COLOR[7]:-#c8c8c8} +10)
                 ;;
             *)
                 ;;
