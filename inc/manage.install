@@ -5,12 +5,12 @@
 echo -e "-- Install theme '${NAME/$HOME/\~}'\n"
 
 # XXX: test Install Steam theme
-echo -e "[ ] Install Steam theme"
-install_steam_theme && \
-	success "[+] Steam theme installed"    || \
-	error   "[-] Steam theme not installed"
+#echo -e "[ ] Install Steam theme"
+#install_steam_theme && \
+	#success "[+] Steam theme installed"    || \
+	#error   "[-] Steam theme not installed"
 
-exit 0
+#exit 0
 
 # Install XRDB colors
 normal "[ ] Install xrdb colors"
