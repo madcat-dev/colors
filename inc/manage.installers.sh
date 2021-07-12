@@ -141,16 +141,3 @@ install_shell_colors() {
         fi
     done
 }
-
-
-install_steam_theme() {
-    DEST="$HOME/.local/share/Steam/skins/${STEAM_THEME_NAME:-Adaptive}/resource/styles"
-
-    apply "$TEMPLATES/steam/steam.styles" \
-        "${DEST}/steam.styles" || \
-        return 1
-
-    apply "$TEMPLATES/steam/gameoverlay.styles" \
-        "${DEST}/gameoverlay.styles" || \
-        return 1
-}

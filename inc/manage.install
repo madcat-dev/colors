@@ -4,14 +4,6 @@
 
 echo -e "-- Install theme '${NAME/$HOME/\~}'\n"
 
-# XXX: test Install Steam theme
-#echo -e "[ ] Install Steam theme"
-#install_steam_theme && \
-	#success "[+] Steam theme installed"    || \
-	#error   "[-] Steam theme not installed"
-
-#exit 0
-
 # Install XRDB colors
 normal "[ ] Install xrdb colors"
 install_xrdb_colors && \
@@ -68,13 +60,6 @@ install_Tela_icon_theme "${BRIGHT_VARIANT}" && \
     error   "[-] Icons theme 'Tela' not installed"
 
 
-# Install Steam theme
-echo -e "[ ] Install Steam theme"
-install_steam_theme && \
-    success "[+] Steam theme installed"    || \
-    error   "[-] Steam theme not installed"
-
-
 # Store Shell colors
 normal "[ ] Store shell colors theme"
 install_shell_colors "$CACHE/colors.sh" && \
@@ -96,4 +81,3 @@ $BASE/bin/telegram-palette-gen \
     --template "$TEMPLATES/colors.tpg-constants"  && \
     success "[+] Telegram colors theme is stored" || \
     error   "[-] Telegram colors theme is not stored"
-
