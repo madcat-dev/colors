@@ -99,6 +99,10 @@ fill_special_colors() {
     [[ ${COLOR[url_color]} ]]            || COLOR[url_color]=$(get url_color)
     [[ ${COLOR[selection_foreground]} ]] || COLOR[selection_foreground]=$(get selection_foreground)
     [[ ${COLOR[selection_background]} ]] || COLOR[selection_background]=$(get selection_background)
+
+    for i in {8..15}; do
+        [[ ${COLOR[$i]} ]] || COLOR[$i]=$(get $i)
+    done
 }
 
 
