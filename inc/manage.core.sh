@@ -37,7 +37,7 @@ get() {
                 _rgb=${COLOR[0]:-#000000}
                 ;;
             cursor)
-                _rgb=$(rgb_value ${COLOR[2]:-#FFFFFF})
+                _rgb=${COLOR[2]:-#FFFFFF}
                 ;;
             highlight)
                 _rgb=${COLOR[9]:-#FF0000}
