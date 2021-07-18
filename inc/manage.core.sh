@@ -55,26 +55,32 @@ get() {
                     _rgb=${COLOR[7]:-#FFFFFF} || \
                     _rgb=${COLOR[0]:-#000000}
                 ;;
+            0)
+                _rgb=${COLOR[0]:-#0A0A0A}
+                ;;
             8)
                 _rgb=$(rgb_value ${COLOR[0]:-#0A0A0A} +15)
                 ;;
-            9)
+            1|9)
                 _rgb=${COLOR[1]:-#a54242}
                 ;;
-            10)
+            2|10)
                 _rgb=${COLOR[2]:-#8c9440}
                 ;;
-            11)
+            3|11)
                 _rgb=${COLOR[3]:-#de935f}
                 ;;
-            12)
+            4|12)
                 _rgb=${COLOR[4]:-#5f819d}
                 ;;
-            13)
+            5|13)
                 _rgb=${COLOR[5]:-#85678f}
                 ;;
-            14)
+            6|14)
                 _rgb=${COLOR[6]:-#5e8d87}
+                ;;
+            7)
+                _rgb=${COLOR[7]:-#c8c8c8}
                 ;;
             15)
                 _rgb=$(rgb_value ${COLOR[7]:-#c8c8c8} +10)
