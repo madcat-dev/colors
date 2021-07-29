@@ -12,3 +12,5 @@ COLOR[selection_background]=#FFFACD
 
 COLOR[url_color]=#93B9D9
 COLOR[highlight]=#E45959
+
+COLOR[cursor]=#FFA500

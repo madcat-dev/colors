@@ -6,10 +6,10 @@
     background-color: ${COLOR[background]};
     text-color:       ${COLOR[foreground]};
 
-    background-selected: ${COLOR[cursor]};
+    background-selected: ${COLOR[2]};
     text-selected:       ${COLOR[foreground]};
 
     text-prompt:    ${COLOR[4]};
     text-entry:     ${COLOR[4]};
-    border-color:   ${COLOR[cursor]};
+    border-color:   ${COLOR[2]};
 }

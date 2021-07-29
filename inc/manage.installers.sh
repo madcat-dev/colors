@@ -97,7 +97,7 @@ install_Tela_icon_theme() {
         error "- Icons theme 'Tela' not prepeared" && \
         return 1
 
-    local COLORS_VARIANT="$(get cursor)"
+    local COLORS_VARIANT="$(get 2)"
 
     if [[ ${BRIGHT_VARIANT} ]]; then
         sed  -i "s/#565656/#aaaaaa/g" \
