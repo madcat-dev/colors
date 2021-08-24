@@ -68,6 +68,7 @@ install_gtk4_colors() {
 
 
 install_FlatColor_gtk_theme() {
+    # Based on https://github.com/deviantfero/wpgtk-templates/tree/master/FlatColor
     [[ ! -e "$TEMPLATES/FlatColor.tar.gz" ]] && \
         error "Theme 'FlatColor' not existing" && \
         return 1
@@ -79,6 +80,7 @@ install_FlatColor_gtk_theme() {
 
 
 install_Tela_icon_theme() {
+    # Based on https://github.com/vinceliuice/Tela-icon-theme
     local BRIGHT_VARIANT="${1}"
     local THEME="$HOME/.icons/Tela"
 
