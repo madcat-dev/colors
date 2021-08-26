@@ -1,0 +1,42 @@
+#!/bin/bash
+
+declare -A COLOR
+
+# -----------------------------------------------------------------------------
+# https://www.reddit.com/r/unixporn/comments/paaocu/i3gaps_champloo/
+# -----------------------------------------------------------------------------
+
+export COLOR=(
+    ## terminal colors+
+    # black
+    [0]=#171618
+    [8]=#4A464D
+
+    # red
+    [1]=#822330
+    [9]=#822330
+
+    # green
+    [2]=#68515D
+    [10]=#68515D
+
+    # yellow
+    [3]=#AB4F54
+    [11]=#AB4F54
+
+    # blue
+    [4]=#8A7C7F
+    [12]=#8A7C7F
+
+    # magenta
+    [5]=#BB908D
+    [13]=#BB908D
+
+    # cyan
+    [6]=#CDB6A3
+    [14]=#CDB6A3
+
+    # white
+    [7]=#C5C4C5
+    [15]=#C5C4C5
+)
