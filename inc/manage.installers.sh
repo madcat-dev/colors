@@ -7,7 +7,7 @@ install_xrdb_colors() {
 
 
 install_terminals_colors() {
-    local ERROR=() XFCE_SWITCH
+    local ERROR=() XFCE_SWITCH=
 
     # kitty terminal
     apply "$TEMPLATES/kitty.conf" "$CACHE/kitty.colors.conf" || \
