@@ -202,10 +202,7 @@ while [ -n "$1" ]; do
         ;;
 
     --set-wal)
-        [[ $(isint ${2}) ]] && \
-            VAL=${2} && shift
-
-        SET_WALLPAPER=${VAL:-80}
+        SET_WALLPAPER=38
         ;;
 
     --light)
