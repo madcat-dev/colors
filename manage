@@ -250,8 +250,7 @@ if [[ ${SET_WALLPAPER} ]]; then
     [[ ! ${IMAGE} ]] && \
         error "Please specify the image first with --image" && exit 1
 
-    $BASE/bin/setwal "$IMAGE" --fade-top $SET_WALLPAPER \
-        $([[ ! ${BRIGHT_VARIANT} ]] && echo "--light")
+    feh --bg-fill --image-bg 'black' "$IMAGE"
 fi
 
 

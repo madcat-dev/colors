@@ -197,7 +197,7 @@ while [ -n "$1" ]; do
         ;;
 
     --set-wal)
-        SET_WALLPAPER=38
+        SET_WALLPAPER=true
         ;;
 
     --light)
