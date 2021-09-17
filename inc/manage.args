@@ -94,18 +94,12 @@ while [ -n "$1" ]; do
 
             elif [[ $(at "${2}" ${COLOR_KEYS[@]}) ]]; then
                 [[ ${_srce} ]] && \
-                    _value="${2}" || \
-                    _srce="${2}"
+                    _value="${2}" || _srce="${2}"
 
             elif [[ " H S V h s v " == *" ${2} "* ]]; then
                 _mod="${2}"
                 _value="${3}"; shift
-                [[ ! $(isparsed_value "$_value") ]] && \
-                    fatal "Invalid parameter '${_value}' from --color argument"
 
-            elif [[ " H S V h s v " == *" ${2:0:1} "* ]]; then
-                _mod="${2:0:1}"
-                _value="${2:1}"
                 [[ ! $(isparsed_value "$_value") ]] && \
                     fatal "Invalid parameter '${_value}' from --color argument"
 
