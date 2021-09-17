@@ -163,10 +163,11 @@ while [ -n "$1" ]; do
         ;;
 
     --mode)
-        [[ $(isint ${2}) ]] && \
-            VAL=${2} && shift
+        [[ ! $(isint ${2}) ]] && \
+            fatal "Invalid parameter '${2}' from ${1} argument"
 
-        _commands+=( "--mode ${VAL:-1}" )
+        _commands+=( "--mode ${2}" )
+        shift
         ;;
 
     --font|-f)
