@@ -38,10 +38,6 @@ Usage: ${0} [theme] [install] [ARGS...]
 
     --image|-I "path"   - generate new color scheme from image
 
-    --setwal [top-fade height (px)]
-                        - set background wallpaper (feh use)
-                          picture must be specified in the --image parameter
-
     --light             - gtk application prefer light theme
     --dark              - gtk application prefer dark theme
     
@@ -196,10 +192,6 @@ while [ -n "$1" ]; do
         shift
         ;;
 
-    --set-wal)
-        SET_WALLPAPER=true
-        ;;
-
     --light)
         GTK_APPLICATION_PREFER_DARK_THEME=0
         ;;
@@ -214,6 +206,7 @@ while [ -n "$1" ]; do
         SAVE_SCHEME=${2}
         shift
         ;;
+
     --save-config)
         [[ ! ${2} || ${2:0:1} == "-" ]] && \
             fatal "Invalid parameter '${2}' from ${1} argument"

@@ -15,8 +15,6 @@ GTK_ICON_THEME_NAME="Tela"
 # Default steam theme name
 STEAM_THEME_NAME="Adaptive"
 
-[[ -e "$HOME/.wallpaper.jpg" ]] && \
-    WALLPAPER="$HOME/.wallpaper.jpg"
 
 source "$BASE/bin/rgb"
 source "$BASE/inc/manage.core.sh"
@@ -219,11 +217,6 @@ done
 fill_special_colors --fill-missing-items 
 
 
-# Replace defined font and check it
-[[ ${_GTK_FONT_NAME} ]] && \
-    GTK_FONT_NAME="${_GTK_FONT_NAME}"
-
-
 # Preview with all modifiers
 [[ ! ${CLEAN_THEME_PREVIEW} ]] && preview_theme
 
@@ -245,28 +238,10 @@ if [[ ${SAVE_CONFIG} ]]; then
 fi
 
 
-# Set background image
-if [[ ${SET_WALLPAPER} ]]; then
-    [[ ! ${IMAGE} ]] && \
-        error "Please specify the image first with --image" && exit 1
-
-    feh --bg-fill --image-bg 'black' "$IMAGE"
-fi
-
-
 # Install theme
 if [[ ${INSTALL} ]]; then
     source "$BASE/inc/manage.installers.sh"
     source "$BASE/inc/manage.install"
-    source "$BASE/inc/manage.logo"
-
-    # Save last config
-    normal "[ ] Save your configuration"
-    CC_CONF=$(mktemp "$CACHE/config.XXXXXXXXX")
-    store_configuration "$CC_CONF" && \
-        success "[+] Your configuration is saved to '${CC_CONF/$HOME/\~}' file" || \
-        error   "[-] Your configuration is not saved"
-
 
     DIFF=$((`date '+%s'` - $DIFF))
     success "\nCompleted with $(displaytime $DIFF)..."
