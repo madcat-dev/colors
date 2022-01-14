@@ -73,7 +73,7 @@ while [ -n "$1" ]; do
     VAL=
 
     case "${1}" in
-    install)
+    --install)
         INSTALL=yes
         ;;
 
@@ -137,21 +137,12 @@ while [ -n "$1" ]; do
         ;;
 
     --relative|-R)
-        _val= _mod=
-
+        _val=
         if [[ $(isparsed_value "${2}") ]]; then
             _val="${2}"; shift
         fi
 
-        if [[ " force F f " == *" ${2} "* ]]; then
-            _mod="${2}"; shift
-        fi
-
-        if [[ ! "${_val}" && $(isparsed_value "${2}") ]]; then
-            _val="${2}"; shift
-        fi
-
-        _commands+=( "--relative ${_val:-+10} ${_mod}" )
+        _commands+=( "--relative ${_val:-+10}" )
         ;;
 
     --fill)
@@ -199,7 +190,7 @@ while [ -n "$1" ]; do
         GTK_APPLICATION_PREFER_DARK_THEME=1
         ;;
 
-    --save-scheme)
+    --save)
         [[ ! ${2} || ${2:0:1} == "-" ]] && \
             fatal "Invalid parameter '${2}' from ${1} argument"
 

@@ -64,10 +64,15 @@ fatal() {
 # -----------------------------------------------------------------------------
 
 isint() {
-    local tmp
-    printf -v tmp "%d" ${1/+/} 2>/dev/null
-    [[ ${tmp} && ${tmp} == ${1/+/} ]] && \
-        echo "$tmp" || return 1
+    local val
+    printf -v val "%d" ${1/+/} 2>/dev/null
+
+    [[ ${val} && ${val} == ${1/+/} ]] && \
+        echo "$val" && return 0
+    [[ ${val} && ${val} == ${1/-/} ]] && \
+        echo "$val" && return 0
+
+    return 1
 }
 
 int() {
@@ -103,7 +108,9 @@ uint8() {
 }
 
 grad() {
-    echo $(( $(int ${1}) % 360 ))
+    local val=$(int ${1})
+    [[ $val -eq 0 ]] && val=0
+    echo $(( $val % 360 ))
 }
 
 ugrad() {
@@ -165,7 +172,8 @@ floor() {
     local val=$(float ${1})
     val=( ${val/./ } )
     [[ ${val} -lt 0 && ${val[1]} -gt 0 ]] && \
-        echo $(( $val - 1 )) || echo $val
+        val=$(( $val - 1 ))
+    [[ $val -eq 0 ]] && echo "0" || echo "$val"
 }
 
 ceil() {

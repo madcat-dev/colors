@@ -153,8 +153,7 @@ for i in ${!_commands[@]}; do
     --relative)
         for i in {1..7}; do
             j=$(( $i + 8 ))
-            [[ $(get $i) == $(get $j) || ${_mod} ]] && \
-                COLOR[$j]=$(rgb_value "$(get $i)" "$_val")
+            COLOR[$j]=$(rgb_value "$(get $i)" "$_val")
         done
         ;;
 
