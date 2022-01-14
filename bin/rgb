@@ -69,6 +69,7 @@ isint() {
 
     [[ ${val} && ${val} == ${1/+/} ]] && \
         echo "$val" && return 0
+
     [[ ${val} && ${val} == ${1/-/} ]] && \
         echo "$val" && return 0
 
@@ -77,6 +78,7 @@ isint() {
 
 int() {
     local val=$(isint ${1%.*})
+
     [[ ${val} ]] && \
         echo $val && return
 
@@ -85,6 +87,7 @@ int() {
 
 byte() {
     local val=$(isint ${1%.*})
+
     [[ ${val} && $val -ge 0 && $val -le 255 ]] && \
         echo $val && return
 
@@ -96,6 +99,7 @@ int8() {
 
     [[ $val -lt -128 ]] && val=-128
     [[ $val -gt  127 ]] && val=127
+
     echo $val
 }
 
@@ -104,17 +108,21 @@ uint8() {
 
     [[ $val -lt   0 ]] && val=0
     [[ $val -gt 255 ]] && val=255
+
     echo $val
 }
 
 grad() {
     local val=$(int ${1})
+
     [[ $val -eq 0 ]] && val=0
+
     echo $(( $val % 360 ))
 }
 
 ugrad() {
     local val=$(grad ${1})
+
     [[ $val -lt 0 ]] && \
         echo $(( 360 + $val )) || echo $val
 }
@@ -122,6 +130,7 @@ ugrad() {
 min() {
     local MIN
     local next
+
     for next in ${@}; do
         [[ ! ${MIN} ]] && \
             MIN=$(int ${next}) && continue
@@ -130,12 +139,14 @@ min() {
         [[ $next && "$next" -lt "$MIN" ]] && \
             MIN=${next}
     done
+
     echo "${MIN}"
 }
 
 max() {
     local MAX
     local next
+
     for next in ${@}; do
         [[ ! ${MAX} ]] && \
             MAX=$(int ${next}) && continue
@@ -144,18 +155,21 @@ max() {
         [[ $next && "$next" -gt "$MAX" ]] && \
             MAX=${next}
     done
+
     echo "${MAX}"
 }
 
 isfloat() {
     local tmp
     printf -v tmp "%f" ${1/+/} 2>/dev/null
+
     [[ ${1/+/} && ${tmp} ]] && \
         echo "$tmp" || return 1
 }
 
 float() {
     local val=$(isfloat ${1})
+
     [[ ${val} ]] && \
         echo $val && return
 
@@ -165,26 +179,31 @@ float() {
 round() {
     local val=$(float ${1})
     printf -v val "%.${2:-0}f" "$val" 2>/dev/null || return 1
+
     echo ${val}
 }
 
 floor() {
     local val=$(float ${1})
     val=( ${val/./ } )
+
     [[ ${val} -lt 0 && ${val[1]} -gt 0 ]] && \
         val=$(( $val - 1 ))
+
     [[ $val -eq 0 ]] && echo "0" || echo "$val"
 }
 
 ceil() {
     local val=$(float ${1})
     val=( ${val/./ } )
+
     [[ ${val} -ge 0 && ${val[1]} -gt 0 ]] && \
         echo $(( $val + 1 )) || echo $val
 }
 
 at() {
     local value=${1:-undefined}; shift
+
     [[ " ${@} " == *" $value "* ]] && \
         echo true
 }
@@ -196,6 +215,7 @@ at() {
 
 isrgb() {
     local RGB
+
     if [[ ${#1} == 7 && ${1:0:1} == "#" ]]; then
         printf -v RGB "%d %d %d" \
             0x${1:1:2} 0x${1:3:2} 0x${1:5:2} 2>/dev/null && \
@@ -205,6 +225,7 @@ isrgb() {
 
 rgb() {
     local val=$(isrgb ${1%.*})
+
     [[ ${val} ]] && \
         echo $val && return
 
@@ -369,6 +390,7 @@ rgb_value() {
 
 rgb_inverse() {
     local RGB=( $(rgb ${1}) )
+
     rgb_to_hex \
         $((255 - ${RGB[0]})) \
         $((255 - ${RGB[1]})) \
