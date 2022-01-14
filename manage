@@ -7,21 +7,10 @@ AVAILABLE=( $(ls $BASE/schemes) )
 CACHE="$HOME/.cache/colors"
 DIFF=$(date '+%s')
 
-# Hardcode set gtk-theme and icon-theme
-# Default gtk-theme
-GTK_THEME_NAME="FlatColor"
-# Default icon-theme with colors modified variant
-GTK_ICON_THEME_NAME="Tela"
-# Default steam theme name
-STEAM_THEME_NAME="Adaptive"
-
+mkdir  -p "$CACHE" > /dev/null 2>&1
 
 source "$BASE/bin/rgb"
 source "$BASE/inc/manage.core.sh"
-
-mkdir  -p "$CACHE" > /dev/null 2>&1
-[[ -e "$BASE/config" ]] && source "$BASE/config"
-
 
 # Restore current color scheme from xrdb
 for i in ${COLOR_KEYS[@]}; do
@@ -32,13 +21,8 @@ for i in ${COLOR_KEYS[@]}; do
         COLOR[$i]="$cl"
 done
 
-
-# Reload main config
-[[ -e "$BASE/config" ]] && source "$BASE/config"
-
 # Parse command-line args
 source "$BASE/inc/manage.args"
-
 
 # Select prefered brightnest variant
 LIGHT=true
@@ -49,33 +33,8 @@ if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]]; then
 fi
 
 
-if [[ ${COLOR_BLACK_BASE} ]]; then
-    unset COLOR; declare -A COLOR
-
-    hsv=( $(rgb_to_hsv $COLOR_BLACK_BASE) )
-    vstep=$(( (100 - ${hsv[2]}) / 7 ))
-
-    COLOR[0]=$COLOR_BLACK_BASE
-    COLOR[8]=$(rgb_saturation $(rgb_value $COLOR_BLACK_BASE \
-        "+$(round $(echo "$vstep * 2.33" | bc -l))") $(( ${hsv[1]} / 2 )))
-
-    for i in {1..7}; do
-        new=$(rgb_value $COLOR_BLACK_BASE "+$(( $i * $vstep))")
-        COLOR[$i]=$new
-        COLOR[$(( $i + 8 ))]=$new
-    done
-
-    if [[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} != 1 ]]; then
-        _color_0=$(get 0)
-        COLOR[0]=$(get 7)
-        COLOR[7]=$_color_0
-        COLOR[15]=$_color_0
-    fi
-
-    NAME="bb-${COLOR_BLACK_BASE}"
-
 # Create scheme from image file
-elif [[ ${IMAGE} ]]; then
+if [[ ${IMAGE} ]]; then
     [[ ! -e "${IMAGE/\~/$HOME}" ]] && \
         fatal "Image file '${IMAGE/\~/$HOME}' not existing"
 
@@ -109,15 +68,7 @@ fi
 
 
 # Load main config (theme config parameters is replaced by this)
-if [[ ${CONFIG} ]]; then
-    [[ ! -e ${CONFIG/\~/$HOME} ]] && \
-        fatal "Configuration '${CONFIG/\~/$HOME}' not existing"
-
-    source "${CONFIG/\~/$HOME}"
-    NAME="$(basename "${CONFIG/\~/$HOME}")"
-else
-    [[ -e "$BASE/config" ]] && source "$BASE/config"
-fi
+source "$BASE/inc/defaults.sh"
 
 
 # Replace defined colors
@@ -226,14 +177,6 @@ if [[ ${SAVE_SCHEME} ]]; then
     apply "$TEMPLATES/default.scheme" "${SAVE_SCHEME}" && \
         success "[+] Scheme is saved" || \
         error   "[-] Scheme is not saved"
-fi
-
-# Save config to path
-if [[ ${SAVE_CONFIG} ]]; then
-    normal "[ ] Save configuration to '${SAVE_CONFIG/$HOME/\~}'"
-    store_configuration "${SAVE_CONFIG}" && \
-        success "[+] Configuration is saved" || \
-        error   "[-] Configuration is not saved"
 fi
 
 
