@@ -6,6 +6,11 @@
 
 LC_ALL=C
 
+re_int="^[-+]?[0-9]+$"
+re_float="^[-+]?[0-9]+(\.)?[0-9]*$"
+re_pc="^[-+]?[0-9]+(\.)?[0-9]*\%$"
+re_color="^#[0-9a-fA-F]{6}$"
+
 # Default colors (Tango theme)
 declare -A COLOR=(
     [0]=#282a2e      [8]=#373b41
@@ -17,6 +22,7 @@ declare -A COLOR=(
     [6]=#5e8d87     [14]=#8abeb7
     [7]=#707880     [15]=#c5c8c6
 )
+
 
 # -----------------------------------------------------------------------------
 # Notify functions
@@ -46,7 +52,7 @@ error() {
         echo -e "\033[31m${@}\033[0m" >&2
 
     if [[ ${ERROR_IS_FATAL} ]]; then
-        kill -9 $$; sleep 3; return 1
+        exit 1
     fi
 }
 
@@ -55,7 +61,7 @@ fatal() {
         echo -e "\033[38;2;207;0;0m${@}\033[0m" >&2 || \
         echo -e "\033[31;1m${@}\033[0m" >&2
 
-    kill -9 $$; sleep 3; return 1
+    exit 1
 }
 
 
