@@ -1,0 +1,98 @@
+# See dunst(5) for all configuration options
+
+[global]
+    monitor = 0
+    follow  = none
+    width   = 320
+    origin  = top-right
+    offset  = 24x56
+    scale   = 0
+    notification_limit = 0
+
+    ### Progress bar ###
+    progress_bar = true
+    progress_bar_height = 8
+    progress_bar_frame_width = 2
+    progress_bar_min_width   = 300
+    progress_bar_max_width   = 300
+
+    indicate_hidden = yes
+    transparency = 0
+
+    padding = 12
+    horizontal_padding = 8
+    text_icon_padding  = 0
+
+    frame_width = 2
+    frame_color = "${COLOR[2]}"
+
+    separator_height = 2
+    separator_color = frame
+
+    sort = yes
+
+    ### Text ###
+    font = Iosevka Fixed Curly Medium 12
+    line_height = 0
+    markup = full
+    format = "<b>%s</b>\\n%b"
+
+    alignment = center
+    vertical_alignment = center
+
+    word_wrap = yes
+    show_age_threshold = 60
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = no
+
+    ### Icons ###
+    icon_position = left
+    min_icon_size = 0
+    max_icon_size = 32
+
+    # Paths to default icons.
+    #icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
+    icon_path = 
+
+    ### History ###
+    sticky_history = yes
+    history_length = 20
+
+    ### Misc/Advanced ###
+    dmenu   = /usr/bin/dmenu -p dunst:
+    browser = /usr/bin/xdg-open
+    always_run_script = true
+
+    title = Dunst
+    class = Dunst
+
+    corner_radius = 0
+    ignore_dbusclose = false
+
+    ### Mouse
+    mouse_left_click   = close_current
+    mouse_middle_click = do_action, close_current
+    mouse_right_click  = close_all
+
+
+[urgency_low]
+    background  = "${COLOR[background]}"
+    foreground  = "${URGENCY_LOW}"
+    frame_color = "${URGENCY_LOW}"
+    timeout = 5
+
+[urgency_normal]
+    background  = "${COLOR[background]}"
+    foreground  = "${URGENCY_NORMAL}"
+    frame_color = "${URGENCY_NORMAL}"
+    timeout = 5
+
+[urgency_critical]
+    background  = "${COLOR[background]}"
+    foreground  = "${URGENCY_CRITICAL}"
+    frame_color = "${URGENCY_CRITICAL}"
+    timeout = 5
+

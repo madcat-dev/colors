@@ -81,3 +81,9 @@ $BASE/bin/telegram-palette-gen \
     --template "$TEMPLATES/colors.tpg-constants"  && \
     success "[+] Telegram colors theme is stored" || \
     error   "[-] Telegram colors theme is not stored"
+
+# Install Icons theme
+echo -e "[ ] Install dunst theme"
+install_dunst_colors "${BRIGHT_VARIANT}" && \
+    success "[+] Dunst theme installed"    || \
+    error   "[-] Dunst theme not installed"
