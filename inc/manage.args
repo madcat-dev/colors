@@ -120,7 +120,7 @@ while [ -n "$1" ]; do
         shift
         ;;
 
-    --saturation|-S)
+    --saturation|--sat|-S)
         [[ ! $(isparsed_value "${2}") ]] && \
             fatal "Invalid parameter '${2}' from ${1} argument"
 
@@ -128,7 +128,7 @@ while [ -n "$1" ]; do
         shift
         ;;
 
-    --value|-V)
+    --value|--val|-V)
         [[ ! $(isparsed_value "${2}") ]] && \
             fatal "Invalid parameter '${2}' from ${1} argument"
 
@@ -136,7 +136,7 @@ while [ -n "$1" ]; do
         shift
         ;;
 
-    --relative|-R)
+    --relative|--rel|-R)
         _val=
         if [[ $(isparsed_value "${2}") ]]; then
             _val="${2}"; shift

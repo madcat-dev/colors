@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[[ ${NOTIFY_LIB_LOADED} ]] && exit 0 || NOTIFY_LIB_LOADED=true
 
 LC_ALL=C
 
@@ -9,14 +10,14 @@ bool() {
 
 ERROR_IS_FATAL=false
 INTERUPT_IS_FATAL=true
-ERROR_COUNTER=0
 
-HEADER='$(date +"%Y-%m-%d %H-%M-%S") $TYPE $LABEL '
+HEADER='$(date +"%Y-%m-%d %H-%M-%S") $TYPE $LABEL'
 
 
 # -----------------------------------------------------------------------------
 # Notify functions
 # -----------------------------------------------------------------------------
+ERROR_COUNTER=0
 
 notify() {
     local LABEL STOP C
@@ -57,13 +58,12 @@ notify() {
 
     echo -en "\033[${C:-0}m" >&2
     [[ "$HEADER" ]] && \
-        echo -en "$(eval echo \"$HEADER\")" >&2
+        echo -en "$(eval echo \"$HEADER \")" >&2
     echo -e "${@}\033[0m" >&2
 
     bool $STOP && bool "$INTERUPT_IS_FATAL" && exit 1
     return 0
 }
-
 
 info()      { notify info    ${@}; }
 success()   { notify success ${@}; }
