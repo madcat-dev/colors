@@ -28,7 +28,7 @@ notify() {
             C='37'
             LABEL='[*]'
             ;;
-        succes)
+        success)
             C='32'
             LABEL='[+]'
             ;;
@@ -49,6 +49,7 @@ notify() {
             STOP=true
             ;;
         *)
+            LABEL='[ ]'
             DATA="$TYPE $DATA"
             TYPE=
             ;;
@@ -60,6 +61,7 @@ notify() {
     echo -e "${@}\033[0m" >&2
 
     bool $STOP && bool "$INTERUPT_IS_FATAL" && exit 1
+    return 0
 }
 
 

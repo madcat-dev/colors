@@ -12,15 +12,29 @@ re_int="^[-+]?[0-9]+$"
 re_flt="^[-+]?[0-9]+(\.)?[0-9]*$"
 re_pct="^[-+]?[0-9]+(\.)?[0-9]*\%$"
 
+bool() {
+    [[ "${1,,}" =~ ^0|no|off|false$ ]] && return 1
+    [[ "${1}" ]]
+}
+
 isvalue() {
     [[ "${1}" =~ $re_flt || "${1}" =~ $re_pct ]]
 }
 
 value() {
+    local v m p
+
     if isvalue "${1}"; then
-        echo $(float "${1}") \
-            $([[ "${1}" =~ ^[\+\-]{1} ]] && echo -n ' rel' || echo -n ' abs') \
-            $([[ "${1}" =~ $re_pct ]] && echo -n ' %')
+        if [[ "${1}" =~ $re_pct ]]; then
+            v=$(float "${1}")
+            p='%'
+        else
+            v=$(int "${1}")
+        fi
+
+        [[ "${1}" =~ ^[\+\-]{1} ]] && m='rel' || m='abs'
+
+        echo "$v $m $p"
         return 0
     fi
 
@@ -34,7 +48,8 @@ isint() {
 
 int() {
     isvalue "${1}" && \
-        echo ${1/+/} | sed 's/\..*$//g' && return
+        echo ${1/+/} | sed 's/\..*$//g' && \
+        return 0
 
     fatal "Not integer value cast: '${1}'"
     return 1
@@ -46,7 +61,8 @@ isfloat() {
 
 float() {
     isvalue "${1}" && \
-        echo ${1/+/} | sed 's/\%$//g' && return
+        echo ${1/+/} | sed 's/\%$//g' && \
+        return 0
 
     fatal "Not float value cast: '${1}'"
     return 1
@@ -55,7 +71,8 @@ float() {
 round() {
     local val=$(float "${1}")
     local acc=$(int "${2:-0}")
-    printf "%.${acc}f\n" "$val" 2>/dev/null || return 1
+    printf -v val "%.${acc}f" "$val" 2>/dev/null && \
+        echo "$val"
 }
 
 floor() {
@@ -74,19 +91,47 @@ ceil() {
         echo $(( $val + 1 )) || echo $val
 }
 
-at() {
-    local value=${1:-undefined}
-    shift
+min() {
+    local MIN next
 
-    [[ " ${@} " == *" $value "* ]]
+    for next in ${@}; do
+        [[ ! ${MIN} ]] && \
+            MIN=$(int ${next}) && \
+            continue
+
+        next=$(int ${next})
+        [[ $next && "$next" -lt "$MIN" ]] && \
+            MIN=${next}
+    done
+    echo "${MIN}"
+}
+
+max() {
+    local MAX next
+
+    for next in ${@}; do
+        [[ ! ${MAX} ]] && \
+            MAX=$(int ${next}) && \
+            continue
+
+        next=$(int ${next})
+        [[ $next && "$next" -gt "$MAX" ]] && \
+            MAX=${next}
+    done
+    echo "${MAX}"
+}
+
+byte() {
+    local val=$(int "${1}")
+    [[ ${1} -lt   0 ]] && val=0
+    [[ ${1} -gt 255 ]] && val=255
+    echo "$val"
 }
 
 grad() {
-    local val=$(int "${1}")
-
-    [[ $val -eq 0 ]] && val=0
-
-    echo $(( $val % 360 ))
+    local val
+    val=$(int "${1}") && \
+        echo $(( $val % 360 ))
 }
 
 ugrad() {
@@ -96,102 +141,194 @@ ugrad() {
         echo $(( 360 + $val )) || echo $val
 }
 
-min() {
-    local MIN
-    local next
-
-    for next in ${@}; do
-        [[ ! ${MIN} ]] && \
-            MIN=$(int ${next}) && continue
-
-        next=$(int ${next})
-        [[ $next && "$next" -lt "$MIN" ]] && \
-            MIN=${next}
-    done
-
-    echo "${MIN}"
-}
-
-max() {
-    local MAX
-    local next
-
-    for next in ${@}; do
-        [[ ! ${MAX} ]] && \
-            MAX=$(int ${next}) && continue
-
-        next=$(int ${next})
-        [[ $next && "$next" -gt "$MAX" ]] && \
-            MAX=${next}
-    done
-
-    echo "${MAX}"
-}
-
 # -----------------------------------------------------------------------------
 # Colors functions
 # -----------------------------------------------------------------------------
-re_xrgb="^#[A-Fa-f0-9]{6}$"
+re_xrgb='^#[A-Fa-f0-9]{1,6}$'
 
 isrgb() {
     [[ "${1}" =~ $re_xrgb ]]
 }
 
 rgb() {
-    local val=$(isrgb ${1%.*})
+    local val
 
-    [[ ${val} ]] && \
-        echo $val && return
+    if isrgb "${1}"; then
+        case "${#1}" in
+            4) val="#${1:1:1}${1:1:1}${1:2:1}${1:2:1}${1:3:1}${1:3:1}"
+                ;;
+            3) val="#${1:1:2}${1:1:2}${1:1:2}"
+                ;;
+            2) val="#${1:1:1}${1:1:1}${1:1:1}${1:1:1}${1:1:1}${1:1:1}"
+                ;;
+            *) val="${1}"
+                ;;
+        esac
+    fi
+
+    printf -v RGB "%d %d %d" \
+        0x${val:1:2} 0x${val:3:2} 0x${val:5:2} 2>/dev/null && \
+        echo "$RGB" && \
+        return 0
 
     fatal "Invalid #RGB color: '${1}'"
+    return 1
 }
 
-byte() {
-    local val=$(int "${1}")
+rgb_to_hex() {
+    printf "#%02X%02X%02X\n" \
+        $(byte ${1:-0}) $(byte ${2:-0}) $(byte ${3:-0})
+}
 
-    [[ ${1} -lt   0 ]] && val=0
-    [[ ${1} -gt 255 ]] && val=255
-    echo "$val"
+rgb_to_hsv() {
+    local RGB=( $(rgb "${1}") )
+    local r=${RGB[0]}  # integer 0..255
+    local g=${RGB[1]}  # integer 0..255
+    local b=${RGB[2]}  # integer 0..255
+
+    local maxc=$(max $r $g $b)
+    local minc=$(min $r $g $b)
+
+    # Value: color brightness {0..100}
+    local v=$(round $(echo "$maxc / 2.55" | bc -l))
+
+    [[ "$minc" == "$maxc" ]] && \
+        echo "0 0 $v" && return
+
+    # Saturation: color saturation ("purity") {0..100}
+    local s=$(round $(echo "($maxc - $minc) / $maxc * 100" | bc -l))
+
+    # Hue: position in the spectrum {0..360}
+    local h=0
+    local rc=$(echo "($maxc - $r) / ($maxc - $minc)" | bc -l)
+    local gc=$(echo "($maxc - $g) / ($maxc - $minc)" | bc -l)
+    local bc=$(echo "($maxc - $b) / ($maxc - $minc)" | bc -l)
+
+    if [[ $r == $maxc ]]; then
+        h=$(echo "$bc - $gc" | bc -l)
+    elif [[ $g == $maxc ]]; then
+        h=$(echo "2.0 + $rc - $bc" | bc -l)
+    else
+        h=$(echo "4.0 + $gc - $rc" | bc -l)
+    fi
+
+    h=$(round $(echo "($h / 6.0) * 360" | bc -l))
+
+    echo "$h $s $v"
+}
+
+hsv_to_rgb() {
+    local h=$(ugrad "${1}")
+    local s=$(int "${2}")
+    local v=$(int "${3}")
+
+    if [[ $s -lt 0 || $s -gt 100 ]]; then
+        fatal "Invalid saturation value"
+    fi
+
+    v=$(round $(echo "$v * 2.55" | bc -l))
+    [[ $s -eq 0 ]] && \
+        rgb_to_hex $v $v $v && return
+
+    h=$(echo "$h / 360" | bc -l)
+    s=$(echo "$s / 100" | bc -l)
+
+    local i=$(floor $(echo "$h * 6.0" | bc -s)) # XXX assume int() truncates!
+    local f=$(echo "$h * 6.0 - $i" | bc -l)
+    local p=$(round $(echo "$v * (1.0 - $s)" | bc -l))
+    local q=$(round $(echo "$v * (1.0 - $s * $f)" | bc -l))
+    local t=$(round $(echo "$v * (1.0 - $s * (1.0 - $f))" | bc -l))
+
+    i=$(( $i % 6 ))
+
+    [[ $i -eq 0 ]] && \
+        rgb_to_hex $v $t $p && return
+    [[ $i -eq 1 ]] && \
+        rgb_to_hex $q $v $p && return
+    [[ $i -eq 2 ]] && \
+        rgb_to_hex $p $v $t && return
+    [[ $i -eq 3 ]] && \
+        rgb_to_hex $p $q $v && return
+    [[ $i -eq 4 ]] && \
+        rgb_to_hex $t $p $v && return
+    [[ $i -eq 5 ]] && \
+        rgb_to_hex $v $p $q && return
+
+    fatal "Error of hsv conversion"
 }
 
 
+rgb_hue() {
+    local HSV=( $(rgb_to_hsv "${1}") )
+    local h=${HSV[0]}
+    local val=( $(value "${2}") )
+    local delta=${val[0]}
 
-INTERUPT_IS_FATAL=false
-HEADER='$LABEL '
+    # percent value
+    if [[ ${val[2]} ]]; then
+		delta=$(round $(echo "$h / 100 * ${val[0]}" | bc -l))
+	fi
 
-i1="123"
-i2="123z"
-f1="123.1231231"
-f2="112.12312x"
-p1="123.1231231%"
-p2="123.12312z%"
+    # absolute value
+    [[ "${val[1]}" == "abs" ]] && \
+        delta=$(( $delta - $h ))
 
-echo "--------------------"
-isfloat $f1 && success "OK" || error "ERROR"
-isfloat $f2 && success "OK" || error "ERROR"
+    hsv_to_rgb \
+        $(( $h + $delta )) ${HSV[1]} ${HSV[2]} 
+}
 
-echo "--------------------"
-float $i1
-float $i2
-float $f1
-float $f2
-float $p1
-float $p2
+rgb_saturation() {
+    local HSV=( $(rgb_to_hsv "${1}") )
+    local s=${HSV[1]}
+    local val=( $(value "${2}") )
+    local delta=$(int ${val[0]})
 
-echo "--------------------"
-bool "" && echo "true" || echo "false"
-bool "1" && echo "true" || echo "false"
-bool "0" && echo "true" || echo "false"
-bool "fuck" && echo "true" || echo "false"
-bool "$HEADER" && echo "Header present" || echo "$HEADER"
+    # percent value
+    if [[ ${val[2]} ]]; then
+        delta=$(round $(echo "$s / 100 * ${val[0]}" | bc -l))
+	fi
 
-echo "--------------------"
-value $i1
-value $i2
-value $f1
-value $f2
-value $p1
-value $p2
-value "+$p1"
-value "-$p1"
-value "-$p2"
+    # absolute value
+    [[ "${val[1]}" == "abs" ]] && \
+        delta=$(( $delta - $s ))
+
+    s=$(( $s + $delta ))
+    [[ $s -lt   0 ]] && s=0
+    [[ $s -gt 100 ]] && s=100
+
+    hsv_to_rgb \
+        ${HSV[0]} $s ${HSV[2]} 
+}
+
+rgb_value() {
+    local HSV=( $(rgb_to_hsv "${1}") )
+    local v=${HSV[2]}
+    local val=( $(value "${2}") )
+    local delta=$(int ${val[0]})
+
+    # percent value
+    if [[ ${val[2]} ]]; then
+        delta=$(round $(echo "$v / 100 * ${val[0]}" | bc -l))
+	fi
+
+	# absolute value
+    [[ "${val[1]}" == "abs" ]] && \
+        delta=$(( $delta - $v ))
+
+    v=$(( $v + $delta ))
+    [[ $v -lt   0 ]] && s=0
+    [[ $v -gt 100 ]] && s=100
+
+    hsv_to_rgb \
+        ${HSV[0]} ${HSV[1]} $v
+}
+
+rgb_inverse() {
+    local RGB=( $(rgb "${1}") )
+
+    rgb_to_hex \
+        $(( 255 - ${RGB[0]} )) \
+        $(( 255 - ${RGB[1]} )) \
+        $(( 255 - ${RGB[2]} ))
+}
+
