@@ -1,8 +1,6 @@
 /* CSS variables */
 
 :root {
-    --wallpaper: url("${WALLPAPER}");
-
     /* Special */
     --background: ${COLOR[background]};
     --foreground: ${COLOR[foreground]};
