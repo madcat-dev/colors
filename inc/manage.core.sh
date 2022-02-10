@@ -165,22 +165,24 @@ preview_theme() {
 
 
 apply() {
+    local data
     local SRCE="${1/\~/$HOME}"
     local DEST="${2/\~/$HOME}"
 
 
     [[ ! -f "$SRCE" ]] && \
-        error "- Template '${SRCE/$HOME/\~}; not existing!" && return 1
+        error "- Template '${SRCE/$HOME/\~}' not existing!" && return 1
 
     rm    -f "$DEST" > /dev/null 2>&1
-    mkdir -p "$(dirname "$DEST")" > /dev/null 2>&1
+    mkdir -p "$(dirname "${DEST}")" > /dev/null 2>&1
 
-    while read -r data; do
+    while IFS= read -r data; do
         data="${data//\"/\\x22}"
         data="${data//\*/\\x2A}"
         data="${data//\\/\\x5C}"
+        data="$( eval echo -e \"${data}\" )"
 
-        echo -e "$( eval echo -e \"${data}\" )" >> $DEST 2>/dev/null || \
+        echo -e "$data" >> $DEST 2>/dev/null || \
             return 1
     done < $SRCE
 }

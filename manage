@@ -179,6 +179,7 @@ if [[ ${SAVE_SCHEME} ]]; then
         error   "[-] Scheme is not saved"
 fi
 
+exit 0
 
 # Install theme
 if [[ ${INSTALL} ]]; then
