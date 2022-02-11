@@ -5,7 +5,7 @@
     follow  = none
     width   = 320
     origin  = top-right
-    offset  = 24x56
+    offset  = 10x50
     scale   = 0
     notification_limit = 0
 
@@ -82,17 +82,17 @@
     background  = "${COLOR[background]}"
     foreground  = "${URGENCY_LOW}"
     frame_color = "${URGENCY_LOW}"
-    timeout = 5
+    timeout = 7
 
 [urgency_normal]
     background  = "${COLOR[background]}"
     foreground  = "${URGENCY_NORMAL}"
     frame_color = "${URGENCY_NORMAL}"
-    timeout = 5
+    timeout = 7
 
 [urgency_critical]
     background  = "${COLOR[background]}"
     foreground  = "${URGENCY_CRITICAL}"
     frame_color = "${URGENCY_CRITICAL}"
-    timeout = 5
+    timeout = 7
 
