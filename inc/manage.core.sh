@@ -178,8 +178,11 @@ apply() {
 
     while read -r data; do
         local IFS=$'\x1B'
+
         data="${data//\"/\\x22}"
+        data="${data//\\/\\x5C}"
         data=$'\x22'$data$'\x22'
+
         echo -e "$(eval echo -e ${data})" >> $DEST 2>/dev/null \
             || return 1
     done < $SRCE
