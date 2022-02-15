@@ -12,9 +12,9 @@
     ### Progress bar ###
     progress_bar = true
     progress_bar_height = 8
-    progress_bar_frame_width = 2
-    progress_bar_min_width   = 300
-    progress_bar_max_width   = 300
+    progress_bar_frame_width = 1
+    progress_bar_min_width   = 308
+    progress_bar_max_width   = 308
 
     indicate_hidden = yes
     transparency = 0
