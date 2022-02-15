@@ -158,6 +158,10 @@ install_dunst_colors() {
         export URGENCY_CRITICAL="#BF616A"
     fi
 
-    apply "${TEMPLATES}/dunstrc" "$CFG/dunst/dunstrc" && \
-        killall dunst 2>&1 > /dev/null || return 1
+    if apply "${TEMPLATES}/dunstrc" "$CFG/dunst/dunstrc"; then
+        killall dunst 2>/dev/null
+        return 0
+    fi
+
+    return 1
 }
