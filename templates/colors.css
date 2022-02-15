@@ -4,7 +4,7 @@
     /* Special */
     --background: ${COLOR[background]};
     --foreground: ${COLOR[foreground]};
-	--cursor:     ${COLOR[cursor]};
+    --cursor:     ${COLOR[cursor]};
 
     /* Colors */
     --color0:  ${COLOR[0]};

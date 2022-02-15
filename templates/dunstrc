@@ -54,8 +54,7 @@
     max_icon_size = 128
 
     # Paths to default icons.
-    #icon_path = /usr/share/icons/gnome/16x16/status/:/usr/share/icons/gnome/16x16/devices/
-    icon_path = 
+    icon_path =
 
     ### History ###
     sticky_history = yes

@@ -3,18 +3,18 @@
 ! -----------------------------------------------------------------------------
 
 !! special
-*.foreground:			${COLOR[foreground]}
-*.background:			${COLOR[background]}
-*.cursorColor:			${COLOR[cursor]}
-*.highlightTextColor:	${COLOR[selection_foreground]}
-*.highlightColor:		${COLOR[selection_background]}
+*.foreground:           ${COLOR[foreground]}
+*.background:           ${COLOR[background]}
+*.cursorColor:          ${COLOR[cursor]}
+*.highlightTextColor:   ${COLOR[selection_foreground]}
+*.highlightColor:       ${COLOR[selection_background]}
 
-!! compatibility 
-*.cursor:				${COLOR[cursor]}
-*.highlight:			${COLOR[highlight]}
-*.selection_foreground:	${COLOR[selection_foreground]}
+!! compatibility
+*.cursor:               ${COLOR[cursor]}
+*.highlight:            ${COLOR[highlight]}
+*.selection_foreground: ${COLOR[selection_foreground]}
 *.selection_background: ${COLOR[selection_background]}
-*.url_color:			${COLOR[url_color]}
+*.url_color:            ${COLOR[url_color]}
 
 !! terminal colors+
 ! black

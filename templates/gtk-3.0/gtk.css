@@ -12,7 +12,7 @@ tab:checked label {
 }
 
 tab:checked {
-	box-shadow: inset 0 -2px @color_background_selected;
+    box-shadow: inset 0 -2px @color_background_selected;
 }
 
 VteTerminal, vte-terminal {
@@ -20,5 +20,5 @@ VteTerminal, vte-terminal {
 }
 
 #xfce4-terminal-notebook tab:checked {
-	box-shadow: inset 0 2px @color_background_selected;
+    box-shadow: inset 0 2px @color_background_selected;
 }

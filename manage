@@ -174,7 +174,7 @@ fill_special_colors --fill-missing-items
 # Save scheme to path
 if [[ ${SAVE_SCHEME} ]]; then
     normal "[ ] Save scheme to '${SAVE_SCHEME/$HOME/\~}'"
-    apply "$TEMPLATES/default.scheme" "${SAVE_SCHEME}" && \
+	apply "$TEMPLATES/default.scheme" "${SAVE_SCHEME}" && \
         success "[+] Scheme is saved" || \
         error   "[-] Scheme is not saved"
 fi
