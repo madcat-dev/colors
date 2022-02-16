@@ -147,7 +147,6 @@ preview() {
     eline "─" 70 "[ ${name} ]"
     echo -e  "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
     eline
-
     for i in {0..15}; do
         ecolor ${COLOR[$i]}
         [[ $i == 7 || $i == 15 ]] \
@@ -157,17 +156,18 @@ preview() {
 }
 
 preview_theme() {
-	NAME="${1:-xrdb}"
-		printf "%-15s%s\n"      "Path:"         "${NAME/$HOME/\~}"
+	local name="${1:-xrdb}"
 
-	[[ ${GTK_THEME_NAME} ]] && \
-		printf "%-15s%s\n"      "Gtk theme:"    "${GTK_THEME_NAME}"
+	printf "%-15s%s\n" "Path:" "${name/$HOME/\~}"
 
-	[[ ${GTK_ICON_THEME_NAME} ]] && \
-		printf "%-15s%s\n"      "Icons theme:"  "${GTK_ICON_THEME_NAME}"
+	[[ ${GTK_THEME_NAME} ]] \
+        && printf "%-15s%s\n" "Gtk theme:" "${GTK_THEME_NAME}"
 
-	[[ ${GTK_FONT_NAME} ]] && \
-		printf "%-15s%s\n"      "Font name:"    "${GTK_FONT_NAME}"
+	[[ ${GTK_ICON_THEME_NAME} ]] \
+        && printf "%-15s%s\n" "Icons theme:" "${GTK_ICON_THEME_NAME}"
+
+	[[ ${GTK_FONT_NAME} ]] \
+        && printf "%-15s%s\n" "Font name:" "${GTK_FONT_NAME}"
 
     eline
 
@@ -193,30 +193,7 @@ preview_theme() {
 
 set_timer
 
-echo "get_color_key balck:          $(get_color_key black)"
-echo "get_color_key red-light:      $(get_color_key red-light)"
-echo "get_color_key 1:              $(get_color_key 1)"
-echo "get_color_key 200:            $(get_color_key 200)"
-echo "get_color_key cursor:         $(get_color_key cursor)"
-echo "get_color_key Foreground:     $(get_color_key Foreground)"
-echo "get_color_key 0 any:          $(get_color_key '0 background')"
-
-COLOR[1]=#AABBCC
-echo "get 1:" $(get 1)
-echo "get 9:" $(get 9)
-
-restore_colors_from_xrdb
-echo "get 1:" $(get 1)
-echo "get 9:" $(get 9)
-
-istrue  $ERROR_IS_FATAL && echo "is True" || echo "is False"
-isfalse $ERROR_IS_FATAL && echo "is True" || echo "is False"
-bool $ERROR_IS_FATAL
-bool $INTERUPT_IS_FATAL
-
 preview_theme
 preview
-
-
 
 displaytime $(get_timer)
