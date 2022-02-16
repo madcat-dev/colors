@@ -145,7 +145,7 @@ preview() {
     local name="${1:-xrdb}"
 
     eline "─" 70 "[ ${name} ]"
-    echo -e  "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
+    echo -e "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
     eline "─" 70
 
     for i in {0..15}; do
