@@ -68,7 +68,7 @@ notify() {
 
     case $TYPE in
         info)
-            C='37'
+            C='36'
             LABEL='[*]'
             ;;
         success)
