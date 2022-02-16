@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-[[ ${CORE_LIB_LOADED} ]] && exit 0 || CORE_LIB_LOADED=true
+[[ ${CORE_LIB_LOADED} ]] && return 0 || CORE_LIB_LOADED=true
 
 LC_ALL=C
 
-source "$(dirname "${0/\~/$HOME}")/math.sh"
+source "$(dirname "${0/\~/$HOME}")/notify.sh"
+source "$(dirname "${0/\~/$HOME}")/estimate.sh"
 
 
 declare COLOR_KEYS=(
@@ -128,33 +129,34 @@ get() {
 # Preview functions
 # -----------------------------------------------------------------------------
 ecolor() {
-    printf "\033[48;2;%03d;%03d;%03dm" $(rgb ${1}) 
-    echo -en "#\033[0m"
-    printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${1}) 
-    echo -en "${1:1}\033[0m"
+    printf   "\033[38;2;%03d;%03d;%03dm" $(rgb ${1}) 
+    echo -en "${1}\033[0m"
+}
+
+eline() {
+    local sep="${1:-─}"
+    local len=${2:-70}
+
+    [[ "${3}" ]] \
+        && len=$(( $len - ${#3} ))
+
+    printf "${sep}%.0s" $(seq $len)
+    echo -e "${3}"
 }
 
 preview() {
     local name="${1:-xrdb}"
-    local len=$(echo "70 - ${#name} - 4" | bc -s)
 
-    echo -en $(printf '─%.0s' $(seq $len)); echo -e "[ ${name} ]"
+    eline "─" 70 "[ ${name} ]"
     echo -e  "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
-    echo -e  "$(printf '─%.0s' {1..70})"
+    eline
 
-    for i in {0..7}; do
-        printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${COLOR[$i]}) 
-        echo -en "$([[ $i -gt 0 ]] && echo "  ")${COLOR[$i]}"
+    for i in {0..15}; do
+        ecolor ${COLOR[$i]}
+        [[ $i == 7 || $i == 15 ]] \
+            && echo || echo -n "  "
     done
-    echo -e "\033[0m"
-
-    for i in {8..15}; do
-        printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${COLOR[$i]}) 
-        echo -en "$([[ $i -gt 8 ]] && echo "  ")${COLOR[$i]}"
-    done
-    echo -e "\033[0m"
-
-    echo -e "$(printf '─%.0s' {1..70})"
+    eline
 }
 
 preview_theme() {
@@ -170,20 +172,19 @@ preview_theme() {
 	[[ ${GTK_FONT_NAME} ]] && \
 		printf "%-15s%s\n"      "Font name:"    "${GTK_FONT_NAME}"
 
-	echo -e "$(printf '─%.0s' {1..70})"
+    eline
 
-	printf '%-68s%s\n' \
+	printf '%-46s%s\n' \
 		"background: $(ecolor $(get background))" \
 		"selection_background: $(ecolor $(get selection_background))"
 
-	printf '%-68s%s\n' \
+	printf '%-46s%s\n' \
 		"foreground: $(ecolor $(get foreground))" \
 		"selection_foreground: $(ecolor $(get selection_foreground))"
 
-	printf '%-68s%-68s%-70s\n' \
+	printf '%-46s%s\n' \
 		"cursor:     $(ecolor $(get cursor))" \
-		"url_color: $(ecolor $(get url_color))" \
-		"highlight: $(ecolor $(get highlight))"
+		"url_color:            $(ecolor $(get url_color))"
 }
 
 
@@ -207,11 +208,18 @@ COLOR[1]=#AABBCC
 echo "get 1:" $(get 1)
 echo "get 9:" $(get 9)
 
-#restore_colors_from_xrdb
+restore_colors_from_xrdb
 echo "get 1:" $(get 1)
 echo "get 9:" $(get 9)
 
+istrue  $ERROR_IS_FATAL && echo "is True" || echo "is False"
+isfalse $ERROR_IS_FATAL && echo "is True" || echo "is False"
+bool $ERROR_IS_FATAL
+bool $INTERUPT_IS_FATAL
+
 preview_theme
 preview
+
+
 
 displaytime $(get_timer)

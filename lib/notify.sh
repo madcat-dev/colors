@@ -3,15 +3,16 @@
 
 LC_ALL=C
 
-bool() {
-    [[ "${1,,}" =~ ^0|no|off|false$ ]] && return 1
+istrue() {
+    [[ "${1,,}" =~ ^0|no|n|off|false|f$ ]] && return 1
     [[ "${1}" ]]
 }
 
 ERROR_IS_FATAL=false
 INTERUPT_IS_FATAL=true
 
-HEADER='$(date +"%Y-%m-%d %H-%M-%S") $TYPE $LABEL'
+ERROR_COUNT_FORMAT="%03d"
+NOTIFY_HEADER='$(date +"%Y-%m-%d %H-%M-%S") $ERROR_COUNT ${TYPE^^} $LABEL'
 
 
 # -----------------------------------------------------------------------------
@@ -62,11 +63,11 @@ displaytime() {
 ERROR_COUNTER=0
 
 notify() {
-    local LABEL STOP C
+    local LABEL STOP C PCS ERROR_COUNT
     local TYPE="${1}"; shift
     local DATA="${@}"
 
-    case $TYPE in
+    case ${TYPE,,} in
         info)
             C='36'
             LABEL='[*]'
@@ -83,7 +84,7 @@ notify() {
             C='31'
             LABEL='[-]'
             ERROR_COUNTER+=1
-            bool "${ERROR_IS_FATAL}" && STOP=true
+            istrue "${ERROR_IS_FATAL}" && STOP=true
             ;;
         fatal)
             C='31;1'
@@ -98,14 +99,17 @@ notify() {
             ;;
     esac
 
+    ERROR_COUNT=$(printf "$ERROR_COUNT_FORMAT" $ERROR_COUNTER)
+
     echo -en "\r\033[2K\033[${C:-0}m" >&2
-    [[ "$HEADER" ]] && \
-        echo -en "$(eval echo \"$HEADER \")" >&2
+    [[ "$NOTIFY_HEADER" ]] && \
+        echo -en "$(eval echo \"$NOTIFY_HEADER \")" >&2
     echo -e "${@}\033[0m" >&2
 
-    if bool $STOP && bool "$INTERUPT_IS_FATAL"; then
-		kill -9 $$ >/dev/null 2>&1
-		exit 1
+    if istrue $STOP && istrue "$INTERUPT_IS_FATAL"; then
+        PCS=( $(ps aux | grep "$0" | awk '{print $2}') )
+		kill ${PCS[@]} &>/dev/null
+        return 1
 	fi
 
     return 0
