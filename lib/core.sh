@@ -135,10 +135,7 @@ ecolor() {
 
 eline() {
     local sep="${1:-─}"
-    local len=${2:-70}
-
-    [[ "${3}" ]] \
-        && len=$(( $len - ${#3} ))
+    local len=$(( ${2:-70} - ${#3}))
 
     printf "${sep}%.0s" $(seq $len)
     echo -e "${3}"
