@@ -4,7 +4,6 @@
 LC_ALL=C
 
 source "$(dirname "${0/\~/$HOME}")/math.sh"
-source "$(dirname "${0/\~/$HOME}")/notify.sh"
 
 
 declare COLOR_KEYS=(
@@ -208,7 +207,7 @@ COLOR[1]=#AABBCC
 echo "get 1:" $(get 1)
 echo "get 9:" $(get 9)
 
-restore_colors_from_xrdb
+#restore_colors_from_xrdb
 echo "get 1:" $(get 1)
 echo "get 9:" $(get 9)
 

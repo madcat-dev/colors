@@ -98,12 +98,16 @@ notify() {
             ;;
     esac
 
-    echo -en "\033[${C:-0}m" >&2
+    echo -en "\r\033[2K\033[${C:-0}m" >&2
     [[ "$HEADER" ]] && \
         echo -en "$(eval echo \"$HEADER \")" >&2
     echo -e "${@}\033[0m" >&2
 
-    bool $STOP && bool "$INTERUPT_IS_FATAL" && exit 1
+    if bool $STOP && bool "$INTERUPT_IS_FATAL"; then
+		kill -9 $$ >/dev/null 2>&1
+		exit 1
+	fi
+
     return 0
 }
 
