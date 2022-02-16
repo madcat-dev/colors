@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ ${NOTIFY_LIB_LOADED} ]] && exit 0 || NOTIFY_LIB_LOADED=true
+[[ ${NOTIFY_LIB_LOADED} ]] && return 0 || NOTIFY_LIB_LOADED=true
 
 LC_ALL=C
 
@@ -12,6 +12,48 @@ ERROR_IS_FATAL=false
 INTERUPT_IS_FATAL=true
 
 HEADER='$(date +"%Y-%m-%d %H-%M-%S") $TYPE $LABEL'
+
+
+# -----------------------------------------------------------------------------
+# Timer functions
+# -----------------------------------------------------------------------------
+declare -A TIMERS
+
+set_timer() {
+	local name="${1:-default}"
+	TIMERS["$name"]=$(date +%s)
+}
+
+get_timer() {
+	local name="${1:-default}"
+	local current=$(date +%s)
+	local stored=${TIMERS["$name"]:-$current}
+	echo  $(( $current - $stored ))
+}
+
+displaytime() {
+    local T=$1
+    local W=$((T/60/60/24/7))
+    local D=$((T/60/60/24%7))
+    local H=$((T/60/60%24))
+    local M=$((T/60%60))
+    local S=$((T%60))
+
+    if [[ $W > 0 ]]; then
+        printf '%d weeks ' $W
+        printf '%d days ' $D
+    else
+        if [[ $D > 0 ]]; then
+            printf '%d days ' $D
+            printf '%d hours ' $H
+        else
+            [[ $H > 0 ]] && printf '%d hours ' $H
+            [[ $M > 0 ]] && printf '%d minutes ' $M
+            [[ $H = 0 ]] && printf '%d seconds ' $S
+        fi
+    fi
+    echo "ago"
+}
 
 
 # -----------------------------------------------------------------------------

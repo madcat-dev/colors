@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-[[ ${MATH_LIB_LOADED} ]] && exit 0 || MATH_LIB_LOADED=true
+[[ ${MATH_LIB_LOADED} ]] && return 0 || MATH_LIB_LOADED=true
 
 LC_ALL=C
 
