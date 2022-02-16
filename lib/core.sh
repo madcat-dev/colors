@@ -146,13 +146,14 @@ preview() {
 
     eline "─" 70 "[ ${name} ]"
     echo -e  "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
-    eline
+    eline "─" 70
+
     for i in {0..15}; do
         ecolor ${COLOR[$i]}
         [[ $i == 7 || $i == 15 ]] \
             && echo || echo -n "  "
     done
-    eline
+    eline "─" 70
 }
 
 preview_theme() {
@@ -169,7 +170,7 @@ preview_theme() {
 	[[ ${GTK_FONT_NAME} ]] \
         && printf "%-15s%s\n" "Font name:" "${GTK_FONT_NAME}"
 
-    eline
+    eline "─" 70
 
 	printf '%-46s%s\n' \
 		"background: $(ecolor $(get background))" \
