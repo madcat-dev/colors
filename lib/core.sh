@@ -193,6 +193,8 @@ preview_theme() {
 
 set_timer
 
+restore_colors_from_xrdb
+
 preview_theme
 preview
 
