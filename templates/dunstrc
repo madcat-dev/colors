@@ -23,7 +23,7 @@
     horizontal_padding = 8
     text_icon_padding  = 0
 
-    frame_width = 0
+    frame_width = 2
     frame_color = "${COLOR[2]}"
 
     separator_height = 2
