@@ -304,6 +304,8 @@ hsv_to_rgb() {
     local q=$(round $(echo "$v * (1.0 - $s * $f)" | bc -l))
     local t=$(round $(echo "$v * (1.0 - $s * (1.0 - $f))" | bc -l))
 
+    echo $i
+    [[ $i == 0 ]] && i=0
     i=$(( $i % 6 ))
 
     [[ $i -eq 0 ]] && \

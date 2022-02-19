@@ -2,9 +2,10 @@
 [[ ${CORE_LIB_LOADED} ]] && return 0 || CORE_LIB_LOADED=true
 
 LC_ALL=C
+BASE=$(realpath $(dirname $0)/..)
 
-source "$(dirname "${0/\~/$HOME}")/notify.sh"
-source "$(dirname "${0/\~/$HOME}")/estimate.sh"
+source "$BASE/lib/notify.sh"
+source "$BASE/lib/estimate.sh"
 
 
 # -----------------------------------------------------------------------------
@@ -15,11 +16,7 @@ declare COLOR_KEYS=(
     0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
     foreground
     background
-    selection_foreground
-    selection_background
     cursor
-    url_color
-    highlight
 )
 
 declare -A COLOR_WORDS=(
@@ -40,9 +37,27 @@ declare -A COLOR
 # Color access functions
 # -----------------------------------------------------------------------------
 
-xrdbq() {
-    xrdb -query | grep -w "${1}:" | cut -f 2
+#xrdbq() {
+    #xrdb -query | grep -w "${1}:" | cut -f 2
+#}
+
+get_wal() {
+    tail -n1 "${HOME}/.fehbg" \
+        | awk '{print $NF}' \
+        | sed "s/'//g"
 }
+
+get_gtk_setting() {
+    gtk-query-settings \
+        | grep -w ${1}: \
+        | sed 's/^.*\://g' \
+        | sed 's/"//g'
+}
+
+
+# -----------------------------------------------------------------------------
+# Color access functions
+# -----------------------------------------------------------------------------
 
 restore_colors_from_xrdb() {
 	local color i
@@ -92,24 +107,8 @@ get() {
 			color=$(get 0)
 			;;
 		cursor)
-			color=$(get 2)
-			;;
-		highlight)
-			color=$(get 9)
-			;;
-		url_color)
-			color=$(get 12)
-			;;
-		selection_foreground)
-			[[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]] \
-				&& color=$(get 0) \
-				|| color=$(get 7)
-			;;
-		selection_background)
-			[[ ${GTK_APPLICATION_PREFER_DARK_THEME:-1} == 1 ]] \
-				&& color=$(get 7) \
-				|| color=$(get 0)
-			;;
+			color="#FFA500"
+            ;;
 		*)
 			isint "$KEY" || break
 
@@ -134,14 +133,28 @@ get() {
 # Preview functions
 # -----------------------------------------------------------------------------
 
+setfg() {
+    printf "\033[38;2;%03d;%03d;%03dm" $(rgb ${1}) 
+}
+
+setbg() {
+    printf "\033[48;2;%03d;%03d;%03dm" $(rgb ${1}) 
+}
+
+res() {
+    echo -en "\033[0m"
+}
+
 ecolor() {
-    printf   "\033[38;2;%03d;%03d;%03dm" $(rgb ${1}) 
-    echo -en "${1}\033[0m"
+    [[ "${2}" ]] \
+        && echo -en "$(setbg ${2})"
+    echo -en "$(setfg ${1})${1}$(res)"
 }
 
 eline() {
-    local sep="${1:-─}"
-    local len=$(( ${2:-70} - ${#3}))
+    local def="─"
+    local sep="${1:-$def}"
+    local len=$(( ${2:-70} - ${#3} ))
 
     printf "${sep}%.0s" $(seq $len)
     echo -e "${3}"
@@ -155,7 +168,7 @@ preview() {
     eline "─" 70
 
     for i in {0..15}; do
-        ecolor ${COLOR[$i]}
+        ecolor $(get $i)
         [[ $i == 7 || $i == 15 ]] \
             && echo || echo -n "  "
     done
@@ -167,28 +180,15 @@ preview_theme() {
 
 	printf "%-15s%s\n" "Path:" "${name/$HOME/\~}"
 
-	[[ ${GTK_THEME_NAME} ]] \
-        && printf "%-15s%s\n" "Gtk theme:" "${GTK_THEME_NAME}"
-
-	[[ ${GTK_ICON_THEME_NAME} ]] \
-        && printf "%-15s%s\n" "Icons theme:" "${GTK_ICON_THEME_NAME}"
-
-	[[ ${GTK_FONT_NAME} ]] \
-        && printf "%-15s%s\n" "Font name:" "${GTK_FONT_NAME}"
+    echo -e "Gtk theme:   ${GTK_THEME_NAME:-...} [$(get_gtk_setting gtk-theme-name)]"
+    echo -e "Icons theme: ${GTK_ICON_THEME_NAME:-...} [$(get_gtk_setting gtk-icon-theme-name)]"
+    echo -e "Font name: ${GTK_FONT_NAME:-...} [$(get_gtk_setting gtk-font-name)]"
 
     eline "─" 70
 
-	printf '%-46s%s\n' \
-		"background: $(ecolor $(get background))" \
-		"selection_background: $(ecolor $(get selection_background))"
-
-	printf '%-46s%s\n' \
-		"foreground: $(ecolor $(get foreground))" \
-		"selection_foreground: $(ecolor $(get selection_foreground))"
-
-	printf '%-46s%s\n' \
-		"cursor:     $(ecolor $(get cursor))" \
-		"url_color:            $(ecolor $(get url_color))"
+	echo -e "background: $(ecolor $(get background) $(get foreground))"
+    echo -e "foreground: $(ecolor $(get foreground) $(get background))"
+    echo -e "cursor:     $(ecolor $(get cursor)     $(get background))"
 }
 
 
@@ -204,6 +204,8 @@ preview_theme() {
 set_timer
 
 restore_colors_from_xrdb
+
+source $BASE/themes/mars
 
 preview_theme
 preview

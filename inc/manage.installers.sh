@@ -148,15 +148,9 @@ install_shell_colors() {
 install_dunst_colors() {
     local CFG="$HOME/.config"
 
-    if [[ ${BRIGHT_VARIANT} ]]; then
-        export URGENCY_LOW="#EBCB8B"
-        export URGENCY_NORMAL="#A3BE8C"
-        export URGENCY_CRITICAL="#BF616A"
-    else
-        export URGENCY_LOW="#EBCB8B"
-        export URGENCY_NORMAL="#A3BE8C"
-        export URGENCY_CRITICAL="#BF616A"
-    fi
+    export URGENCY_LOW="#D6AF86"
+    export URGENCY_NORMAL="#90A57E"
+    export URGENCY_CRITICAL="#A26666"
 
     if apply "${TEMPLATES}/dunstrc" "$CFG/dunst/dunstrc"; then
         killall dunst 2>/dev/null

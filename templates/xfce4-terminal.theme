@@ -7,5 +7,5 @@ ColorPalette=${COLOR[0]};${COLOR[1]};${COLOR[2]};${COLOR[3]};${COLOR[4]};${COLOR
 ColorBold=${COLOR[15]}
 ColorBoldUseDefault=FALSE
 ColorSelectionUseDefault=FALSE
-ColorSelection=${COLOR[selection_foreground]}
-ColorSelectionBackground=${COLOR[selection_background]}
+ColorSelection=${COLOR[background]}
+ColorSelectionBackground=${COLOR[foreground]}

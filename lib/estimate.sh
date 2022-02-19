@@ -2,8 +2,9 @@
 [[ ${ESTIMATE_LIB_LOADED} ]] && return 0 || ESTIMATE_LIB_LOADED=true
 
 LC_ALL=C
+BASE=$(realpath $(dirname $0)/..)
 
-source "$(dirname "${0/\~/$HOME}")/notify.sh"
+source "$BASE/lib/notify.sh"
 
 
 # -----------------------------------------------------------------------------
