@@ -2,9 +2,9 @@
 [[ ${CORE_LIB_LOADED} ]] && return 0 || CORE_LIB_LOADED=true
 
 LC_ALL=C
+
 BASE=$(realpath $(dirname $0)/..)
 
-source "$BASE/lib/notify.sh"
 source "$BASE/lib/estimate.sh"
 
 
@@ -196,9 +196,34 @@ preview_theme() {
 # 
 # -----------------------------------------------------------------------------
 
+apply() {
+    local data
+    local SRCE="${1/\~/$HOME}"
+    local DEST="${2/\~/$HOME}"
+
+    if [[ ! -f "$SRCE" ]]; then
+        error "- Template '${SRCE/$HOME/\~}' not existing!"
+        return 1
+    fi
+
+    rm    -f "$DEST" > /dev/null 2>&1
+    mkdir -p "$(dirname "${DEST}")" > /dev/null 2>&1
+
+    while read -r data; do
+        local IFS=$'\x1B'
+
+        data="${data//\"/\\x22}"
+        data="${data//\\/\\x5C}"
+        data=$'\x22'$data$'\x22'
+
+        echo -e "$(eval echo -e ${data})" >> $DEST 2>/dev/null \
+            || return 1
+    done < $SRCE
+}
 
 
 
+INTERUPT_IS_FATAL=true
 
 
 set_timer
@@ -209,5 +234,17 @@ source $BASE/themes/mars
 
 preview_theme
 preview
+
+apply "$BASE/templates/gtksourceview.xml" "/tmp/gtksourceview.xml"
+#apply "$BASE/templates/gtksourceview.xml" "/tmp/gtksourceview.xml"
+
+#data="\$(rgb_value \${COLOR[1]} 10)"
+#data="$(eval echo -e ${data})"
+#echo "-->>$data"
+
+debug "FUCK"
+info  "FUCK"
+DEBUG_LEVEL=0
+debug "ANY FUCK"
 
 displaytime $(get_timer)

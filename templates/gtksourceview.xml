@@ -24,7 +24,7 @@ References:
   <color name="nord1" value="${COLOR[1]}" />
   <color name="nord2" value="${COLOR[2]}" />
   <color name="nord3" value="${COLOR[3]}" />
-  <color name="nord3-brightened" value="${COLOR[3]}" />
+  <color name="nord3-brightened" value="$(rgb_value ${COLOR[3]} +20)" />
   <color name="nord4" value="${COLOR[4]}" />
   <color name="nord5" value="${COLOR[5]}" />
   <color name="nord6" value="${COLOR[6]}" />

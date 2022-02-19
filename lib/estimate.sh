@@ -2,6 +2,7 @@
 [[ ${ESTIMATE_LIB_LOADED} ]] && return 0 || ESTIMATE_LIB_LOADED=true
 
 LC_ALL=C
+
 BASE=$(realpath $(dirname $0)/..)
 
 source "$BASE/lib/notify.sh"
@@ -45,7 +46,7 @@ value() {
 
         [[ "${1}" =~ ^[\+\-]{1} ]] && m='rel' || m='abs'
 
-        echo "$v $m $p"
+        echo $v $m $p
         return 0
     fi
 
@@ -88,18 +89,20 @@ round() {
 
 floor() {
     local val=$(float "${1}")
-    val=( ${val/./ } )
+    local s="$(echo ${val/./ } | awk '{print $1}')"
+    local f="$(echo ${val/./ } | awk '{print $2}')"
 
-    [[ ${val[0]} -lt 0 && ${val[1]} -gt 0 ]] && \
-        echo $(( $val - 1 )) || echo "$val"
+    [[ ${s} -lt 0 && ${f} -gt 0 ]] && \
+        echo $(( $s - 1 )) || echo "$s"
 }
 
 ceil() {
     local val=$(float "${1}")
-    val=( ${val/./ } )
+    local s="$(echo ${val/./ } | awk '{print $1}')"
+    local f="$(echo ${val/./ } | awk '{print $2}')"
 
-    [[ ${val[0]} -ge 0 && ${val[1]} -gt 0 ]] && \
-        echo $(( $val + 1 )) || echo $val
+    [[ ${s} -ge 0 && ${f} -gt 0 ]] && \
+        echo $(( $s + 1 )) || echo $s
 }
 
 min() {
@@ -162,9 +165,10 @@ isrgb() {
 }
 
 rgb() {
+    local color=${1/\#/}
     printf -v RGB "%d %d %d" \
-        0x${1:1:2} 0x${1:3:2} 0x${1:5:2} 2>/dev/null && \
-        echo "$RGB" && \
+        0x${color:0:2} 0x${color:2:2} 0x${color:4:2} 2>/dev/null && \
+        echo $RGB && \
         return 0
 
     fatal "Invalid #RGB color: '${1}'"
@@ -177,10 +181,10 @@ rgb_to_hex() {
 }
 
 rgb_to_hsv() {
-    local RGB=( $(rgb "${1}") )
-    local r=${RGB[0]}  # integer 0..255
-    local g=${RGB[1]}  # integer 0..255
-    local b=${RGB[2]}  # integer 0..255
+    local RGB="$(rgb ${1})"
+    local r=$(echo $RGB | awk '{print $1}')  # integer 0..255
+    local g=$(echo $RGB | awk '{print $2}')  # integer 0..255
+    local b=$(echo $RGB | awk '{print $3}')  # integer 0..255
 
     local maxc=$(max $r $g $b)
     local minc=$(min $r $g $b)
@@ -255,9 +259,12 @@ hsv_to_rgb() {
 
 
 rgb_hue() {
-    local HSV=( $(rgb_to_hsv "${1}") )
-    local h=${HSV[0]}
-    local val=( $(value "${2}") )
+    local HSV="$(rgb_to_hsv ${1})"
+    local h=$(echo $HSV | awk '{print $1}')
+    local s=$(echo $HSV | awk '{print $2}')
+    local v=$(echo $HSV | awk '{print $3}')
+    local val
+    IFS=" " read -a val <<< "$(value ${2})" 
     local delta=${val[0]}
 
     # percent value
@@ -270,14 +277,17 @@ rgb_hue() {
         delta=$(( $delta - $h ))
 
     hsv_to_rgb \
-        $(( $h + $delta )) ${HSV[1]} ${HSV[2]} 
+        $(( $h + $delta )) $s $v
 }
 
 rgb_saturation() {
-    local HSV=( $(rgb_to_hsv "${1}") )
-    local s=${HSV[1]}
-    local val=( $(value "${2}") )
-    local delta=$(int ${val[0]})
+    local HSV="$(rgb_to_hsv ${1})"
+    local h=$(echo $HSV | awk '{print $1}')
+    local s=$(echo $HSV | awk '{print $2}')
+    local v=$(echo $HSV | awk '{print $3}')
+    local val
+    IFS=" " read -a val <<< "$(value ${2})" 
+    local delta=${val[0]}
 
     # percent value
     if [[ ${val[2]} ]]; then
@@ -293,14 +303,17 @@ rgb_saturation() {
     [[ $s -gt 100 ]] && s=100
 
     hsv_to_rgb \
-        ${HSV[0]} $s ${HSV[2]} 
+        $h $s $v
 }
 
 rgb_value() {
-    local HSV=( $(rgb_to_hsv "${1}") )
-    local v=${HSV[2]}
-    local val=( $(value "${2}") )
-    local delta=$(int ${val[0]})
+    local HSV="$(rgb_to_hsv ${1})"
+    local h=$(echo $HSV | awk '{print $1}')
+    local s=$(echo $HSV | awk '{print $2}')
+    local v=$(echo $HSV | awk '{print $3}')
+    local val
+    IFS=" " read -a val <<< "$(value ${2})" 
+    local delta=${val[0]}
 
     # percent value
     if [[ ${val[2]} ]]; then
@@ -316,15 +329,18 @@ rgb_value() {
     [[ $v -gt 100 ]] && s=100
 
     hsv_to_rgb \
-        ${HSV[0]} ${HSV[1]} $v
+        $h $s $v
 }
 
 rgb_inverse() {
-    local RGB=( $(rgb "${1}") )
+    local RGB="$(rgb ${1})"
+    local r=$(echo $RGB | awk '{print $1}')  # integer 0..255
+    local g=$(echo $RGB | awk '{print $2}')  # integer 0..255
+    local b=$(echo $RGB | awk '{print $3}')  # integer 0..255
 
     rgb_to_hex \
-        $(( 255 - ${RGB[0]} )) \
-        $(( 255 - ${RGB[1]} )) \
-        $(( 255 - ${RGB[2]} ))
+        $(( 255 - $r )) \
+        $(( 255 - $g )) \
+        $(( 255 - $b ))
 }
 

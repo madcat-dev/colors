@@ -10,9 +10,10 @@ istrue() {
 
 ERROR_IS_FATAL=false
 INTERUPT_IS_FATAL=true
+DEBUG_LEVEL=1
 
 ERROR_COUNT_FORMAT="%03d"
-NOTIFY_HEADER='$(date +"%Y-%m-%d %H-%M-%S") $ERROR_COUNT ${TYPE^^} $LABEL'
+NOTIFY_HEADER='$(date +"%Y-%m-%d %H-%M-%S") $ERROR_COUNT ${TYPE} $LABEL'
 
 
 # -----------------------------------------------------------------------------
@@ -63,36 +64,48 @@ displaytime() {
 ERROR_COUNTER=0
 
 notify() {
+    local LEVEL
     local LABEL STOP C PCS ERROR_COUNT
     local TYPE="${1}"; shift
     local DATA="${@}"
 
     case ${TYPE,,} in
-        info)
+        debug)
+            LEVEL=0
             C='36'
+            LABEL='[ ]'
+            ;;
+        info)
+            LEVEL=1
+            C='37'
             LABEL='[*]'
             ;;
-        success)
-            C='32'
-            LABEL='[+]'
-            ;;
         warning)
+            LEVEL=2
             C='33'
             LABEL='[!]'
             ;;
         error)
+            LEVEL=3
             C='31'
             LABEL='[-]'
             ERROR_COUNTER+=1
             istrue "${ERROR_IS_FATAL}" && STOP=true
             ;;
         fatal)
+            LEVEL=4
             C='31;1'
             LABEL='[-]'
             ERROR_COUNTER+=1
             STOP=true
             ;;
+        success)
+            LEVEL=10
+            C='32'
+            LABEL='[+]'
+            ;;
         *)
+            LEVEL=10
             LABEL='[ ]'
             DATA="$TYPE $DATA"
             TYPE=
@@ -100,21 +113,26 @@ notify() {
     esac
 
     ERROR_COUNT=$(printf "$ERROR_COUNT_FORMAT" $ERROR_COUNTER)
+    printf -v TYPE "%-8s" ${TYPE^^}
 
-    echo -en "\r\033[2K\033[${C:-0}m" >&2
-    [[ "$NOTIFY_HEADER" ]] && \
-        echo -en "$(eval echo \"$NOTIFY_HEADER \")" >&2
-    echo -e "${@}\033[0m" >&2
+    if [[ $LEVEL -ge $DEBUG_LEVEL ]]; then
+        echo -en "\r\033[2K\033[${C:-0}m" >&2
+
+        [[ "$NOTIFY_HEADER" ]] && \
+            echo -en "$(eval echo \"$NOTIFY_HEADER \")" >&2
+
+        echo -e "${@}\033[0m" >&2
+    fi
 
     if istrue $STOP && istrue "$INTERUPT_IS_FATAL"; then
-        PCS=( $(ps aux | grep "$0" | awk '{print $2}') )
-		kill ${PCS[@]} &>/dev/null
-        return 1
+        kill $$ &>/dev/null
+        exit 1
 	fi
 
     return 0
 }
 
+debug()     { notify debug   ${@}; }
 info()      { notify info    ${@}; }
 success()   { notify success ${@}; }
 warning()   { notify warning ${@}; }

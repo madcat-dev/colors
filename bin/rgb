@@ -257,6 +257,7 @@ rgb_to_hsv() {
     # Value: color brightness {0..100}
     local v=$(round $(echo "$maxc / 2.55" | bc -l))
 
+    echo "======>0, 0, $v" >&2
     [[ "$minc" == "$maxc" ]] && \
         echo "0 0 $v" && return
 
@@ -280,6 +281,7 @@ rgb_to_hsv() {
     h=$(round $(echo "($h / 6.0) * 360" | bc -l))
 
     echo "$h $s $v"
+    echo "------------->$h, $s, $v" >&2
 }
 
 hsv_to_rgb() {
@@ -304,7 +306,7 @@ hsv_to_rgb() {
     local q=$(round $(echo "$v * (1.0 - $s * $f)" | bc -l))
     local t=$(round $(echo "$v * (1.0 - $s * (1.0 - $f))" | bc -l))
 
-    echo $i
+    echo $i >&2
     [[ $i == 0 ]] && i=0
     i=$(( $i % 6 ))
 
@@ -377,6 +379,10 @@ rgb_value() {
     local val=( $(parse_value ${2}) )
     local delta=$(int ${val[0]})
 
+    echo "++++  ${HSV[@]} ++ $v ++ ${val[@]} ++ $delta" >&2
+    echo "+++!  ${HSV[0]}, ${HSV[1]}, ${HSV[2]}" >&2
+    echo "+++!! ${val[0]}, ${val[1]}, ${val[2]}" >&2
+
     # percent value
     if [[ ${val[2]} ]]; then
         delta=$(round $(echo "$v / 100 * ${val[0]}" | bc -l))
@@ -386,6 +392,7 @@ rgb_value() {
     [[ "${val[1]}" == "abs" ]] && \
         delta=$(( $delta - $v ))
 
+    echo "!!!!!!!!! $delta" >&2
     v=$(( $v + $delta ))
     [[ $v -lt   0 ]] && s=0
     [[ $v -gt 100 ]] && s=100
