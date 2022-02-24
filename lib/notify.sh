@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 [[ ${NOTIFY_LIB_LOADED} ]] && return 0 || NOTIFY_LIB_LOADED=true
 
+# using as library?
+[[ "${0}" != "${BASH_SOURCE}" ]] && \
+    NOTIFY_IS_LIB=true || NOTIFY_IS_LIB=
+
 LC_ALL=C
 
 istrue() {
@@ -8,12 +12,22 @@ istrue() {
     [[ "${1}" ]]
 }
 
-ERROR_IS_FATAL=false
-INTERUPT_IS_FATAL=true
-DEBUG_LEVEL=1
 
-ERROR_COUNT_FORMAT="%03d"
-NOTIFY_HEADER='$(date +"%Y-%m-%d %H-%M-%S") $ERROR_COUNT ${TYPE} $LABEL'
+# Inititalise
+[[ ! "${ERROR_IS_FATAL}" ]] \
+    && ERROR_IS_FATAL=false
+
+[[ ! "${INTERUPT_IS_FATAL}" ]] \
+    && INTERUPT_IS_FATAL=true
+
+[[ ! "${DEBUG_LEVEL}" ]] \
+    && DEBUG_LEVEL=1
+
+[[ ! "${ERROR_COUNT_FORMAT}" ]] \
+    && ERROR_COUNT_FORMAT="%03d"
+
+[[ ! "${NOTIFY_HEADER}" ]] \
+    && NOTIFY_HEADER='$(date +"%Y-%m-%d %H-%M-%S") $ERROR_COUNT ${TYPE} $LABEL'
 
 
 # -----------------------------------------------------------------------------
@@ -121,7 +135,7 @@ notify() {
         [[ "$NOTIFY_HEADER" ]] && \
             echo -en "$(eval echo \"$NOTIFY_HEADER \")" >&2
 
-        echo -e "${@}\033[0m" >&2
+        echo -e "${DATA}\033[0m" >&2
     fi
 
     if istrue $STOP && istrue "$INTERUPT_IS_FATAL"; then
@@ -138,3 +152,11 @@ success()   { notify success ${@}; }
 warning()   { notify warning ${@}; }
 error()     { notify error   ${@}; }
 fatal()     { notify fatal   ${@}; }
+
+
+# -----------------------------------------------------------------------------
+[[ ${NOTIFY_IS_LIB} ]] && return # run as a library
+# -----------------------------------------------------------------------------
+
+notify ${@}
+

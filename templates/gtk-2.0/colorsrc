@@ -16,9 +16,6 @@ gtk-color-scheme = "color13: ${COLOR[13]}"
 gtk-color-scheme = "color14: ${COLOR[14]}"
 gtk-color-scheme = "color15: ${COLOR[15]}"
 
-gtk-color-scheme = "color_foreground: ${COLOR[foreground]}"
-gtk-color-scheme = "color_background: ${COLOR[background]}"
-gtk-color-scheme = "color_background_selected: ${COLOR[2]}"
 gtk-color-scheme = "link_color: ${COLOR[url_color]}"
 
 gtk-color-scheme = "bg_color: ${COLOR[background]}"

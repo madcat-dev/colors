@@ -1,7 +1,44 @@
 #!/usr/bin/env bash
 
 LC_ALL=C
-
 BASE=$(realpath $(dirname $0))
 
-echo $BASE
+source $BASE/lib/core.sh
+
+set_timer
+
+
+pwd
+
+
+restore_colors_from_xrdb
+
+source ./themes/mars
+
+#preview_header
+#preview
+
+apply "$BASE/templates/gtksourceview.xml" "/tmp/gtksourceview.xml"
+
+
+
+
+COLOR=()
+
+image="${1:-/home/madcat/Pictures/Wallpapers/east-girl.jpg}"
+light="${2}"
+
+colors=($(gen_colors_from_image "$image" $light))
+for i in {0..7}; do
+    COLOR[$i]=${colors[$i]}
+done
+
+#source ./themes/mars
+#COLOR[background]=$(rgb_value '#343945' -10)
+colors_reallocation $light
+
+preview_header
+preview
+
+
+displaytime $(get_timer)

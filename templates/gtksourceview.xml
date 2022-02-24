@@ -13,7 +13,7 @@ References:
   https://developer.gnome.org/gtksourceview/stable/GtkSourceStyle.html
   https://developer.gnome.org/gtksourceview/stable/GtkSourceStyleScheme.html
 -->
-<!-- Original header
+<!-- Original header, test \$template
 <style-scheme id="nord-gedit" name="Nord" filename="nord.xml" version="1.0">
 -->
 <style-scheme id="color_manager" name="Color Manager" filename="gtksourceview.xml" version="1.0">

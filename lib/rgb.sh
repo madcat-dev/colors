@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
-[[ ${ESTIMATE_LIB_LOADED} ]] && return 0 || ESTIMATE_LIB_LOADED=true
+[[ ${RGB_LIB_LOADED} ]] && return 0 || RGB_LIB_LOADED=true
+# using as library?
+[[ "${0}" != "${BASH_SOURCE}" ]] && \
+    RGB_IS_LIB=true || RGB_IS_LIB=
 
 LC_ALL=C
 
-BASE=$(realpath $(dirname $0)/..)
-
-source "$BASE/lib/notify.sh"
+BASE=$(realpath $(dirname ${BASH_SOURCE})/..)
+source $BASE/lib/notify.sh
 
 
 # -----------------------------------------------------------------------------
 # Math and types utilites
 # -----------------------------------------------------------------------------
 re_int="^[-+]?[0-9]+$"
-re_flt="^[-+]?[0-9]+(\.)?[0-9]*$"
-re_pct="^[-+]?[0-9]+(\.)?[0-9]*\%$"
+re_flt="^[-+]?([0-9]+\.?[0-9]*)|([0-9]*\.{1}[0-9]+)$"
+re_pct="^[-+]?([0-9]+\.?[0-9]*\%)|([0-9]*\.{1}[0-9]+\%)$"
 
 istrue() {
     [[ "${1,,}" =~ ^0|no|n|off|false|f$ ]] && return 1
@@ -59,9 +61,10 @@ isint() {
 }
 
 int() {
-    isvalue "${1}" && \
-        echo ${1/+/} | sed 's/\..*$//g' && \
-        return 0
+    if isvalue "${1}"; then
+        printf "%d" "${1/\%/}" && \
+			return 0
+	fi
 
     fatal "Not integer value cast: '${1}'"
     return 1
@@ -72,9 +75,10 @@ isfloat() {
 }
 
 float() {
-    isvalue "${1}" && \
-        echo ${1/+/} | sed 's/\%$//g' && \
-        return 0
+    if isvalue "${1}"; then
+		printf "%.8f\n" "${1/\%/}" && \
+			return 0
+	fi
 
     fatal "Not float value cast: '${1}'"
     return 1
@@ -181,10 +185,12 @@ rgb_to_hex() {
 }
 
 rgb_to_hsv() {
-    local RGB="$(rgb ${1})"
-    local r=$(echo $RGB | awk '{print $1}')  # integer 0..255
-    local g=$(echo $RGB | awk '{print $2}')  # integer 0..255
-    local b=$(echo $RGB | awk '{print $3}')  # integer 0..255
+    local RGB
+    IFS=" " read -a RGB <<< "$(rgb ${1})"
+
+    local r=${RGB[0]}  # integer 0..255
+    local g=${RGB[1]}  # integer 0..255
+    local b=${RGB[2]}  # integer 0..255
 
     local maxc=$(max $r $g $b)
     local minc=$(min $r $g $b)
@@ -259,10 +265,10 @@ hsv_to_rgb() {
 
 
 rgb_hue() {
-    local HSV="$(rgb_to_hsv ${1})"
-    local h=$(echo $HSV | awk '{print $1}')
-    local s=$(echo $HSV | awk '{print $2}')
-    local v=$(echo $HSV | awk '{print $3}')
+    local HSV
+    IFS=" " read -a HSV <<< "$(rgb_to_hsv ${1})"
+    local h=${HSV[0]}
+
     local val
     IFS=" " read -a val <<< "$(value ${2})" 
     local delta=${val[0]}
@@ -277,14 +283,16 @@ rgb_hue() {
         delta=$(( $delta - $h ))
 
     hsv_to_rgb \
-        $(( $h + $delta )) $s $v
+        $(( $h + $delta )) \
+        ${HSV[1]} \
+        ${HSV[2]} 
 }
 
 rgb_saturation() {
-    local HSV="$(rgb_to_hsv ${1})"
-    local h=$(echo $HSV | awk '{print $1}')
-    local s=$(echo $HSV | awk '{print $2}')
-    local v=$(echo $HSV | awk '{print $3}')
+    local HSV
+    IFS=" " read -a HSV <<< "$(rgb_to_hsv ${1})"
+    local s=${HSV[1]}
+
     local val
     IFS=" " read -a val <<< "$(value ${2})" 
     local delta=${val[0]}
@@ -303,14 +311,16 @@ rgb_saturation() {
     [[ $s -gt 100 ]] && s=100
 
     hsv_to_rgb \
-        $h $s $v
+        ${HSV[0]} \
+        $s \
+        ${HSV[2]} 
 }
 
 rgb_value() {
-    local HSV="$(rgb_to_hsv ${1})"
-    local h=$(echo $HSV | awk '{print $1}')
-    local s=$(echo $HSV | awk '{print $2}')
-    local v=$(echo $HSV | awk '{print $3}')
+    local HSV
+    IFS=" " read -a HSV <<< "$(rgb_to_hsv ${1})"
+    local v=${HSV[2]}
+
     local val
     IFS=" " read -a val <<< "$(value ${2})" 
     local delta=${val[0]}
@@ -329,18 +339,55 @@ rgb_value() {
     [[ $v -gt 100 ]] && s=100
 
     hsv_to_rgb \
-        $h $s $v
+        ${HSV[0]} \
+        ${HSV[1]} \
+        $v
 }
 
 rgb_inverse() {
-    local RGB="$(rgb ${1})"
-    local r=$(echo $RGB | awk '{print $1}')  # integer 0..255
-    local g=$(echo $RGB | awk '{print $2}')  # integer 0..255
-    local b=$(echo $RGB | awk '{print $3}')  # integer 0..255
+    local RGB
+    IFS=" " read -a RGB <<< "$(rgb ${1})"
 
     rgb_to_hex \
-        $(( 255 - $r )) \
-        $(( 255 - $g )) \
-        $(( 255 - $b ))
+        $((255 - ${RGB[0]})) \
+        $((255 - ${RGB[1]})) \
+        $((255 - ${RGB[2]}))
 }
 
+rgb_transform() {
+	if ! isrgb "$1"; then
+		fatal "Color '$1' is invalid"
+		return 1
+	fi
+
+	if [[ ! "${3}" ]]; then
+		echo "${1}"
+		return 0
+	fi
+
+	case "${2,,}" in
+		--value|-V)
+			rgb_value "$1" "$3"
+			;;
+		--hue|-H)
+			rgb_hue "$1" "$3"
+			;;
+		--saturation|-S)
+			rgb_saturation "$1" "$3"
+			;;
+		--inverse|-I)
+			rgb_inverse "$1"
+			;;
+		*)
+			fatal "Mode '$2' is invalid!"
+			return 1
+			;;
+	esac
+}
+
+
+# -----------------------------------------------------------------------------
+[[ ${RGB_IS_LIB} ]] && return # run as a library
+# -----------------------------------------------------------------------------
+
+rgb_transform ${@}

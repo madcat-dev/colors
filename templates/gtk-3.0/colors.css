@@ -16,9 +16,6 @@
 @define-color color14 ${COLOR[14]};
 @define-color color15 ${COLOR[15]};
 
-@define-color color_foreground ${COLOR[foreground]};
-@define-color color_background ${COLOR[background]};
-@define-color color_background_selected ${COLOR[2]};
 @define-color link_color ${COLOR[url_color]};
 
 @define-color bg_color ${COLOR[background]};
