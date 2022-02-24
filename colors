@@ -34,6 +34,7 @@ while [ -n "$1" ]; do
             COLOR[${index:-0}]="$color"
             ((index++))
         done
+
         shift
         ;;
     --light)
@@ -41,6 +42,13 @@ while [ -n "$1" ]; do
         ;;
     --dark)
         GTK_APPLICATION_PREFER_DARK_THEME=1
+        ;;
+    --save)
+        [[ ! ${2} || ${2:0:1} == "-" ]] && \
+            fatal "Invalid parameter '${2}' from ${1} argument"
+
+        SAVE_THEME=${2}
+        shift
         ;;
     --list)
         echo -e "${AVAILABLE[@]}"
@@ -50,11 +58,13 @@ while [ -n "$1" ]; do
         COLOR=()
         THEME="${1/\~/$HOME}"
 
-        [[ ! -f "${THEME}" ]]
-            THEME="$BASE/themes/$THEME"
+        debug "Load theme '$THEME'"
+
+        [[ ! -f "${THEME}" ]] \
+            && THEME="$BASE/themes/$THEME"
 
         source "$THEME" 2>/dev/null \
-            || fatal "Color theme not found"
+            || fatal "Color theme '$THEME' not found"
         ;;
     esac
     shift
@@ -69,9 +79,22 @@ isfalse "${SHORT_PREVIEW}" \
 
 preview_theme
 
+# Save scheme to path
+if [[ ${SAVE_THEME} ]]; then
+    normal "Save scheme to '${SAVE_THEME/$HOME/\~}'"
+	save_theme "${SAVE_THEME}" \
+        && success "Theme is saved" \
+        || error   "Theme is not saved"
+fi
+
 if istrue "${INSTALL}"; then
-    gen_sh_theme
-    get_sh_theme
+    gen_sh_theme \
+        && success "Sh theme is generated" \
+        || fatal   "Sh theme is not generated"
+
+    get_sh_theme \
+        && success "Sh theme is restored" \
+        || fatal   "Sh theme is not restored"
 fi
 
 

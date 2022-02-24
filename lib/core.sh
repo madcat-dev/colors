@@ -19,6 +19,7 @@ DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME=1
 DEFAULT_GTK_THEME_NAME='FlatColor'
 DEFAULT_GTK_ICON_THEME_NAME='Tela'
 DEFAULT_GTK_FONT_NAME='Noto Sans 11'
+DEFAULT_CURSOR_COLOR="#FFA500"
 
 
 declare COLOR_KEYS=(
@@ -82,9 +83,7 @@ restore_environment_variables() {
 
 	export GTK_APPLICATION_PREFER_DARK_THEME=$(\
 		istrue "${GTK_APPLICATION_PREFER_DARK_THEME:-DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME}" \
-			&& echo 1 \
-			|| echo 0 \
-		)
+			&& echo 1 || echo 0)
 
 	debug "GTK_APPLICATION_PREFER_DARK_THEME: $GTK_APPLICATION_PREFER_DARK_THEME"
 
@@ -153,7 +152,7 @@ get() {
 			color=$(get 0)
 			;;
 		cursor)
-			color="#FFA500"
+			color="${CURSOR_COLOR:-$DEFAULT_CURSOR_COLOR}"
             ;;
 		*)
 			isint "$KEY" \
@@ -369,6 +368,40 @@ EOF
 }
 
 get_sh_theme() {
-	source "${CACHE}/colors.sh" 2>/dev/null \
-		|| fatal "sh theme not loaded"
+	source "${CACHE}/colors.sh" 2>/dev/null
+}
+
+save_theme() {
+    cat <<EOF > "${1/\~/$HOME}"
+GTK_APPLICATION_PREFER_DARK_THEME=$GTK_APPLICATION_PREFER_DARK_THEME
+declare -A COLOR
+
+export COLOR=(
+    # Shell variables
+    [wallpaper]="$(get_wallpaper)"
+
+    # Special
+    [background]="$(get background)"
+    [foreground]="$(get foreground)"
+    [cursor]="$(get cursor)"
+
+    # Colors
+    # black
+    [0]=$(get 0)
+    # red
+    [1]=$(get 1)
+    # green
+    [2]=$(get 2)
+    # yellow
+    [3]=$(get 3)
+    # blue
+    [4]=$(get 4)
+    # magenta
+    [5]=$(get 5)
+    # cyan
+    [6]=$(get 6)
+    # white
+    [7]=$(get 7)
+)
+EOF
 }
