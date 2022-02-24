@@ -6,9 +6,10 @@
 
 LC_ALL=C
 
-BASE=$(realpath $(dirname ${BASH_SOURCE})/..)
-source $BASE/lib/notify.sh
-
+if ! source notify.sh; then
+    echo -e "\033[31mLibrary 'notify.sh not found!'\033[0m"
+    exit 1
+fi
 
 # -----------------------------------------------------------------------------
 # Math and types utilites

@@ -2,11 +2,15 @@
 
 LC_ALL=C
 
+APP_NAME="colors"
+
+echo ">>>>>>>>>>>> $__NAME__"
+
 SHARED_PATHS=(
     "$(realpath $(dirname $0))"
-    "$HOME/.local/share/colors"
-    "/usr/local/share/colors"
-    "/usr/share/colors"
+    "$HOME/.local/share/$APP_NAME"
+    "/usr/local/share/$APP_NAME"
+    "/usr/share/$APP_NAME"
 )
 
 for path in ${SHARED_PATHS[@]}; do
