@@ -8,36 +8,20 @@ declare -A COLOR
 # -----------------------------------------------------------------------------
 
 export COLOR=(
-    # terminal colors+
     # black
     [0]=#3B4252
-    [8]=#4C566A
-
     # red
     [1]=#BF616A
-    [9]=#BF616A
-
     # green
     [2]=#A3BE8C
-    [10]=#A3BE8C
-
     # yellow
     [3]=#EBCB8B
-    [11]=#EBCB8B
-
     # blue
     [4]=#81A1C1
-    [12]=#81A1C1
-
     # magenta
     [5]=#B48EAD
-    [13]=#B48EAD
-
     # cyan
     [6]=#88C0D0
-    [14]=#8FBCBB
-
     # white
     [7]=#E5E9F0
-    [15]=#ECEFF4
 )

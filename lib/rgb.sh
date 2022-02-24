@@ -28,7 +28,11 @@ isfalse() {
 }
 
 bool() {
-    istrue "${1}" && echo "${1}"
+	istrue "${1}" && echo "${1}"
+}
+
+neg() {
+    isfalse "${1}" && echo "1"
 }
 
 isvalue() {

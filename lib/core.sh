@@ -4,15 +4,22 @@
 LC_ALL=C
 
 BASE=$(realpath $(dirname ${BASH_SOURCE})/..)
-CACHE="$HOME/.cache/colors"
+CACHE="$HOME/.cache/theme"
 
 mkdir -p "$CACHE" > /dev/null 2>&1
 
 source $BASE/lib/rgb.sh
 
+
 # -----------------------------------------------------------------------------
-# Declarations
+# Declarations and Defaults
 # -----------------------------------------------------------------------------
+
+DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME=1
+DEFAULT_GTK_THEME_NAME='FlatColor'
+DEFAULT_GTK_ICON_THEME_NAME='Tela'
+DEFAULT_GTK_FONT_NAME='Noto Sans 11'
+
 
 declare COLOR_KEYS=(
     0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
@@ -37,7 +44,7 @@ xrdbq() {
     xrdb -query | grep -w "${1}:" | cut -f 2
 }
 
-get_wal() {
+get_wallpaper() {
     tail -n1 "${HOME}/.fehbg" \
         | awk '{print $NF}' \
         | sed "s/'//g"
@@ -65,6 +72,48 @@ restore_colors_from_xrdb() {
 			COLOR[$i]="$color"
 		fi
 	done
+}
+
+restore_environment_variables() {
+	if [[ ! "${GTK_APPLICATION_PREFER_DARK_THEME}" ]]; then
+		GTK_APPLICATION_PREFER_DARK_THEME=$(\
+			get_gtk_setting 'gtk-application-prefer-dark-theme')
+	fi
+
+	GTK_APPLICATION_PREFER_DARK_THEME=$(\
+		istrue "${GTK_APPLICATION_PREFER_DARK_THEME:-DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME}" \
+			&& echo 1 \
+			|| echo 0 \
+		)
+
+	debug "GTK_APPLICATION_PREFER_DARK_THEME: $GTK_APPLICATION_PREFER_DARK_THEME"
+
+	if [[ ! "${GTK_THEME_NAME}" ]]; then
+		GTK_THEME_NAME=$(\
+			get_gtk_setting 'gtk-theme-name')
+	fi
+
+	GTK_THEME_NAME="${GTK_THEME_NAME:-$DEFAULT_GTK_THEME_NAME}"
+
+	debug "GTK_THEME_NAME: $GTK_THEME_NAME"
+
+	if [[ ! "${GTK_ICON_THEME_NAME}" ]]; then
+		GTK_ICON_THEME_NAME=$(\
+			get_gtk_setting 'gtk-icon-theme-name')
+	fi
+
+	GTK_ICON_THEME_NAME="${GTK_ICON_THEME_NAME:-$DEFAULT_GTK_ICON_THEME_NAME}"
+
+	debug "GTK_ICON_THEME_NAME: $GTK_ICON_THEME_NAME"
+
+	if [[ ! "${GTK_FONT_NAME}" ]]; then
+		GTK_FONT_NAME=$(\
+			get_gtk_setting 'gtk-font-name')
+	fi
+
+	GTK_FONT_NAME="${GTK_FONT_NAME:-$DEFAULT_GTK_FONT_NAME}"
+
+	debug "GTK_FONT_NAME: $GTK_FONT_NAME"
 }
 
 
@@ -150,8 +199,8 @@ eline() {
     echo -e "${3}"
 }
 
-preview() {
-    local name="${1:-xrdb}"
+preview_theme() {
+	local name="$(basename "${THEME:-xrdb}")"
 
     eline "─" 70 "[ ${name} ]"
     echo -e "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
@@ -165,21 +214,22 @@ preview() {
     eline "─" 70
 }
 
-preview_header() {
-	local name="${1:-xrdb}"
-    local wall="$(get_wal)"
+preview_theme_header() {
+	local name="${THEME:-xrdb}"
+    local wall="$(get_wallpaper)"
 
-	echo -e "Path:        ${name/$HOME/\~}"
+	echo -e "Theme:       ${name/$HOME/\~}"
     echo -e "Wallpaper:   ${wall/$HOME/\~}"
     echo -e "Gtk theme:   ${GTK_THEME_NAME:-...} [$(get_gtk_setting gtk-theme-name)]"
     echo -e "Icons theme: ${GTK_ICON_THEME_NAME:-...} [$(get_gtk_setting gtk-icon-theme-name)]"
+	echo -e "Dark theme:  ${GTK_APPLICATION_PREFER_DARK_THEME:-...} [$(get_gtk_setting gtk-application-prefer-dark-theme)]"
     echo -e "Font name:   ${GTK_FONT_NAME:-...} [$(get_gtk_setting gtk-font-name)]"
 
     eline "─" 70
 
-	echo -e "background: $(ecolor $(get background) $(get foreground))"
-    echo -e "foreground: $(ecolor $(get foreground) $(get background))"
-    echo -e "cursor:     $(ecolor $(get cursor)     $(get background))"
+	echo -e "background:  $(ecolor $(get background) $(get foreground))"
+    echo -e "foreground:  $(ecolor $(get foreground) $(get background))"
+    echo -e "cursor:      $(ecolor $(get cursor)     $(get background))"
 }
 
 
@@ -241,8 +291,19 @@ colors_reallocation() {
 	local light="$(bool ${1})"
     local HSV=( $(rgb_to_hsv $(get 0)) )
     local v=${HSV[2]}
+	local islight=0
+
+	[[ $v -gt 60 ]] && islight=1
 
     if [[ "$light" ]]; then
+		if isfalse $islight; then
+			local _swap=$(get 0)
+			COLOR[0]=$(get 7)
+			COLOR[7]=$_swap
+			COLOR[background]=
+			COLOR[foreground]=
+		fi
+
         if [[ ! ${COLOR[background]} ]]; then
             [[ $v -gt 75 ]] \
                 && COLOR[0]=$(rgb_value $(get 0) 75)
@@ -254,6 +315,14 @@ colors_reallocation() {
 	fi
 
     if [[ ! "$light" ]]; then
+		if istrue $islight; then
+			local _swap=$(get 0)
+			COLOR[0]=$(get 7)
+			COLOR[7]=$_swap
+			COLOR[background]=
+			COLOR[foreground]=
+		fi
+
         if [[ ! ${COLOR[background]} ]]; then
             [[ $v -lt 25 ]] \
                 && COLOR[0]=$(rgb_value $(get 0) 25)
@@ -267,4 +336,39 @@ colors_reallocation() {
     for i in {1..7}; do
         COLOR[$(($i + 8))]=$(rgb_value $(get $i) +10)
     done
+}
+
+gen_sh_theme() {
+	cat <<EOF > "${CACHE}/colors.sh"
+# Shell variables
+wallpaper="$(get_wallpaper)"
+
+# Special
+background="$(get background)"
+foreground="$(get foreground)"
+cursor="$(get cursor)"
+
+# Colors
+color0="$(get 0)"
+color1="$(get 1)"
+color2="$(get 2)"
+color3="$(get 3)"
+color4="$(get 4)"
+color5="$(get 5)"
+color6="$(get 6)"
+color7="$(get 7)"
+color8="$(get 8)"
+color9="$(get 9)"
+color10="$(get 10)"
+color11="$(get 11)"
+color12="$(get 12)"
+color13="$(get 13)"
+color14="$(get 14)"
+color15="$(get 15)"
+EOF
+}
+
+get_sh_theme() {
+	source "${CACHE}/colors.sh" 2>/dev/null \
+		|| fatal "sh theme not loaded"
 }

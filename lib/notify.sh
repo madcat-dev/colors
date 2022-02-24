@@ -87,12 +87,12 @@ notify() {
         debug)
             LEVEL=0
             C='36'
-            LABEL='[ ]'
+            LABEL='[D]'
             ;;
         info)
             LEVEL=1
             C='37'
-            LABEL='[*]'
+            LABEL='[i]'
             ;;
         warning)
             LEVEL=2

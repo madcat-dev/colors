@@ -5,40 +5,74 @@ BASE=$(realpath $(dirname $0))
 
 source $BASE/lib/core.sh
 
+# Initialise
+DEBUG_LEVEL=0
+NOTIFY_HEADER='$LABEL'
+
+AVAILABLE=( $(ls $BASE/schemes) )
+
 set_timer
-
-
-pwd
-
-
 restore_colors_from_xrdb
-
-source ./themes/mars
-
-#preview_header
-#preview
-
-apply "$BASE/templates/gtksourceview.xml" "/tmp/gtksourceview.xml"
+restore_environment_variables
 
 
+while [ -n "$1" ]; do
+    VAL=
 
+    case "${1}" in
+    --install)
+        INSTALL=Yes
+        ;;
+    --short)
+        SHORT_PREVIEW=Yes
+        ;;
+    --image)
+        COLOR=()
+        THEME="$(basename "${2/\~/$HOME}")"
 
-COLOR=()
+        for color in $(gen_colors_from_image "${2/\~/$HOME}" $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})); do
+            COLOR[${index:-0}]="$color"
+            ((index++))
+        done
+        shift
+        ;;
+    --light)
+        GTK_APPLICATION_PREFER_DARK_THEME=0
+        ;;
+    --dark)
+        GTK_APPLICATION_PREFER_DARK_THEME=1
+        ;;
+    --list)
+        echo -e "${AVAILABLE[@]}"
+        exit 0
+        ;;
+    *)
+        COLOR=()
+        THEME="${1/\~/$HOME}"
 
-image="${1:-/home/madcat/Pictures/Wallpapers/east-girl.jpg}"
-light="${2}"
+        [[ ! -f "${THEME}" ]]
+            THEME="$BASE/themes/$THEME"
 
-colors=($(gen_colors_from_image "$image" $light))
-for i in {0..7}; do
-    COLOR[$i]=${colors[$i]}
+        source "$THEME" 2>/dev/null \
+            || fatal "Color theme not found"
+        ;;
+    esac
+    shift
 done
 
-#source ./themes/mars
-#COLOR[background]=$(rgb_value '#343945' -10)
-colors_reallocation $light
 
-preview_header
-preview
+isfalse ${CLEAN_THEME_PREVIEW} \
+    && colors_reallocation $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})
+
+isfalse "${SHORT_PREVIEW}" \
+    && preview_theme_header
+
+preview_theme
+
+if istrue "${INSTALL}"; then
+    gen_sh_theme
+    get_sh_theme
+fi
 
 
 displaytime $(get_timer)
