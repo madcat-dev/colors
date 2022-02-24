@@ -370,16 +370,16 @@ rgb_transform() {
 	fi
 
 	case "${2,,}" in
-		--value|-V)
+		--value|-v)
 			rgb_value "$1" "$3"
 			;;
-		--hue|-H)
+		--hue|-h)
 			rgb_hue "$1" "$3"
 			;;
-		--saturation|-S)
+		--saturation|-s)
 			rgb_saturation "$1" "$3"
 			;;
-		--inverse|-I)
+		--inverse|-i)
 			rgb_inverse "$1"
 			;;
 		*)

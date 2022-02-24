@@ -87,7 +87,7 @@ notify() {
         debug)
             LEVEL=0
             C='36'
-            LABEL='[D]'
+            LABEL='[.]'
             ;;
         info)
             LEVEL=1

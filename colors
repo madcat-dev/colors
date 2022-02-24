@@ -1,15 +1,30 @@
 #!/usr/bin/env bash
 
 LC_ALL=C
-BASE=$(realpath $(dirname $0))
 
-source $BASE/lib/core.sh
+SHARED_PATHS=(
+    "$(realpath $(dirname $0))"
+    "$HOME/.local/share/colors"
+    "/usr/local/share/colors"
+    "/usr/share/colors"
+)
+
+for path in ${SHARED_PATHS[@]}; do
+    if [[ -f "$path/lib/core.sh" ]]; then
+        BASE="$path"
+        break
+    fi
+done
+
+source $BASE/lib/core.sh \
+    || exit 1
+
 
 # Initialise
 DEBUG_LEVEL=0
 NOTIFY_HEADER='$LABEL'
 
-AVAILABLE=( $(ls $BASE/schemes) )
+AVAILABLE=( $(ls $BASE/themes) )
 
 set_timer
 restore_colors_from_xrdb
@@ -24,6 +39,54 @@ while [ -n "$1" ]; do
         INSTALL=Yes
         ;;
 
+    --color|-c)
+        dest= value= mod= srce=
+
+        dest=$(get_color_key "${2}")
+        [[ $dest == "UNDEFINED" ]] \
+            && fatal "Invalid '${2}' color key"
+        shift
+
+        while [ -n "$2" ]; do
+            if isrgb "$2"; then
+                srce="$2"
+
+            elif [[ "$2" == "from" ]]; then
+                srce="${3}";
+                shift
+
+            elif [[ " h s v i hue saturation value inverse " == *" ${2,,} "* ]]; then
+                [[ ${#2} -gt 1 ]] && mod="--${2}" || mod="-${2}"
+                value="${3}"
+                shift
+
+            else
+                [[ ! "$(get_color_key "${2}")" == "UNDEFINED" ]] \
+                    && srce="${2}" \
+                    || break
+            fi
+            shift
+        done
+
+        debug "source: ${srce:-$dest}"
+
+        isrgb "${srce:-$dest}" \
+            || srce=$(get "${srce:-$dest}")
+
+        debug "destination: $dest"
+        debug "source color: ${srce:-$dest}"
+        debug "modifier: ${mod:--} ${value:--}"
+
+        if [[ "$mod" ]]; then
+            result=$(rgb_transform "$srce" "$mod" "$value")
+        else
+            result="$srce"
+        fi
+
+        debug "result: $result to $dest"
+        COLOR[$dest]="$result"
+        ;;
+
     --hue)
         isvalue "${2}" \
             || fatal "Invalid parameter '${2}' from ${1} argument"
@@ -33,6 +96,7 @@ while [ -n "$1" ]; do
         done
         shift
         ;;
+
     --saturation)
         isvalue "${2}" \
             || fatal "Invalid parameter '${2}' from ${1} argument"
@@ -42,6 +106,7 @@ while [ -n "$1" ]; do
         done
         shift
         ;;
+
     --value)
         isvalue "${2}" \
             || fatal "Invalid parameter '${2}' from ${1} argument"
@@ -52,12 +117,19 @@ while [ -n "$1" ]; do
         shift
         ;;
 
+    --inverse)
+        for i in {0..7}; do
+            COLOR[$i]=$(rgb_inverse $(get $i))
+        done
+        ;;
+
     --light)
         GTK_APPLICATION_PREFER_DARK_THEME=0
         ;;
     --dark)
         GTK_APPLICATION_PREFER_DARK_THEME=1
         ;;
+
     --save)
         [[ ! ${2} || ${2:0:1} == "-" ]] && \
             fatal "Invalid parameter '${2}' from ${1} argument"
@@ -65,10 +137,12 @@ while [ -n "$1" ]; do
         SAVE_THEME=${2}
         shift
         ;;
+
     --list)
         echo -e "${AVAILABLE[@]}"
         exit 0
         ;;
+
     --short)
         SHORT_PREVIEW=Yes
         ;;
@@ -101,31 +175,32 @@ while [ -n "$1" ]; do
 done
 
 
-isfalse ${CLEAN_THEME_PREVIEW} \
-    && colors_reallocation $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})
+colors_reallocation \
+    $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})
 
 isfalse "${SHORT_PREVIEW}" \
     && preview_theme_header
 
 preview_theme
 
+
 # Save scheme to path
 if [[ ${SAVE_THEME} ]]; then
-    normal "Save scheme to '${SAVE_THEME/$HOME/\~}'"
 	save_theme "${SAVE_THEME}" \
-        && success "Theme is saved" \
-        || error   "Theme is not saved"
+        && success "Theme '${SAVE_THEME/$HOME/\~}' is saved" \
+        || error   "Theme '${SAVE_THEME/$HOME/\~}' is not saved"
 fi
 
+# Install...
 if istrue "${INSTALL}"; then
     gen_sh_theme \
-        && success "Sh theme is generated" \
-        || fatal   "Sh theme is not generated"
+        && success "Shell theme is generated" \
+        || fatal   "Shell theme is not generated"
 
     get_sh_theme \
-        && success "Sh theme is restored" \
-        || fatal   "Sh theme is not restored"
+        && success "Shell theme is restored" \
+        || fatal   "Shell theme is not restored"
 fi
 
+info "Operation completed in $(displaytime $(get_timer))"
 
-displaytime $(get_timer)
