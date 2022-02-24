@@ -80,7 +80,7 @@ restore_environment_variables() {
 			get_gtk_setting 'gtk-application-prefer-dark-theme')
 	fi
 
-	GTK_APPLICATION_PREFER_DARK_THEME=$(\
+	export GTK_APPLICATION_PREFER_DARK_THEME=$(\
 		istrue "${GTK_APPLICATION_PREFER_DARK_THEME:-DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME}" \
 			&& echo 1 \
 			|| echo 0 \
@@ -93,7 +93,7 @@ restore_environment_variables() {
 			get_gtk_setting 'gtk-theme-name')
 	fi
 
-	GTK_THEME_NAME="${GTK_THEME_NAME:-$DEFAULT_GTK_THEME_NAME}"
+	export GTK_THEME_NAME="${GTK_THEME_NAME:-$DEFAULT_GTK_THEME_NAME}"
 
 	debug "GTK_THEME_NAME: $GTK_THEME_NAME"
 
@@ -102,7 +102,7 @@ restore_environment_variables() {
 			get_gtk_setting 'gtk-icon-theme-name')
 	fi
 
-	GTK_ICON_THEME_NAME="${GTK_ICON_THEME_NAME:-$DEFAULT_GTK_ICON_THEME_NAME}"
+	export GTK_ICON_THEME_NAME="${GTK_ICON_THEME_NAME:-$DEFAULT_GTK_ICON_THEME_NAME}"
 
 	debug "GTK_ICON_THEME_NAME: $GTK_ICON_THEME_NAME"
 
@@ -111,7 +111,7 @@ restore_environment_variables() {
 			get_gtk_setting 'gtk-font-name')
 	fi
 
-	GTK_FONT_NAME="${GTK_FONT_NAME:-$DEFAULT_GTK_FONT_NAME}"
+	export GTK_FONT_NAME="${GTK_FONT_NAME:-$DEFAULT_GTK_FONT_NAME}"
 
 	debug "GTK_FONT_NAME: $GTK_FONT_NAME"
 }
