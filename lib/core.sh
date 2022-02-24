@@ -4,8 +4,6 @@
 LC_ALL=C
 
 # Initialise
-CACHE="$HOME/.cache/${APP_NAME:-theme}"
-mkdir -p "$CACHE" > /dev/null 2>&1
 
 
 # -----------------------------------------------------------------------------
@@ -14,12 +12,12 @@ mkdir -p "$CACHE" > /dev/null 2>&1
 #   rgb.sh
 # -----------------------------------------------------------------------------
 
-if ! source notify.sh; then
+if ! source notify.sh 2>/dev/null; then
     echo -e "\033[31mLibrary 'notify.sh not found!'\033[0m"
     exit 1
 fi
 
-if ! source rgb.sh; then
+if ! source rgb.sh 2>/dev/null; then
     echo -e "\033[31mLibrary 'rgb.sh not found!'\033[0m"
     exit 1
 fi
@@ -34,7 +32,7 @@ DEFAULT_GTK_THEME_NAME='FlatColor'
 DEFAULT_GTK_ICON_THEME_NAME='Tela'
 DEFAULT_GTK_FONT_NAME='Noto Sans 11'
 DEFAULT_TERMINAL_FONT_NAME='Iosevka Fixed Curly Medium 12'
-DEFAULT_CURSOR_COLOR="#FFA500"
+DEFAULT_CURSOR_COLOR='#FFA500'
 
 
 declare COLOR_KEYS=(
@@ -90,18 +88,6 @@ restore_colors_from_xrdb() {
 	done
 }
 
-font_split_name() {
-    echo "${1}" | sed 's/\ *[0-9]*$//g'
-}
-
-font_split_size() {
-    local size=$(echo "${1}" | awk '{print $NF}')
-
-    isint "$size" \
-        && echo $size \
-        || echo 12
-}
-
 restore_environment_variables() {
 	if [[ ! "${GTK_APPLICATION_PREFER_DARK_THEME}" ]]; then
 		GTK_APPLICATION_PREFER_DARK_THEME=$(\
@@ -149,6 +135,18 @@ restore_environment_variables() {
 
     export CURSOR_COLOR="${CURSOR_COLOR:-$DEFAULT_CURSOR_COLOR}"
     debug "CURSOR_COLOR: $CURSOR_COLOR"
+}
+
+font_split_name() {
+    echo "${1}" | sed 's/\ *[0-9]*$//g'
+}
+
+font_split_size() {
+    local size=$(echo "${1}" | awk '{print $NF}')
+
+    isint "$size" \
+        && echo $size \
+        || echo 12
 }
 
 
@@ -375,7 +373,7 @@ colors_reallocation() {
 }
 
 gen_sh_theme() {
-	cat <<EOF > "${CACHE}/colors.sh"
+	cat <<EOF > "${1/\~/$HOME}"
 # Shell variables
 wallpaper="$(get_wallpaper)"
 
@@ -405,7 +403,7 @@ EOF
 }
 
 get_sh_theme() {
-	source "${CACHE}/colors.sh" 2>/dev/null
+	source "${1/\~/$HOME}" 2>/dev/null
 }
 
 save_theme() {

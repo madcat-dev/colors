@@ -2,7 +2,6 @@
 
 APP_NAME="colors2"
 
-
 LC_ALL=C
 
 SHARED_PATHS=(
@@ -20,17 +19,22 @@ for path in ${SHARED_PATHS[@]}; do
     fi
 done
 
-if ! source $SHARED_PATH/lib/core.sh; then
+if ! source $SHARED_PATH/lib/core.sh 2>/dev/null; then
     echo -e "\033[31mCore module not loaded!\033[0m"
     exit 1
 fi
 
 
-# Initialise
 DEBUG_LEVEL=0
 NOTIFY_HEADER='$LABEL'
 
+
+# Initialise
+CACHE="$HOME/.cache/${APP_NAME}"
+mkdir -p "$CACHE" > /dev/null 2>&1
+
 AVAILABLE=( $(ls $SHARED_PATH/themes) )
+
 
 set_timer
 restore_colors_from_xrdb
@@ -43,6 +47,10 @@ while [ -n "$1" ]; do
     case "${1}" in
     --install)
         INSTALL=Yes
+        ;;
+    --dry-install)
+        INSTALL=Yes
+        export PREFIX="/tmp/"
         ;;
     --restore)
         RESTORE=Yes
@@ -185,7 +193,7 @@ done
 
 
 if istrue "${RESTORE}"; then
-    get_sh_theme \
+    get_sh_theme "${CACHE}/colors.sh" \
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
 
@@ -212,11 +220,11 @@ fi
 
 # Install...
 if istrue "${INSTALL}"; then
-    gen_sh_theme \
+    gen_sh_theme "${CACHE}/colors.sh" \
         && success "Shell theme is generated" \
         || fatal   "Shell theme is not generated"
 
-    get_sh_theme \
+    get_sh_theme "${CACHE}/colors.sh" \
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
 fi
