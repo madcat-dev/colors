@@ -166,7 +166,7 @@ while [ -n "$1" ]; do
 
     --image)
         COLOR=()
-        THEME="$(basename "${2/\~/$HOME}")"
+        THEME="${2/\~/$HOME}"
 
         for color in $(gen_colors_from_image "${2/\~/$HOME}" $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})); do
             COLOR[${index:-0}]="$color"
@@ -192,6 +192,7 @@ while [ -n "$1" ]; do
 done
 
 
+# Restore
 if istrue "${RESTORE}"; then
     get_sh_theme "${CACHE}/colors.sh" \
         && success "Shell theme is restored" \
@@ -201,7 +202,6 @@ if istrue "${RESTORE}"; then
     exit 0
 fi
 
-
 colors_reallocation \
     $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})
 
@@ -209,7 +209,6 @@ isfalse "${SHORT_PREVIEW}" \
     && preview_theme_header
 
 preview_theme
-
 
 # Save scheme to path
 if [[ ${SAVE_THEME} ]]; then
@@ -227,9 +226,9 @@ if istrue "${INSTALL}"; then
     get_sh_theme "${CACHE}/colors.sh" \
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
-fi
 
-# Restore
+    success "Installation complete"
+fi
 
 info "Operation completed in $(displaytime $(get_timer))"
 
