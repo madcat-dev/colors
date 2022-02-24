@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
+APP_NAME="colors2"
+
+
 LC_ALL=C
-
-APP_NAME="colors"
-
-echo ">>>>>>>>>>>> $__NAME__"
 
 SHARED_PATHS=(
     "$(realpath $(dirname $0))"
+    "$(realpath $(dirname $0))/$APP_NAME"
     "$HOME/.local/share/$APP_NAME"
     "/usr/local/share/$APP_NAME"
     "/usr/share/$APP_NAME"
@@ -15,20 +15,22 @@ SHARED_PATHS=(
 
 for path in ${SHARED_PATHS[@]}; do
     if [[ -f "$path/lib/core.sh" ]]; then
-        BASE="$path"
+        SHARED_PATH="$path"
         break
     fi
 done
 
-source $BASE/lib/core.sh \
-    || exit 1
+if ! source $SHARED_PATH/lib/core.sh; then
+    echo -e "\033[31mCore module not loaded!\033[0m"
+    exit 1
+fi
 
 
 # Initialise
 DEBUG_LEVEL=0
 NOTIFY_HEADER='$LABEL'
 
-AVAILABLE=( $(ls $BASE/themes) )
+AVAILABLE=( $(ls $SHARED_PATH/themes) )
 
 set_timer
 restore_colors_from_xrdb
@@ -41,6 +43,9 @@ while [ -n "$1" ]; do
     case "${1}" in
     --install)
         INSTALL=Yes
+        ;;
+    --restore)
+        RESTORE=Yes
         ;;
 
     --color|-c)
@@ -169,7 +174,7 @@ while [ -n "$1" ]; do
         debug "Load theme '$THEME'"
 
         [[ ! -f "${THEME}" ]] \
-            && THEME="$BASE/themes/$THEME"
+            && THEME="$SHARED_PATH/themes/$THEME"
 
         source "$THEME" 2>/dev/null \
             || fatal "Color theme '$THEME' not found"
@@ -177,6 +182,16 @@ while [ -n "$1" ]; do
     esac
     shift
 done
+
+
+if istrue "${RESTORE}"; then
+    get_sh_theme \
+        && success "Shell theme is restored" \
+        || fatal   "Shell theme is not restored"
+
+    success "Restore complete"
+    exit 0
+fi
 
 
 colors_reallocation \
@@ -205,6 +220,8 @@ if istrue "${INSTALL}"; then
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
 fi
+
+# Restore
 
 info "Operation completed in $(displaytime $(get_timer))"
 

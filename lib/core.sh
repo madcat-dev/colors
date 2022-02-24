@@ -3,12 +3,26 @@
 
 LC_ALL=C
 
-BASE=$(realpath $(dirname ${BASH_SOURCE})/..)
-CACHE="$HOME/.cache/theme"
-
+# Initialise
+CACHE="$HOME/.cache/${APP_NAME:-theme}"
 mkdir -p "$CACHE" > /dev/null 2>&1
 
-source $BASE/lib/rgb.sh
+
+# -----------------------------------------------------------------------------
+# Dependencies:
+#   notify.sh
+#   rgb.sh
+# -----------------------------------------------------------------------------
+
+if ! source notify.sh; then
+    echo -e "\033[31mLibrary 'notify.sh not found!'\033[0m"
+    exit 1
+fi
+
+if ! source rgb.sh; then
+    echo -e "\033[31mLibrary 'rgb.sh not found!'\033[0m"
+    exit 1
+fi
 
 
 # -----------------------------------------------------------------------------
@@ -397,9 +411,8 @@ get_sh_theme() {
 save_theme() {
     cat <<EOF > "${1/\~/$HOME}"
 GTK_APPLICATION_PREFER_DARK_THEME=$GTK_APPLICATION_PREFER_DARK_THEME
-declare -A COLOR
 
-export COLOR=(
+declare -A COLOR=(
     # Shell variables
     [wallpaper]="$(get_wallpaper)"
 
