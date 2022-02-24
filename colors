@@ -23,20 +23,35 @@ while [ -n "$1" ]; do
     --install)
         INSTALL=Yes
         ;;
-    --short)
-        SHORT_PREVIEW=Yes
-        ;;
-    --image)
-        COLOR=()
-        THEME="$(basename "${2/\~/$HOME}")"
 
-        for color in $(gen_colors_from_image "${2/\~/$HOME}" $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})); do
-            COLOR[${index:-0}]="$color"
-            ((index++))
+    --hue)
+        isvalue "${2}" \
+            || fatal "Invalid parameter '${2}' from ${1} argument"
+
+        for i in {0..7}; do
+            COLOR[$i]=$(rgb_hue $(get $i) ${2})
         done
-
         shift
         ;;
+    --saturation)
+        isvalue "${2}" \
+            || fatal "Invalid parameter '${2}' from ${1} argument"
+
+        for i in {0..7}; do
+            COLOR[$i]=$(rgb_saturation $(get $i) ${2})
+        done
+        shift
+        ;;
+    --value)
+        isvalue "${2}" \
+            || fatal "Invalid parameter '${2}' from ${1} argument"
+
+        for i in {0..7}; do
+            COLOR[$i]=$(rgb_value $(get $i) ${2})
+        done
+        shift
+        ;;
+
     --light)
         GTK_APPLICATION_PREFER_DARK_THEME=0
         ;;
@@ -53,6 +68,21 @@ while [ -n "$1" ]; do
     --list)
         echo -e "${AVAILABLE[@]}"
         exit 0
+        ;;
+    --short)
+        SHORT_PREVIEW=Yes
+        ;;
+
+    --image)
+        COLOR=()
+        THEME="$(basename "${2/\~/$HOME}")"
+
+        for color in $(gen_colors_from_image "${2/\~/$HOME}" $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})); do
+            COLOR[${index:-0}]="$color"
+            ((index++))
+        done
+
+        shift
         ;;
     *)
         COLOR=()
