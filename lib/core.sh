@@ -387,42 +387,6 @@ get_sh_theme() {
 }
 
 
-# Save theme to main format
-save_theme() {
-    cat <<EOF > "${1/\~/$HOME}"
-GTK_APPLICATION_PREFER_DARK_THEME=$GTK_APPLICATION_PREFER_DARK_THEME
-
-declare -A COLOR=(
-    # Shell variables
-    [wallpaper]="$(get_wallpaper)"
-
-    # Special
-    [background]="$(get background)"
-    [foreground]="$(get foreground)"
-    [cursor]="$(get cursor)"
-
-    # Colors
-    # black
-    [0]=$(get 0)
-    # red
-    [1]=$(get 1)
-    # green
-    [2]=$(get 2)
-    # yellow
-    [3]=$(get 3)
-    # blue
-    [4]=$(get 4)
-    # magenta
-    [5]=$(get 5)
-    # cyan
-    [6]=$(get 6)
-    # white
-    [7]=$(get 7)
-)
-EOF
-}
-
-
 # -----------------------------------------------------------------------------
 # Apply theme to templates and plugins
 # -----------------------------------------------------------------------------
@@ -459,13 +423,17 @@ apply_template() {
     template="$SHARED_PATHS/templates/${1}"
 
     if [[ -d "${template/\~/$HOME}" ]]; then
-        info "Apply template module '${1}'"
+        info "Install module '${1}'"
+
+        source "$template/install.sh" 2>/dev/null \
+            && success "Module '${1}' is installed" \
+            || error   "Module '${1}' is not installed"
 
     else
-        info "Apply template '${1}'"
+        info "Install template '${1}'"
 
         apply "$template" "${CACHE:-$HOME/.cache}/${1}" \
-            && success "Template '${1}' is applied" \
-            || error   "Template '${1}' is not applied"
+            && success "Template '${1}' is installed" \
+            || error   "Template '${1}' is not installed"
     fi
 }

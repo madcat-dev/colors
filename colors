@@ -5,8 +5,8 @@ APP_NAME="colors2"
 LC_ALL=C
 
 SHARED_PATHS=(
-    "$(realpath $(dirname $0))"
-    "$(realpath $(dirname $0))/$APP_NAME"
+    "$(dirname $BASH_SOURCE)"
+    "$(dirname $BASH_SOURCE)/$APP_NAME"
     "$HOME/.local/share/$APP_NAME"
     "/usr/local/share/$APP_NAME"
     "/usr/share/$APP_NAME"
@@ -194,11 +194,11 @@ done
 
 # Restore
 if istrue "${RESTORE}"; then
-    get_sh_theme "$CACHE/colors.sh" \
+    source "$CACHE/colors.sh" 2>/dev/null \
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
 
-    success "Restore complete"
+    success "Restore complete, errors: $ERROR_COUNTER"
     exit 0
 fi
 
@@ -212,27 +212,32 @@ preview_theme
 
 # Save scheme to path
 if [[ ${SAVE_THEME} ]]; then
-	save_theme "${SAVE_THEME}" \
+	apply "$SHARED_PATH/templates/colors.theme" "${SAVE_THEME}" \
         && success "Theme '${SAVE_THEME/$HOME/\~}' is saved" \
         || error   "Theme '${SAVE_THEME/$HOME/\~}' is not saved"
 fi
 
 # Install...
 if istrue "${INSTALL}"; then
-    gen_sh_theme "$CACHE/colors.sh" \
-        && success "Shell theme is generated" \
-        || fatal   "Shell theme is not generated"
+    apply_template  colors.sh
 
-    get_sh_theme "$CACHE/colors.sh" \
+    source "$CACHE/colors.sh" 2>/dev/null \
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
 
-    apply_template colors-kitty.conf
-    apply_template colors.css
-    apply_template xrdb
+    # Templates...
+    apply_template  colors-kitty.conf
+    apply_template  colors-rofi.rasi
+    apply_template  colors.css
+    apply_template  colors.json
+    apply_template  colors.theme
+    apply_template  colors.Xresources
 
-    success "Installation complete"
+    # Modules...
+    apply_template  dunst
+
+    success "Installation complete, errors: $ERROR_COUNTER"
 fi
 
-info "Operation completed in $(displaytime $(get_timer)), errors: $ERROR_COUNTER"
+info "Operation completed in $(displaytime $(get_timer))"
 

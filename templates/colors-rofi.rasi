@@ -1,0 +1,15 @@
+/**
+    Adaptive color scheme
+*/
+
+* {
+    background-color: $background;
+    text-color:       $foreground;
+
+    background-selected: $color2;
+    text-selected:       $foreground;
+
+    text-prompt:    $color4;
+    text-entry:     $color4;
+    border-color:   $color2;
+}

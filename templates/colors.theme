@@ -1,0 +1,30 @@
+
+GTK_APPLICATION_PREFER_DARK_THEME=$GTK_APPLICATION_PREFER_DARK_THEME
+
+declare -A COLOR=(
+    # Shell variables
+    [wallpaper]="$(get_wallpaper)"
+
+    # Special
+    [background]="$(get background)"
+    [foreground]="$(get foreground)"
+    [cursor]="$(get cursor)"
+
+    # Colors
+    # black
+    [0]="$(get 0)"
+    # red
+    [1]="$(get 1)"
+    # green
+    [2]="$(get 2)"
+    # yellow
+    [3]="$(get 3)"
+    # blue
+    [4]="$(get 4)"
+    # magenta
+    [5]="$(get 5)"
+    # cyan
+    [6]="$(get 6)"
+    # white
+    [7]="$(get 7)"
+)

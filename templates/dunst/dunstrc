@@ -24,7 +24,7 @@
     text_icon_padding  = 0
 
     frame_width = 2
-    frame_color = "${COLOR[2]}"
+    frame_color = "${color2}"
 
     separator_height = 2
     separator_color = frame
@@ -32,10 +32,10 @@
     sort = yes
 
     ### Text ###
-    font = Iosevka Fixed Curly Medium 12
+    font = ${TERMINAL_FONT_NAME}
     line_height = 0
     markup = full
-    format = "<b>%s</b>\\n%b"
+    format = "<b>%s</b>\n%b"
 
     alignment = center
     vertical_alignment = center
@@ -78,20 +78,20 @@
 
 
 [urgency_low]
-    background  = "${COLOR[background]}"
-    foreground  = "${URGENCY_LOW}"
-    frame_color = "${URGENCY_LOW}"
+    background  = "${background}"
+    foreground  = "${URGENCY_LOW:-$color3}"
+    frame_color = "${URGENCY_LOW:-$color3}"
     timeout = 7
 
 [urgency_normal]
-    background  = "${COLOR[background]}"
-    foreground  = "${URGENCY_NORMAL}"
-    frame_color = "${URGENCY_NORMAL}"
+    background  = "${background}"
+    foreground  = "${URGENCY_NORMAL:-$color2}"
+    frame_color = "${URGENCY_NORMAL:-$color2}"
     timeout = 7
 
 [urgency_critical]
-    background  = "${COLOR[background]}"
-    foreground  = "${URGENCY_CRITICAL}"
-    frame_color = "${URGENCY_CRITICAL}"
+    background  = "${background}"
+    foreground  = "${URGENCY_CRITICAL:-$color1}"
+    frame_color = "${URGENCY_CRITICAL:-$color1}"
     timeout = 7
 
