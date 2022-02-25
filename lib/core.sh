@@ -418,22 +418,23 @@ apply() {
 }
 
 apply_template() {
-    local template
+    local name=${1}; shift
+    local template="$SHARED_PATHS/templates/${name}"
 
-    template="$SHARED_PATHS/templates/${1}"
+    debug "apply_template: $template, $name, ${@}"
 
-    if [[ -d "${template/\~/$HOME}" ]]; then
-        info "Install module '${1}'"
+    if [[ -d "${template}" ]]; then
+        info "start installation of module '${name}'"
 
-        source "$template/install.sh" 2>/dev/null \
-            && success "Module '${1}' is installed" \
-            || error   "Module '${1}' is not installed"
+        source "$template/install.sh" ${@} 2>/dev/null \
+            && success "Module '${name}' is installed" \
+            || error   "Module '${name}' is not installed"
 
     else
-        info "Install template '${1}'"
+        info "start installation of template '${name}'"
 
-        apply "$template" "${CACHE:-$HOME/.cache}/${1}" \
-            && success "Template '${1}' is installed" \
-            || error   "Template '${1}' is not installed"
+        apply "$template" "${CACHE:-$HOME/.cache}/${name}" \
+            && success "Template '${name}' is installed" \
+            || error   "Template '${name}' is not installed"
     fi
 }

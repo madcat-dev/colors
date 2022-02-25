@@ -4,9 +4,11 @@ APP_NAME="colors2"
 
 LC_ALL=C
 
+SHARED_PATH="$(realpath "$(dirname "$BASH_SOURCE")")"
+
 SHARED_PATHS=(
-    "$(dirname $BASH_SOURCE)"
-    "$(dirname $BASH_SOURCE)/$APP_NAME"
+    "$SHARED_PATH"
+    "$SHARED_PATH/$APP_NAME"
     "$HOME/.local/share/$APP_NAME"
     "/usr/local/share/$APP_NAME"
     "/usr/share/$APP_NAME"
@@ -19,7 +21,7 @@ for path in ${SHARED_PATHS[@]}; do
     fi
 done
 
-if ! source $SHARED_PATH/lib/core.sh 2>/dev/null; then
+if ! source "$SHARED_PATH/lib/core.sh" 2>/dev/null; then
     echo -e "\033[31mCore module not loaded!\033[0m"
     exit 1
 fi
@@ -201,6 +203,8 @@ if istrue "${RESTORE}"; then
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
 
+    apply_template  xfce-terminal
+
     success "Restore complete, errors: $ERROR_COUNTER"
     exit 0
 fi
@@ -243,6 +247,11 @@ if istrue "${INSTALL}"; then
     # Modules...
     #apply_template  dunst
     #apply_template  xfce-terminal
+    #apply_template  telegram  "$CACHE/colors.sh"
+    #apply_template  gtksourceview
+    apply_template  'gtk-2.0'
+    apply_template  'gtk-3.0'
+    apply_template  'gtk-4.0'
 
     success "Installation complete, errors: $ERROR_COUNTER"
 fi

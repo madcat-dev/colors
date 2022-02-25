@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 #
-#	GTK+
+#	TELEGRAM
 #
 
 MODULE="$(dirname "$BASH_SOURCE")"
+
+$MODULE/telegram-palette-gen ${@}
 

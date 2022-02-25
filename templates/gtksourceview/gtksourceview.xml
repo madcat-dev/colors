@@ -20,42 +20,42 @@ References:
   <author>Arctic Ice Studio</author>
   <description>An arctic, north-bluish clean and elegant gedit syntax theme.</description>
 
-  <color name="nord0" value="${COLOR[0]}" />
-  <color name="nord1" value="${COLOR[1]}" />
-  <color name="nord2" value="${COLOR[2]}" />
-  <color name="nord3" value="${COLOR[3]}" />
-  <color name="nord3-brightened" value="$(rgb_value ${COLOR[3]} +20)" />
-  <color name="nord4" value="${COLOR[4]}" />
-  <color name="nord5" value="${COLOR[5]}" />
-  <color name="nord6" value="${COLOR[6]}" />
+  <color name="nord0" value="${color0}" />
+  <color name="nord1" value="${color1}" />
+  <color name="nord2" value="${color2}" />
+  <color name="nord3" value="${color3}" />
+  <color name="nord3-brightened" value="$(rgb_value ${color3} +20)" />
+  <color name="nord4" value="${color4}" />
+  <color name="nord5" value="${color5}" />
+  <color name="nord6" value="${color6}" />
 
-  <color name="nord7" value="${COLOR[7]}" />
-  <color name="nord8" value="${COLOR[8]}" />
-  <color name="nord9" value="${COLOR[9]}" />
-  <color name="nord10" value="${COLOR[10]}" />
+  <color name="nord7" value="${color7}" />
+  <color name="nord8" value="${color8}" />
+  <color name="nord9" value="${color9}" />
+  <color name="nord10" value="${color10}" />
 
-  <color name="nord11" value="${COLOR[11]}" />
-  <color name="nord12" value="${COLOR[12]}" />
-  <color name="nord13" value="${COLOR[13]}" />
-  <color name="nord14" value="${COLOR[14]}" />
-  <color name="nord15" value="${COLOR[15]}" />
+  <color name="nord11" value="${color11}" />
+  <color name="nord12" value="${color12}" />
+  <color name="nord13" value="${color13}" />
+  <color name="nord14" value="${color14}" />
+  <color name="nord15" value="${color15}" />
 
 <!--+- - - - - +
     + Settings +
     +- - - - - +-->
-  <style name="background-pattern" background="nord1"/>
-  <style name="bracket-match" foreground="nord4" background="nord10"/>
+  <style name="background-pattern" background="nord1" />
+  <style name="bracket-match" foreground="nord4" background="nord10" />
   <style name="bracket-mismatch" foreground="nord11" underline="true" />
-  <style name="current-line" foreground="nord4" background="${COLOR[0]}" />
-  <style name="cursor" foreground="${COLOR[cursor]}" />
+  <style name="current-line" foreground="nord4" background="${color0}" />
+  <style name="cursor" foreground="${cursor}" />
   <style name="draw-spaces" foreground="nord3" />
   <style name="line-numbers" foreground="nord3" background="nord0" />
   <style name="search-match" foreground="nord4" background="nord10" />
   <style name="secondary-cursor" use-style="cursor" />
-  <style name="selection" foreground="${COLOR[background]}" background="${COLOR[foreground]}" />
-  <style name="selection-unfocused" foreground="${COLOR[background]}" background="${COLOR[foreground]}" />
+  <style name="selection" foreground="${background}" background="${foreground}" />
+  <style name="selection-unfocused" foreground="${background}" background="${foreground}" />
   <style name="right-margin" foreground="nord3" />
-  <style name="text" foreground="${COLOR[foreground]}" background="${COLOR[background]}" />
+  <style name="text" foreground="${foreground}" background="${background}" />
 
 <!--+- - - - - - -+
     + Definitions +

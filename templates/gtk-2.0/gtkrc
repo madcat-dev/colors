@@ -1,0 +1,48 @@
+gtk-theme-name="${GTK_THEME_NAME}"
+gtk-icon-theme-name="${GTK_ICON_THEME_NAME}"
+gtk-font-name="${GTK_FONT_NAME}"
+gtk-application-prefer-dark-theme=${GTK_APPLICATION_PREFER_DARK_THEME:-1}
+gtk-cursor-theme-size=${GTK_CURSOR_THEME_SIZE:-0}
+
+gtk-toolbar-style=${GTK_TOOLBAR_STYLE:-GTK_TOOLBAR_ICONS}
+gtk-toolbar-icon-size=${GTK_TOOLBAR_ICON_SIZE:-GTK_ICON_SIZE_SMALL_TOOLBAR}
+gtk-button-images=${GTK_BUTTON_IMAGES:-0}
+gtk-menu-images=${GTK_MENU_IMAGES:-0}
+
+gtk-enable-event-sounds=${GTK_ENABLE_EVENT_SOUNDS:-1}
+gtk-enable-input-feedback-sounds=${GTK_ENABLE_INPUT_FEEDBACK_SOUNDS:-1}
+
+gtk-xft-antialias=${GTK_XFT_ANTIALIAS:-$(xrdbq Xft.antialias)}
+gtk-xft-hinting=${GTK_XFT_HINTING:-$(xrdbq Xft.hinting)}
+gtk-xft-hintstyle="${GTK_XFT_HINTSTYLE:-$(xrdbq Xft.hintstyle)}"
+gtk-xft-rgba="${GTK_XFT_RGBA:-$(xrdbq Xft.rgba)}"
+
+gtk-color-scheme = "color0: ${color0}"
+gtk-color-scheme = "color1: ${color1}"
+gtk-color-scheme = "color2: ${color2}"
+gtk-color-scheme = "color3: ${color3}"
+gtk-color-scheme = "color4: ${color4}"
+gtk-color-scheme = "color5: ${color5}"
+gtk-color-scheme = "color6: ${color6}"
+gtk-color-scheme = "color7: ${color7}"
+gtk-color-scheme = "color8: ${color8}"
+gtk-color-scheme = "color9: ${color9}"
+gtk-color-scheme = "color10: ${color10}"
+gtk-color-scheme = "color11: ${color11}"
+gtk-color-scheme = "color12: ${color12}"
+gtk-color-scheme = "color13: ${color13}"
+gtk-color-scheme = "color14: ${color14}"
+gtk-color-scheme = "color15: ${color15}"
+
+gtk-color-scheme = "link_color: ${color12}"
+
+gtk-color-scheme = "bg_color: ${background}"
+gtk-color-scheme = "text_color: ${foreground}"
+gtk-color-scheme = "selected_bg_color: ${color2}"
+gtk-color-scheme = "selected_fg_color: ${foreground}"
+gtk-color-scheme = "tooltip_bg_color: ${background}"
+gtk-color-scheme = "tooltip_fg_color: ${foreground}"
+gtk-color-scheme = "titlebar_bg_color: ${background}"
+gtk-color-scheme = "titlebar_fg_color: ${foreground}"
+gtk-color-scheme = "menu_bg_color: ${background}"
+gtk-color-scheme = "menu_fg_color: ${foreground}"
