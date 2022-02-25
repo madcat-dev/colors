@@ -27,7 +27,7 @@ if ! source "$SHARED_PATH/lib/core.sh" 2>/dev/null; then
 fi
 
 
-DEBUG_LEVEL=0
+DEBUG_LEVEL=5
 NOTIFY_HEADER='$LABEL'
 
 
@@ -205,7 +205,7 @@ if istrue "${RESTORE}"; then
 
     apply_template  xfce-terminal
 
-    success "Restore complete, errors: $ERROR_COUNTER"
+    echo -e "-- Restore complete, errors: $ERROR_COUNTER --"
     exit 0
 fi
 
@@ -257,7 +257,7 @@ if istrue "${INSTALL}"; then
     apply_template  qt5ct
     apply_template  qt6ct
 
-    success "Installation complete, errors: $ERROR_COUNTER"
+    echo -e "-- Installation complete, errors: $ERROR_COUNTER --"
 fi
 
 info "Operation completed in $(displaytime $(get_timer))"
