@@ -35,7 +35,6 @@ mkdir -p "$CACHE" > /dev/null 2>&1
 
 AVAILABLE=( $(ls $SHARED_PATH/themes) )
 
-
 set_timer
 restore_colors_from_xrdb
 restore_environment_variables
@@ -164,6 +163,10 @@ while [ -n "$1" ]; do
         SHORT_PREVIEW=Yes
         ;;
 
+    --pure)
+        PURE_THEME=Yes
+        ;;
+
     --image)
         COLOR=()
         THEME="${2/\~/$HOME}"
@@ -202,9 +205,13 @@ if istrue "${RESTORE}"; then
     exit 0
 fi
 
-colors_reallocation \
-    $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})
+# Realloc colors from theme
+if isfalse "${PURE_THEME}"; then
+    colors_reallocation \
+        $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})
+fi
 
+# Preview
 isfalse "${SHORT_PREVIEW}" \
     && preview_theme_header
 
@@ -226,15 +233,16 @@ if istrue "${INSTALL}"; then
         || fatal   "Shell theme is not restored"
 
     # Templates...
-    apply_template  colors-kitty.conf
-    apply_template  colors-rofi.rasi
-    apply_template  colors.css
-    apply_template  colors.json
-    apply_template  colors.theme
-    apply_template  colors.Xresources
+    #apply_template  colors-kitty.conf
+    #apply_template  colors-rofi.rasi
+    #apply_template  colors.css
+    #apply_template  colors.json
+    #apply_template  colors.theme
+    #apply_template  colors.Xresources
 
     # Modules...
-    apply_template  dunst
+    #apply_template  dunst
+    #apply_template  xfce-terminal
 
     success "Installation complete, errors: $ERROR_COUNTER"
 fi
