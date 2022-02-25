@@ -236,24 +236,26 @@ if istrue "${INSTALL}"; then
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
 
-    ## Templates...
-    #apply_template  colors-kitty.conf
-    #apply_template  colors-rofi.rasi
-    #apply_template  colors.css
-    #apply_template  colors.json
-    #apply_template  colors.theme
-    #apply_template  colors.Xresources
+    # Templates...
+    apply_template  colors-kitty.conf
+    apply_template  colors-rofi.rasi
+    apply_template  colors.css
+    apply_template  colors.json
+    apply_template  colors.theme
+    apply_template  colors.Xresources
 
-    ## Modules...
-    #apply_template  dunst
-    #apply_template  xfce-terminal
-    #apply_template  telegram  "$CACHE/colors.sh"
-    #apply_template  'gtk-2.0'
-    #apply_template  'gtk-3.0'
-    #apply_template  'gtk-4.0'
-    #apply_template  gtksourceview
+    # Modules...
+    apply_template  dunst
+    apply_template  xfce-terminal
+    apply_template  telegram  "$CACHE/colors.sh"
+    apply_template  'gtk-2.0'
+    apply_template  'gtk-3.0'
+    apply_template  'gtk-4.0'
+    apply_template  gtksourceview
     apply_template  gtk-icon-theme
     apply_template  gtk-theme
+    apply_template  qt5ct
+    apply_template  qt6ct
 
     success "Installation complete, errors: $ERROR_COUNTER"
 fi
