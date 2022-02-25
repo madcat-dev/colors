@@ -27,7 +27,7 @@ if ! source "$SHARED_PATH/lib/core.sh" 2>/dev/null; then
 fi
 
 
-DEBUG_LEVEL=5
+DEBUG_LEVEL=0
 NOTIFY_HEADER='$LABEL'
 
 
@@ -161,21 +161,23 @@ while [ -n "$1" ]; do
         SHORT_PREVIEW=Yes
         ;;
 
-    --pure)
+    --pure|-)
         PURE_THEME=Yes
         ;;
 
     --image)
         COLOR=()
-        THEME="${2/\~/$HOME}"
-
-        for color in $(gen_colors_from_image "${2/\~/$HOME}" $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})); do
-            COLOR[${index:-0}]="$color"
-            ((index++))
-        done
-
+        THEME="${2}"
+        gen_theme_from_image "$THEME"
         shift
         ;;
+
+    --wal)
+        COLOR=()
+        THEME="$(get_wallpaper)"
+        gen_theme_from_image "$THEME"
+        ;;
+
     *)
         COLOR=()
         THEME="${1/\~/$HOME}"

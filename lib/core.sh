@@ -349,8 +349,23 @@ colors_reallocation() {
 
 
 # -----------------------------------------------------------------------------
-# Apply theme to templates and plugins
+# Main operation functions
 # -----------------------------------------------------------------------------
+
+gen_theme_from_image() {
+    local color index
+    local colors=$(\
+        gen_colors_from_image "${1/\~/$HOME}" \
+        $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})\
+    )
+
+    debug "Image-theme generator: $colors"
+
+    for color in $colors; do
+        COLOR[${index:-0}]="$color"
+        ((index++))
+    done
+}
 
 apply() {
     local data
