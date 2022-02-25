@@ -426,7 +426,7 @@ apply_template() {
     if [[ -d "${template}" ]]; then
         info "start installation of module '${name}'"
 
-        source "$template/install.sh" ${@} 2>/dev/null \
+        source "$template/install.sh" ${@} \
             && success "Module '${name}' is installed" \
             || error   "Module '${name}' is not installed"
 
