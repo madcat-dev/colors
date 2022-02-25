@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-APP_NAME="colors2"
+APP_NAME="$(basename "$BASH_SOURCE")"
 
 LC_ALL=C
 
@@ -203,6 +203,9 @@ if istrue "${RESTORE}"; then
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
 
+    apply_template  xrdb
+    apply_template  rofi
+    apply_template  kitty
     apply_template  xfce-terminal
 
     echo -e "-- Restore complete, errors: $ERROR_COUNTER --"
@@ -237,14 +240,14 @@ if istrue "${INSTALL}"; then
         || fatal   "Shell theme is not restored"
 
     # Templates...
-    apply_template  colors-kitty.conf
-    apply_template  colors-rofi.rasi
     apply_template  colors.css
     apply_template  colors.json
     apply_template  colors.theme
-    apply_template  colors.Xresources
 
     # Modules...
+    apply_template  xrdb
+    apply_template  rofi
+    apply_template  kitty
     apply_template  dunst
     apply_template  xfce-terminal
     apply_template  telegram  "$CACHE/colors.sh"
