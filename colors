@@ -13,7 +13,7 @@ SHARED_PATHS=(
 )
 
 for path in ${SHARED_PATHS[@]}; do
-    if [[ -f "$path/lib/core.sh" ]]; then
+    if [[ -e "$path/lib/core.sh" ]]; then
         SHARED_PATH="$path"
         break
     fi
@@ -181,7 +181,7 @@ while [ -n "$1" ]; do
 
         debug "Load theme '$THEME'"
 
-        [[ ! -f "${THEME}" ]] \
+        [[ ! -e "${THEME}" ]] \
             && THEME="$SHARED_PATH/themes/$THEME"
 
         source "$THEME" 2>/dev/null \
@@ -194,7 +194,7 @@ done
 
 # Restore
 if istrue "${RESTORE}"; then
-    get_sh_theme "${CACHE}/colors.sh" \
+    get_sh_theme "$CACHE/colors.sh" \
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
 
@@ -219,16 +219,20 @@ fi
 
 # Install...
 if istrue "${INSTALL}"; then
-    gen_sh_theme "${CACHE}/colors.sh" \
+    gen_sh_theme "$CACHE/colors.sh" \
         && success "Shell theme is generated" \
         || fatal   "Shell theme is not generated"
 
-    get_sh_theme "${CACHE}/colors.sh" \
+    get_sh_theme "$CACHE/colors.sh" \
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
+
+    apply_template colors-kitty.conf
+    apply_template colors.css
+    apply_template xrdb
 
     success "Installation complete"
 fi
 
-info "Operation completed in $(displaytime $(get_timer))"
+info "Operation completed in $(displaytime $(get_timer)), errors: $ERROR_COUNTER"
 

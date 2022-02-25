@@ -138,11 +138,11 @@ restore_environment_variables() {
 }
 
 font_split_name() {
-    echo "${1}" | sed 's/\ *[0-9]*$//g'
+    echo "${@}" | sed 's/\ *[0-9]*$//g'
 }
 
 font_split_size() {
-    local size=$(echo "${1}" | awk '{print $NF}')
+    local size=$(echo "${@}" | awk '{print $NF}')
 
     isint "$size" \
         && echo $size \
@@ -271,31 +271,6 @@ preview_theme_header() {
 # Operation functions
 # -----------------------------------------------------------------------------
 
-apply() {
-    local data
-    local SRCE="${1/\~/$HOME}"
-    local DEST="${2/\~/$HOME}"
-
-    if [[ ! -f "$SRCE" ]]; then
-        error "Template '${SRCE/$HOME/\~}' not existing!"
-        return 1
-    fi
-
-    rm    -f "$DEST" > /dev/null 2>&1
-    mkdir -p "$(dirname "${DEST}")" > /dev/null 2>&1
-
-    while read -r data; do
-        local IFS=$'\x1B'
-
-        data="${data//\\/\\x5C}"
-        data="${data//\"/\\x22}"
-        data=$'\x22'$data$'\x22'
-
-        eval echo -e ${data} >> $DEST 2>/dev/null \
-            || return 1
-    done < $SRCE
-}
-
 gen_colors_from_image() {
 	local light="$(bool ${2})"
 	local c index=1
@@ -372,6 +347,11 @@ colors_reallocation() {
     done
 }
 
+
+# -----------------------------------------------------------------------------
+# Store themes
+# -----------------------------------------------------------------------------
+
 gen_sh_theme() {
 	cat <<EOF > "${1/\~/$HOME}"
 # Shell variables
@@ -406,6 +386,8 @@ get_sh_theme() {
 	source "${1/\~/$HOME}" 2>/dev/null
 }
 
+
+# Save theme to main format
 save_theme() {
     cat <<EOF > "${1/\~/$HOME}"
 GTK_APPLICATION_PREFER_DARK_THEME=$GTK_APPLICATION_PREFER_DARK_THEME
@@ -438,4 +420,52 @@ declare -A COLOR=(
     [7]=$(get 7)
 )
 EOF
+}
+
+
+# -----------------------------------------------------------------------------
+# Apply theme to templates and plugins
+# -----------------------------------------------------------------------------
+
+apply() {
+    local data
+    local SRCE="${1/\~/$HOME}"
+    local DEST="${2/\~/$HOME}"
+
+    if [[ ! -f "$SRCE" ]]; then
+        error "Template '${SRCE/$HOME/\~}' not existing!"
+        return 1
+    fi
+
+    rm    -f "$DEST" > /dev/null 2>&1
+    mkdir -p "$(dirname "${DEST}")" > /dev/null 2>&1
+
+    while read -r data; do
+        local IFS=$'\x1B'
+
+        data="${data//\\/\\x5C}"
+        data="${data//\"/\\x22}"
+        data=$'\x22'$data$'\x22'
+
+        eval echo -e ${data} >> $DEST 2>/dev/null \
+            || return 1
+
+    done < $SRCE
+}
+
+apply_template() {
+    local template
+
+    template="$SHARED_PATHS/templates/${1}"
+
+    if [[ -d "${template/\~/$HOME}" ]]; then
+        info "Apply template module '${1}'"
+
+    else
+        info "Apply template '${1}'"
+
+        apply "$template" "${CACHE:-$HOME/.cache}/${1}" \
+            && success "Template '${1}' is applied" \
+            || error   "Template '${1}' is not applied"
+    fi
 }

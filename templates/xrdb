@@ -1,46 +1,47 @@
 ! -----------------------------------------------------------------------------
-! Adaptive color cheme
+! Custom color theme
 ! -----------------------------------------------------------------------------
 
 !! special
-*.foreground:           ${COLOR[foreground]}
-*.background:           ${COLOR[background]}
-*.cursorColor:          ${COLOR[cursor]}
-*.highlightTextColor:   ${COLOR[background]}
-*.highlightColor:       ${COLOR[foreground]}
+*.foreground:           $foreground
+*.background:           $background
+*.cursorColor:          $cursor
+*.highlightTextColor:   $background
+*.highlightColor:       $foreground
 
 !! compatibility
-*.cursor:               ${COLOR[cursor]}
+*.cursor:               $cursor
+*.font:                 xft:$(font_split_name $TERMINAL_FONT_NAME):size=$(font_split_size $TERMINAL_FONT_NAME)
 
 !! terminal colors+
 ! black
-*.color0:   ${COLOR[0]}
-*.color8:   ${COLOR[8]}
+*.color0:   $color0
+*.color8:   $color8
 
 ! red
-*.color1:   ${COLOR[1]}
-*.color9:   ${COLOR[9]}
+*.color1:   $color1
+*.color9:   $color9
 
 ! green
-*.color2:   ${COLOR[2]}
-*.color10:  ${COLOR[10]}
+*.color2:   $color2
+*.color10:  $color10
 
 ! yellow
-*.color3:   ${COLOR[3]}
-*.color11:  ${COLOR[11]}
+*.color3:   $color3
+*.color11:  $color11
 
 ! blue
-*.color4:   ${COLOR[4]}
-*.color12:  ${COLOR[12]}
+*.color4:   $color4
+*.color12:  $color12
 
 ! magenta
-*.color5:   ${COLOR[5]}
-*.color13:  ${COLOR[13]}
+*.color5:   $color5
+*.color13:  $color13
 
 ! cyan
-*.color6:   ${COLOR[6]}
-*.color14:  ${COLOR[14]}
+*.color6:   $color6
+*.color14:  $color14
 
 ! white
-*.color7:   ${COLOR[7]}
-*.color15:  ${COLOR[15]}
+*.color7:   $color7
+*.color15:  $color15

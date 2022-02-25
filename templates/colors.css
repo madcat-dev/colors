@@ -1,26 +1,28 @@
 /* CSS variables */
 
 :root {
+    --wallpaper: url("$wallpaper");
+
     /* Special */
-    --background: ${COLOR[background]};
-    --foreground: ${COLOR[foreground]};
-    --cursor:     ${COLOR[cursor]};
+    --background: $background;
+    --foreground: $foreground;
+    --cursor:     $cursor;
 
     /* Colors */
-    --color0:  ${COLOR[0]};
-    --color1:  ${COLOR[1]};
-    --color2:  ${COLOR[2]};
-    --color3:  ${COLOR[3]};
-    --color4:  ${COLOR[4]};
-    --color5:  ${COLOR[5]};
-    --color6:  ${COLOR[6]};
-    --color7:  ${COLOR[7]};
-    --color8:  ${COLOR[8]};
-    --color9:  ${COLOR[9]};
-    --color10: ${COLOR[10]};
-    --color11: ${COLOR[11]};
-    --color12: ${COLOR[12]};
-    --color13: ${COLOR[13]};
-    --color14: ${COLOR[14]};
-    --color15: ${COLOR[15]};
+    --color0:  $color0;
+    --color1:  $color1;
+    --color2:  $color2;
+    --color3:  $color3;
+    --color4:  $color4;
+    --color5:  $color5;
+    --color6:  $color6;
+    --color7:  $color7;
+    --color8:  $color8;
+    --color9:  $color9;
+    --color10: $color10;
+    --color11: $color11;
+    --color12: $color12;
+    --color13: $color13;
+    --color14: $color14;
+    --color15: $color15;
 }
