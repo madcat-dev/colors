@@ -35,7 +35,7 @@ NOTIFY_HEADER='$LABEL'
 CACHE="$HOME/.cache/${APP_NAME}"
 mkdir -p "$CACHE" > /dev/null 2>&1
 
-AVAILABLE=( $(ls $SHARED_PATH/themes) )
+AVAILABLE=( $(ls "$SHARED_PATH/themes") )
 
 set_timer
 restore_colors_from_xrdb
