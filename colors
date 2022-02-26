@@ -207,6 +207,9 @@ if istrue "${RESTORE}"; then
         && success "Shell theme is restored" \
         || fatal   "Shell theme is not restored"
 
+    APPLY_SUCCESS="is restored"
+    APPLY_ERROR="is not restored"
+
     apply_template  xrdb
     apply_template  rofi
     apply_template  kitty

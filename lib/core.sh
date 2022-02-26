@@ -400,17 +400,17 @@ apply_template() {
     debug "apply_template: $template, $name, ${@}"
 
     if [[ -d "${template}" ]]; then
-        info "start installation of module '${name}'"
+        info "start apply module '${name}'"
 
         source "$template/install.sh" ${@} \
-            && success "Module '${name}' is installed" \
-            || error   "Module '${name}' is not installed"
+            && success "Module '${name}' ${APPLY_SUCCESS:-is installed}" \
+            || error   "Module '${name}' ${APPLY_ERROR:-is not installed}"
 
     else
-        info "start installation of template '${name}'"
+        info "start apply of template '${name}'"
 
         apply "$template" "${CACHE:-$HOME/.cache}/${name}" \
-            && success "Template '${name}' is installed" \
-            || error   "Template '${name}' is not installed"
+            && success "Template '${name}' ${APPLY_SUCCESS:-is installed}" \
+            || error   "Template '${name}' ${APPLY_ERROR:-is not installed}"
     fi
 }
