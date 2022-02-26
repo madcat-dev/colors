@@ -409,7 +409,16 @@ apply_template() {
     else
         info "start apply of template '${name}'"
 
-        apply "$template" "${CACHE:-$HOME/.cache}/${name}" \
+        local DEFAULT_PATH="${CACHE:-$HOME/.cache}/${name}"
+        local INSTALL_PATH=
+
+        [[ "${1}" == "-" ]] \
+            && INSTALL_PATH="${2/\~/$HOME}/${name}" \
+            || INSTALL_PATH="${1/\~/$HOME}"
+
+        debug "install ${name} to: ${INSTALL_PATH:-$DEFAULT_PATH}"
+
+        apply "$template" "${INSTALL_PATH:-$DEFAULT_PATH}" \
             && success "Template '${name}' ${APPLY_SUCCESS:-is installed}" \
             || error   "Template '${name}' ${APPLY_ERROR:-is not installed}"
     fi

@@ -5,7 +5,7 @@ LC_ALL=C
 APP_NAME="$(basename "$BASH_SOURCE")"
 SHARED_PATH="$(realpath "$(dirname "$BASH_SOURCE")")"
 
-PATH="$SHARED_PATH/utils:$PATH"
+PATH="$SHARED_PATH/bin:$PATH"
 
 SHARED_PATHS=(
     "$SHARED_PATH"
@@ -251,21 +251,24 @@ if istrue "${INSTALL}"; then
     apply_template  colors.json
     apply_template  colors.theme
 
+    apply_template  zathurarc           -  ~/.config/zathura
+    apply_template  gtksourceview.xml   -  ~/.local/share/gtksourceview-3.0/styles
+    apply_template  gtksourceview.xml   -  ~/.local/share/gtksourceview-4/styles
+
     # Modules...
-    apply_template  xrdb
-    apply_template  rofi
-    apply_template  kitty
-    apply_template  dunst
-    apply_template  xfce-terminal
-    apply_template  telegram  "$CACHE/colors.sh"
-    apply_template  'gtk-2.0'
-    apply_template  'gtk-3.0'
-    apply_template  'gtk-4.0'
-    apply_template  gtksourceview
-    apply_template  gtk-icon-theme
-    apply_template  gtk-theme
-    apply_template  qt5ct
-    apply_template  qt6ct
+    #apply_template  xrdb
+    #apply_template  rofi
+    #apply_template  kitty
+    #apply_template  dunst
+    #apply_template  xfce-terminal
+    #apply_template  telegram  "$CACHE/colors.sh"
+    #apply_template  'gtk-2.0'
+    #apply_template  'gtk-3.0'
+    #apply_template  'gtk-4.0'
+    #apply_template  gtk-icon-theme
+    #apply_template  gtk-theme
+    #apply_template  qt5ct
+    #apply_template  qt6ct
 
     notify "-- Installation complete, errors: $ERROR_COUNTER --"
 fi
