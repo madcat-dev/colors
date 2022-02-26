@@ -154,21 +154,21 @@ notify() {
 
     if [[ $LEVEL -ge $DEBUG_LEVEL ]]; then
         # Std error
-        echo -en "\r\033[2K\033[${C:-0}m" >&2
+        PREFIX="\r\033[2K\033[${C:-0}m"
 
         [[ "$NOTIFY_HEADER" ]] && \
-            echo -en "$(eval echo \"$NOTIFY_HEADER \")" >&2
+            PREFIX="${PREFIX}$(eval echo \"$NOTIFY_HEADER \")"
 
-        echo -e "${DATA}\033[0m" >&2
+        echo -e "${PREFIX}${DATA}\033[0m" >&2
 
         # File log
         if [[ "${LOG_FILE}" ]]; then
-            echo -en "\r\033[2K\033[${C:-0}m" > "${LOG_FILE}"
+            PREFIX=""
 
             [[ "$LOG_HEADER" ]] && \
-                echo -en "$(eval echo \"$LOG_HEADER \")" > "${LOG_FILE}"
+                PREFIX="${PREFIX}$(eval echo \"$LOG_HEADER \")"
 
-            echo -e "${DATA}\033[0m" > "${LOG_FILE}"
+            echo -e "${PREFIX}${DATA}" >&2
         fi
     fi
 
