@@ -14,14 +14,14 @@ istrue() {
 
 
 # Inititalise
+[[ ! "${DEBUG_LEVEL}" ]] \
+    && DEBUG_LEVEL=1
+
 [[ ! "${ERROR_IS_FATAL}" ]] \
     && ERROR_IS_FATAL=false
 
 [[ ! "${INTERUPT_IS_FATAL}" ]] \
     && INTERUPT_IS_FATAL=true
-
-[[ ! "${DEBUG_LEVEL}" ]] \
-    && DEBUG_LEVEL=1
 
 [[ ! "${ERROR_COUNT_FORMAT}" ]] \
     && ERROR_COUNT_FORMAT="%03d"
@@ -31,6 +31,10 @@ istrue() {
 
 [[ ! "${LOG_HEADER}" ]] \
     && LOG_HEADER="$NOTIFY_HEADER"
+
+[[ ! "${LOG_COLORS}" ]] \
+    && LOG_COLORS=$(tput colors)
+
 
 if [[ "${LOG_FILE}" ]]; then
     LOG_DIR="$(dirname "$LOG_FILE")"
@@ -99,34 +103,40 @@ notify() {
     case ${TYPE,,} in
         debug)
             LEVEL=0
-            C='36'
+            [[ ${LOG_COLORS} == "256" ]] \
+                && C='38;2;127;165;188' || C='34'
             LABEL='[.]'
             ;;
         info)
             LEVEL=1
-            C='37'
+            [[ ${LOG_COLORS} == "256" ]] \
+                && C='38;2;208;208;208' || C='37'
             LABEL='[i]'
             ;;
         warning)
             LEVEL=2
-            C='33'
+            [[ ${LOG_COLORS} == "256" ]] \
+                && C='38;2;214;175;134' || C='33'
             LABEL='[!]'
             ;;
         success)
             LEVEL=3
-            C='32'
+            [[ ${LOG_COLORS} == "256" ]] \
+                && C='38;2;144;165;126' || C='32'
             LABEL='[+]'
             ;;
         error)
             LEVEL=4
-            C='31'
+            [[ ${LOG_COLORS} == "256" ]] \
+                && C='38;2;162;102;102' || C='31'
             LABEL='[-]'
             ERROR_COUNTER+=1
             istrue "${ERROR_IS_FATAL}" && STOP=true
             ;;
         fatal|critical)
             LEVEL=5
-            C='31;1'
+            [[ ${LOG_COLORS} == "256" ]] \
+                && C='38;2;255;0;0' || C='31;1'
             LABEL='[-]'
             ERROR_COUNTER+=1
             STOP=true

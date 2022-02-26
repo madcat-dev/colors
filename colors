@@ -212,7 +212,7 @@ if istrue "${RESTORE}"; then
     apply_template  kitty
     apply_template  xfce-terminal
 
-    echo -e "-- Restore complete, errors: $ERROR_COUNTER --"
+    notify "-- Restore complete, errors: $ERROR_COUNTER --"
     exit 0
 fi
 
@@ -264,8 +264,8 @@ if istrue "${INSTALL}"; then
     apply_template  qt5ct
     apply_template  qt6ct
 
-    echo -e "-- Installation complete, errors: $ERROR_COUNTER --"
+    notify "-- Installation complete, errors: $ERROR_COUNTER --"
 fi
 
-info "Operation completed in $(displaytime $(get_timer))"
+success "Operation completed in $(displaytime $(get_timer))"
 

@@ -1,0 +1,8 @@
+#!/bin/sh
+
+CL=$(xrdb -query | grep -w "${1}:" | cut -f 2)
+
+[[ ! "${CL}" ]] && \
+    exit 1
+
+echo "${CL}"
