@@ -157,7 +157,7 @@ notify() {
         PREFIX="\r\033[2K\033[${C:-0}m"
 
         [[ "$NOTIFY_HEADER" ]] && \
-            PREFIX="${PREFIX}$(eval echo \"$NOTIFY_HEADER \")"
+            PREFIX="${PREFIX}$(eval echo $NOTIFY_HEADER) "
 
         echo -e "${PREFIX}${DATA}\033[0m" >&2
 
@@ -166,7 +166,7 @@ notify() {
             PREFIX=""
 
             [[ "$LOG_HEADER" ]] && \
-                PREFIX="${PREFIX}$(eval echo \"$LOG_HEADER \")"
+                PREFIX="${PREFIX}$(eval echo $LOG_HEADER) "
 
             echo -e "${PREFIX}${DATA}" >&2
         fi
