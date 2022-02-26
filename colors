@@ -5,6 +5,8 @@ LC_ALL=C
 APP_NAME="$(basename "$BASH_SOURCE")"
 SHARED_PATH="$(realpath "$(dirname "$BASH_SOURCE")")"
 
+PATH="$SHARED_PATH/utils:$PATH"
+
 SHARED_PATHS=(
     "$SHARED_PATH"
     "$SHARED_PATH/share/$APP_NAME"
@@ -26,9 +28,11 @@ if ! source "$SHARED_PATH/lib/core.sh" 2>/dev/null; then
 fi
 
 
-DEBUG_LEVEL=0
+DEBUG_LEVEL=3
 NOTIFY_HEADER='$LABEL'
 
+[[ "${@}" == *"--debug"* ]] \
+    && DEBUG_LEVEL=0
 
 # Initialise
 CACHE="$HOME/.cache/${APP_NAME}"
@@ -175,6 +179,9 @@ while [ -n "$1" ]; do
         COLOR=()
         THEME="$(get_wallpaper)"
         gen_theme_from_image "$THEME"
+        ;;
+
+    --debug)
         ;;
 
     *)

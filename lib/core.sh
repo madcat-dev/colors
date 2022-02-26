@@ -12,8 +12,8 @@ LC_ALL=C
 #   rgb.sh
 # -----------------------------------------------------------------------------
 
-if ! source notify.sh 2>/dev/null; then
-    echo -e "\033[31mLibrary 'notify.sh not found!'\033[0m"
+if ! source log.sh 2>/dev/null; then
+    echo -e "\033[31mLibrary 'log.sh not found!'\033[0m"
     exit 1
 fi
 
