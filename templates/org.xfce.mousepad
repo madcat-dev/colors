@@ -1,0 +1,29 @@
+[preferences/view]
+auto-indent=true
+color-scheme='$APP_NAME'
+font-name='$TERMINAL_FONT_NAME'
+highlight-current-line=false
+insert-spaces=true
+match-braces=true
+show-line-numbers=true
+show-right-margin=true
+tab-width=uint32 4
+use-default-monospace-font=false
+
+[preferences/window]
+cycle-tabs=true
+menubar-visible=false
+statusbar-visible=true
+toolbar-visible=false
+
+[state/application]
+
+[state/search]
+replace-all=true
+
+[state/window]
+fullscreen=false
+height=uint32 600
+maximized=false
+width=uint32 800
+

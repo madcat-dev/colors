@@ -229,6 +229,8 @@ if istrue "${RESTORE}"; then
     apply_template  colors-rofi.rasi    - ~/.config/rofi
     apply_template  colors-kitty.conf   - ~/.config/kitty
 
+    apply_dconf_template  org.xfce.mousepad
+
     notify "-- Restore complete, errors: $ERROR_COUNTER --"
     exit 0
 fi
@@ -285,6 +287,9 @@ if istrue "${INSTALL}"; then
     apply_template  gtk-icon-theme
     apply_template  gtk-theme
     apply_template  telegram  "$CACHE/colors.sh"
+
+    # DConf
+    apply_dconf_template  org.xfce.mousepad
 
     notify "-- Installation complete, errors: $ERROR_COUNTER --"
 fi

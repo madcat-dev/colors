@@ -416,3 +416,22 @@ apply_template() {
             || error   "Template '${name}' ${APPLY_ERROR:-is not installed}"
     fi
 }
+
+apply_dconf_template() {
+    local name=${1}; shift
+    local template="$SHARED_PATHS/templates/${name}"
+    local dcfg="/$(echo ${name} | sed 's/\./\//g')/"
+
+    debug "apply_dconf_template: $template, $name, $dcfg, ${@}"
+
+    local TMP_PATH="${CACHE:-$HOME/.cache}/${name}"
+
+    if ! apply "$template" "$TMP_PATH"; then
+        error "DConf template '${name}' ${APPLY_ERROR:-is not installed}"
+        return 1
+    fi
+
+    dconf load $dcfg < "$TMP_PATH" \
+        && success "DConf template '${name}' ${APPLY_SUCCESS:-is installed}" \
+        || error   "DConf template '${name}' ${APPLY_ERROR:-is not installed}"
+}
