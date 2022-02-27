@@ -94,7 +94,7 @@ restore_environment_variables() {
 			get_gtk_setting 'gtk-application-prefer-dark-theme')
 	fi
 
-	export GTK_APPLICATION_PREFER_DARK_THEME=$(\
+	GTK_APPLICATION_PREFER_DARK_THEME=$(\
 		istrue "${GTK_APPLICATION_PREFER_DARK_THEME:-DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME}" \
 			&& echo 1 || echo 0)
 	debug "GTK_APPLICATION_PREFER_DARK_THEME: $GTK_APPLICATION_PREFER_DARK_THEME"
@@ -105,7 +105,7 @@ restore_environment_variables() {
 			get_gtk_setting 'gtk-theme-name')
 	fi
 
-	export GTK_THEME_NAME="${GTK_THEME_NAME:-$DEFAULT_GTK_THEME_NAME}"
+	GTK_THEME_NAME="${GTK_THEME_NAME:-$DEFAULT_GTK_THEME_NAME}"
 	debug "GTK_THEME_NAME: $GTK_THEME_NAME"
 
 
@@ -114,7 +114,7 @@ restore_environment_variables() {
 			get_gtk_setting 'gtk-icon-theme-name')
 	fi
 
-	export GTK_ICON_THEME_NAME="${GTK_ICON_THEME_NAME:-$DEFAULT_GTK_ICON_THEME_NAME}"
+	GTK_ICON_THEME_NAME="${GTK_ICON_THEME_NAME:-$DEFAULT_GTK_ICON_THEME_NAME}"
 	debug "GTK_ICON_THEME_NAME: $GTK_ICON_THEME_NAME"
 
 
@@ -123,17 +123,17 @@ restore_environment_variables() {
 			get_gtk_setting 'gtk-font-name')
 	fi
 
-	export GTK_FONT_NAME="${GTK_FONT_NAME:-$DEFAULT_GTK_FONT_NAME}"
+	GTK_FONT_NAME="${GTK_FONT_NAME:-$DEFAULT_GTK_FONT_NAME}"
 	debug "GTK_FONT_NAME: $GTK_FONT_NAME"
 
 
-    export TERMINAL_FONT_NAME="${TERMINAL_FONT_NAME:-$DEFAULT_TERMINAL_FONT_NAME}"
+    TERMINAL_FONT_NAME="${TERMINAL_FONT_NAME:-$DEFAULT_TERMINAL_FONT_NAME}"
 	debug "TERMINAL_FONT_NAME: $TERMINAL_FONT_NAME"
     debug "TERMINAL_FONT_NAME: --$(font_split_name "$TERMINAL_FONT_NAME")--"
     debug "TERMINAL_FONT_SIZE: --$(font_split_size "$TERMINAL_FONT_NAME")--"
 
 
-    export CURSOR_COLOR="${CURSOR_COLOR:-$DEFAULT_CURSOR_COLOR}"
+    CURSOR_COLOR="${CURSOR_COLOR:-$DEFAULT_CURSOR_COLOR}"
     debug "CURSOR_COLOR: $CURSOR_COLOR"
 }
 

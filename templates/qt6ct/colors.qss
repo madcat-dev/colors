@@ -1,7 +1,0 @@
-QWidget {
-	background-color: ${background};
-	alternate-background-color: ${color0};
-	selection-color: ${foreground};
-	selection-background-color: ${color2};
-	color: ${foreground};
-}

@@ -9,7 +9,6 @@ PATH="$SHARED_PATH/bin:$PATH"
 
 SHARED_PATHS=(
     "$SHARED_PATH"
-    "$SHARED_PATH/share/$APP_NAME"
     "$HOME/.local/share/$APP_NAME"
     "/usr/local/share/$APP_NAME"
     "/usr/share/$APP_NAME"
@@ -211,9 +210,9 @@ if istrue "${RESTORE}"; then
     APPLY_ERROR="is not restored"
 
     apply_template  xrdb
-    apply_template  rofi
-    apply_template  kitty
     apply_template  xfce-terminal
+    apply_template  colors-rofi.rasi    - ~/.config/rofi
+    apply_template  colors-kitty.conf   - ~/.config/kitty
 
     notify "-- Restore complete, errors: $ERROR_COUNTER --"
     exit 0
@@ -251,24 +250,24 @@ if istrue "${INSTALL}"; then
     apply_template  colors.json
     apply_template  colors.theme
 
-    apply_template  zathurarc           -  ~/.config/zathura
-    apply_template  gtksourceview.xml   -  ~/.local/share/gtksourceview-3.0/styles
-    apply_template  gtksourceview.xml   -  ~/.local/share/gtksourceview-4/styles
+    apply_template  zathurarc           - ~/.config/zathura
+    apply_template  gtksourceview.xml   - ~/.local/share/gtksourceview-3.0/styles
+    apply_template  gtksourceview.xml   - ~/.local/share/gtksourceview-4/styles
+    apply_template  colors-rofi.rasi    - ~/.config/rofi
+    apply_template  colors-kitty.conf   - ~/.config/kitty
+    apply_template  colors.qss          - ~/.config/qt5ct/qss
+    apply_template  colors.qss          - ~/.config/qt6ct/qss
 
     # Modules...
-    #apply_template  xrdb
-    #apply_template  rofi
-    #apply_template  kitty
-    #apply_template  dunst
-    #apply_template  xfce-terminal
-    #apply_template  telegram  "$CACHE/colors.sh"
-    #apply_template  'gtk-2.0'
-    #apply_template  'gtk-3.0'
-    #apply_template  'gtk-4.0'
-    #apply_template  gtk-icon-theme
-    #apply_template  gtk-theme
-    #apply_template  qt5ct
-    #apply_template  qt6ct
+    apply_template  xrdb
+    apply_template  xfce-terminal
+    apply_template  dunst
+    apply_template  'gtk-2.0'
+    apply_template  'gtk-3.0'
+    apply_template  'gtk-4.0'
+    apply_template  gtk-icon-theme
+    apply_template  gtk-theme
+    apply_template  telegram  "$CACHE/colors.sh"
 
     notify "-- Installation complete, errors: $ERROR_COUNTER --"
 fi
