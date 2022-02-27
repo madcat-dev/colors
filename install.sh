@@ -2,7 +2,7 @@
 
 LC_ALL=C
 
-APP_NAME="colors"
+APP_NAME="x-theme"
 
 SHARE="$HOME/.local/share"
 BIN="$HOME/.local/bin"

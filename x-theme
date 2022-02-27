@@ -2,6 +2,7 @@
 
 LC_ALL=C
 
+# -----------------------------------------------------------------------------
 APP_NAME="$(basename "$BASH_SOURCE")"
 SHARED_PATH="$(realpath "$(dirname "$BASH_SOURCE")")"
 
@@ -27,6 +28,20 @@ if ! source "$SHARED_PATH/lib/core.sh" 2>/dev/null; then
 fi
 
 
+# -----------------------------------------------------------------------------
+# Defaults
+#   Set environment variable without DEFAULT_ prefix to replace that
+# -----------------------------------------------------------------------------
+
+DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME=1
+DEFAULT_GTK_THEME_NAME='FlatColor'
+DEFAULT_GTK_ICON_THEME_NAME='Tela'
+DEFAULT_GTK_FONT_NAME='Noto Sans 11'
+DEFAULT_TERMINAL_FONT_NAME='Iosevka Fixed Curly Medium 12'
+DEFAULT_CURSOR_COLOR='#FFA500'
+
+
+# -----------------------------------------------------------------------------
 DEBUG_LEVEL=3
 NOTIFY_HEADER='$LABEL'
 
@@ -200,7 +215,7 @@ while [ -n "$1" ]; do
 done
 
 
-# Restore
+# - Restore -------------------------------------------------------------------
 if istrue "${RESTORE}"; then
     source "$CACHE/colors.sh" 2>/dev/null \
         && success "Shell theme is restored" \
@@ -218,26 +233,30 @@ if istrue "${RESTORE}"; then
     exit 0
 fi
 
-# Realloc colors from theme
+
+# - Realloc colors from theme -------------------------------------------------
 if isfalse "${PURE_THEME}"; then
     colors_reallocation \
         $(neg ${GTK_APPLICATION_PREFER_DARK_THEME:-1})
 fi
 
-# Preview
+
+# - Preview -------------------------------------------------------------------
 isfalse "${SHORT_PREVIEW}" \
     && preview_theme_header
 
 preview_theme
 
-# Save scheme to path
+
+# - Save scheme to path -------------------------------------------------------
 if [[ ${SAVE_THEME} ]]; then
 	apply "$SHARED_PATH/templates/colors.theme" "${SAVE_THEME}" \
         && success "Theme '${SAVE_THEME/$HOME/\~}' is saved" \
         || error   "Theme '${SAVE_THEME/$HOME/\~}' is not saved"
 fi
 
-# Install...
+
+# - Install... ----------------------------------------------------------------
 if istrue "${INSTALL}"; then
     apply_template  colors.sh
 
@@ -262,9 +281,7 @@ if istrue "${INSTALL}"; then
     apply_template  xrdb
     apply_template  xfce-terminal
     apply_template  dunst
-    apply_template  'gtk-2.0'
-    apply_template  'gtk-3.0'
-    apply_template  'gtk-4.0'
+    apply_template  gtk
     apply_template  gtk-icon-theme
     apply_template  gtk-theme
     apply_template  telegram  "$CACHE/colors.sh"

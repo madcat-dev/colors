@@ -3,9 +3,6 @@
 
 LC_ALL=C
 
-# Initialise
-
-
 # -----------------------------------------------------------------------------
 # Dependencies:
 # -----------------------------------------------------------------------------
@@ -20,16 +17,14 @@ if ! source rgb.sh 2>/dev/null; then
     exit 1
 fi
 
-
 # -----------------------------------------------------------------------------
 # Declarations and Defaults
 # -----------------------------------------------------------------------------
-
 DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME=1
-DEFAULT_GTK_THEME_NAME='FlatColor'
-DEFAULT_GTK_ICON_THEME_NAME='Tela'
-DEFAULT_GTK_FONT_NAME='Noto Sans 11'
-DEFAULT_TERMINAL_FONT_NAME='Iosevka Fixed Curly Medium 12'
+DEFAULT_GTK_THEME_NAME='Adwaita'
+DEFAULT_GTK_ICON_THEME_NAME='Adwaita'
+DEFAULT_GTK_FONT_NAME='Noto Sans Regular 10'
+DEFAULT_TERMINAL_FONT_NAME='Monospace Regular 12'
 DEFAULT_CURSOR_COLOR='#FFA500'
 
 
@@ -49,7 +44,7 @@ declare -A COLOR
 
 
 # -----------------------------------------------------------------------------
-# Another access functions
+# Environment access functions
 # -----------------------------------------------------------------------------
 
 xrdbq() {
