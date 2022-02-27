@@ -195,6 +195,13 @@ while [ -n "$1" ]; do
         gen_theme_from_image "$THEME"
         ;;
 
+    --import)
+        COLOR=()
+        THEME="${2}"
+        import_wal_colorscheme "$THEME"
+        shift
+        ;;
+
     --debug)
         ;;
 

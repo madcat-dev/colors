@@ -342,6 +342,25 @@ colors_reallocation() {
 
 
 # -----------------------------------------------------------------------------
+# Import color-scheme from pywal
+# https://github.com/dylanaraps/pywal
+# -----------------------------------------------------------------------------
+
+import_wal_colorscheme() {
+    local color
+
+    for i in {0..15}; do
+        color=$(cat "${1}" | jq ".colors.color${i}" | sed 's/"//g')
+        if ! isrgb "$color"; then
+            fatal "import error"
+            return 1
+        fi
+        COLOR[$i]="$color"
+    done
+}
+
+
+# -----------------------------------------------------------------------------
 # Main operation functions
 # -----------------------------------------------------------------------------
 
