@@ -3,29 +3,11 @@
 LC_ALL=C
 
 # -----------------------------------------------------------------------------
-APP_NAME="$(basename "$BASH_SOURCE")"
-SHARED_PATH="$(realpath "$(dirname "$BASH_SOURCE")")"
+BASE="$(dirname "${BASH_SOURCE:-$0}")"
 
-PATH="$SHARED_PATH/bin:$PATH"
-
-SHARED_PATHS=(
-    "$SHARED_PATH"
-    "$HOME/.local"
-    "/usr/local"
-    "/usr"
-)
-
-for path in ${SHARED_PATHS[@]}; do
-    if [[ -e "$path/lib/x-theme-lib" ]]; then
-        SHARED_PATH="$path"
-        break
-    fi
-done
-
-if ! source "$SHARED_PATH/lib/x-theme-lib" 2>/dev/null; then
-    echo -e "\033[31mCore module not loaded!\033[0m"
-    exit 1
-fi
+source "$BASE/lib/x-theme-lib" 2>/dev/null \
+    || source "$BASE/../lib/x-theme-lib" \
+    || exit 1
 
 
 # -----------------------------------------------------------------------------
@@ -49,7 +31,7 @@ NOTIFY_HEADER='$LABEL'
     && DEBUG_LEVEL=0
 
 # Initialise
-CACHE="$HOME/.cache/${APP_NAME}"
+CACHE="$HOME/.cache/x-theme"
 mkdir -p "$CACHE" > /dev/null 2>&1
 
 set_timer
@@ -293,4 +275,3 @@ if istrue "${INSTALL}"; then
 fi
 
 success "Operation completed in $(displaytime $(get_timer))"
-

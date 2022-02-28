@@ -3,14 +3,14 @@
 
 LC_ALL=C
 
-APP="$(basename "${BASH_SOURCE:-$0}")"
+PATH="$(dirname "${BASH_SOURCE:-$0}")/../bin:$PATH"
 
 SEARCH_PATH=(
     "$(dirname "${BASH_SOURCE:-$0}")/.."
-    "~/.${APP}"
-    "~/.local/share/${APP}"
-    "/usr/local/share/${APP}"
-    "/usr/share/${APP}"
+    "~/.x-theme"
+    "~/.local/share/x-theme"
+    "/usr/local/share/x-theme"
+    "/usr/share/x-theme"
 )
 
 # -----------------------------------------------------------------------------
@@ -352,6 +352,40 @@ colors_reallocation() {
 
 
 # -----------------------------------------------------------------------------
+# Templates/Themes describe functions
+# -----------------------------------------------------------------------------
+
+theme_list() {
+    local path
+    for path in ${SEARCH_PATH[@]}; do
+        ls "${path/\~/$HOME}/themes" 2>/dev/null
+    done
+}
+
+theme_path() {
+    local path
+
+    for path in ${SEARCH_PATH[@]}; do
+        path="${path/\~/$HOME}/themes/${1}"
+        [[ -e "$path" ]] \
+            && echo "$path" && return 0
+    done
+    return 1
+}
+
+template_path() {
+    local path
+
+    for path in ${SEARCH_PATH[@]}; do
+        path="${path/\~/$HOME}/templates/${1}"
+        [[ -e "$path" ]] \
+            && echo "$path" && return 0
+    done
+    return 1
+}
+
+
+# -----------------------------------------------------------------------------
 # Main operation functions
 # -----------------------------------------------------------------------------
 
@@ -398,7 +432,7 @@ apply() {
 
 apply_template() {
     local name=${1}; shift
-    local template="$SHARED_PATH/templates/${name}"
+    local template="$(template_path "${name}")"
 
     debug "apply_template: $template, $name, ${@}"
 
@@ -429,7 +463,7 @@ apply_template() {
 
 apply_dconf_template() {
     local name=${1}; shift
-    local template="$SHARED_PATH/templates/${name}"
+    local template="$(template_path "${name}")"
     local dcfg="/$(echo ${name} | sed 's/\./\//g')/"
 
     debug "apply_dconf_template: $template, $name, $dcfg, ${@}"
@@ -465,31 +499,4 @@ import_wal_colorscheme() {
         fi
         COLOR[$i]="$color"
     done
-}
-
-
-# -----------------------------------------------------------------------------
-# Templates/Themes describe functions
-# -----------------------------------------------------------------------------
-
-theme_list() {
-    local path
-    for path in ${SEARCH_PATH[@]}; do
-        ls "${path/\~/$HOME}/themes" 2>/dev/null
-    done
-}
-
-theme_path() {
-    local path
-
-    for path in ${SEARCH_PATH[@]}; do
-        path="${path/\~/$HOME}/themes/${1}"
-        [[ -e "$path" ]] \
-            && echo "$path" && return 0
-    done
-    return 1
-}
-
-get_template() {
-    echo
 }
