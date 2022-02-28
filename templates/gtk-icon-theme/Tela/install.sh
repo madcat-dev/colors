@@ -29,18 +29,36 @@ fi
 COLORS_VARIANT="${color2}"
 
 if istrue ${GTK_APPLICATION_PREFER_DARK_THEME:-1}; then
-	sed  -i "s/#565656/#aaaaaa/g" \
+    debug "apply dark theme wariant" 
+
+    # 35 / 65
+	sed  -i "s/#565656/$(rgb_value "$COLORS_VARIANT" 65)/g" \
 		"$ICONS/$THEME"/{16,22,24}/actions/*.svg || return 1
-
-	sed  -i "s/#727272/#888888/g" \
+    # 45 / 55
+    sed  -i "s/#727272/$(rgb_value "$COLORS_VARIANT" 55)/g" \
 		"$ICONS/$THEME"/{16,22,24}/{places,devices}/*.svg || return 1
-
-	sed  -i "s/#555555/#aaaaaa/g" \
+    # 30 / 70
+	sed  -i "s/#555555/$(rgb_value "$COLORS_VARIANT" 70)/g" \
 		"$ICONS/$THEME"/symbolic/{actions,apps,categories,devices}/*.svg || return 1
+	sed  -i "s/#555555/$(rgb_value "$COLORS_VARIANT" 70)/g" \
+		"$ICONS/$THEME"/symbolic/{emblems,emotes,mimetypes,places,status}/*.svg || return 1
 
-	sed  -i "s/#555555/#aaaaaa/g" \
+else
+    warning "apply light theme variant" 
+
+    # 35 / 65
+	sed  -i "s/#565656/$(rgb_value "$COLORS_VARIANT" 35)/g" \
+		"$ICONS/$THEME"/{16,22,24}/actions/*.svg || return 1
+    # 45 / 55
+	sed  -i "s/#727272/$(rgb_value "$COLORS_VARIANT" 45)/g" \
+		"$ICONS/$THEME"/{16,22,24}/{places,devices}/*.svg || return 1
+    # 30 / 70
+	sed  -i "s/#555555/$(rgb_value "$COLORS_VARIANT" 30)/g" \
+		"$ICONS/$THEME"/symbolic/{actions,apps,categories,devices}/*.svg || return 1
+	sed  -i "s/#555555/$(rgb_value "$COLORS_VARIANT" 30)/g" \
 		"$ICONS/$THEME"/symbolic/{emblems,emotes,mimetypes,places,status}/*.svg || return 1
 fi
+
 
 sed  -i "s/#5294E2/$COLORS_VARIANT/gi" \
 	"$ICONS/$THEME"/scalable/places/default-*.svg || return 1

@@ -74,6 +74,18 @@ get_gtk_setting() {
         | sed 's/"//g'
 }
 
+font_split_name() {
+    echo "${@}" | sed 's/\ *[0-9]*$//g'
+}
+
+font_split_size() {
+    local size=$(echo "${@}" | awk '{print $NF}')
+
+    isint "$size" \
+        && echo $size \
+        || echo 12
+}
+
 restore_colors_from_xrdb() {
 	local color i
 
@@ -140,16 +152,20 @@ restore_environment_variables() {
     debug "CURSOR_COLOR: $CURSOR_COLOR"
 }
 
-font_split_name() {
-    echo "${@}" | sed 's/\ *[0-9]*$//g'
-}
 
-font_split_size() {
-    local size=$(echo "${@}" | awk '{print $NF}')
+init_sh_theme() {
+    # Shell variables
+    eval "wallpaper='$(get_wallpaper)'"
 
-    isint "$size" \
-        && echo $size \
-        || echo 12
+    # Special
+    eval "background='$(get background)'"
+    eval "foreground='$(get foreground)'"
+    eval "cursor='$(get cursor)'"
+
+    # Colors
+    for i in {0..15}; do
+        eval "color${i}='$(get $i)'"
+    done
 }
 
 
@@ -379,7 +395,8 @@ template_path() {
     for path in ${SEARCH_PATH[@]}; do
         path="${path/\~/$HOME}/templates/${1}"
         [[ -e "$path" ]] \
-            && echo "$path" && return 0
+            && echo "$path" \
+            && return 0
     done
     return 1
 }
