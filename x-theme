@@ -199,12 +199,12 @@ done
 
 # - Restore -------------------------------------------------------------------
 if istrue "${RESTORE}"; then
-    source "$CACHE/colors.sh" 2>/dev/null \
-        && success "Shell theme is restored" \
-        || fatal   "Shell theme is not restored"
-
     APPLY_SUCCESS="is restored"
     APPLY_ERROR="is not restored"
+
+    source "$CACHE/colors.sh" 2>/dev/null \
+        && success "Shell theme is loaded" \
+        || fatal   "Shell theme is not loaded"
 
     apply_template  xrdb
     apply_template  xfce-terminal
@@ -243,8 +243,8 @@ if istrue "${INSTALL}"; then
     apply_template  colors.sh
 
     source "$CACHE/colors.sh" 2>/dev/null \
-        && success "Shell theme is restored" \
-        || fatal   "Shell theme is not restored"
+        && success "Shell theme is loaded" \
+        || fatal   "Shell theme is not loaded"
 
     # Templates...
     apply_template  colors.css
