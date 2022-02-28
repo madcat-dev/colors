@@ -74,16 +74,12 @@ get_gtk_setting() {
         | sed 's/"//g'
 }
 
-font_split_name() {
-    echo "${@}" | sed 's/\ *[0-9]*$//g'
+font_name() {
+    echo ${@% *}
 }
 
-font_split_size() {
-    local size=$(echo "${@}" | awk '{print $NF}')
-
-    isint "$size" \
-        && echo $size \
-        || echo 12
+font_size() {
+    echo ${@##* }
 }
 
 restore_colors_from_xrdb() {
@@ -139,13 +135,13 @@ restore_environment_variables() {
 	fi
 
 	GTK_FONT_NAME="${GTK_FONT_NAME:-$DEFAULT_GTK_FONT_NAME}"
-	debug "GTK_FONT_NAME: $GTK_FONT_NAME"
+    debug "GTK_FONT_NAME: $(font_name "$GTK_FONT_NAME")"
+    debug "GTK_FONT_SIZE: $(font_size "$GTK_FONT_NAME")"
 
 
     TERMINAL_FONT_NAME="${TERMINAL_FONT_NAME:-$DEFAULT_TERMINAL_FONT_NAME}"
-	debug "TERMINAL_FONT_NAME: $TERMINAL_FONT_NAME"
-    debug "TERMINAL_FONT_NAME: --$(font_split_name "$TERMINAL_FONT_NAME")--"
-    debug "TERMINAL_FONT_SIZE: --$(font_split_size "$TERMINAL_FONT_NAME")--"
+    debug "TERMINAL_FONT_NAME: $(font_name "$TERMINAL_FONT_NAME")"
+    debug "TERMINAL_FONT_SIZE: $(font_size "$TERMINAL_FONT_NAME")"
 
 
     CURSOR_COLOR="${CURSOR_COLOR:-$DEFAULT_CURSOR_COLOR}"

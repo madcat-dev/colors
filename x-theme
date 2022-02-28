@@ -165,6 +165,7 @@ while [ -n "$1" ]; do
     --image)
         COLOR=()
         THEME="${2}"
+        debug "Generate theme from wallpaper: $THEME"
         gen_theme_from_image "$THEME"
         shift
         ;;
@@ -172,12 +173,14 @@ while [ -n "$1" ]; do
     --wal)
         COLOR=()
         THEME="$(get_wallpaper)"
+        debug "Generate theme from wallpaper: $THEME"
         gen_theme_from_image "$THEME"
         ;;
 
     --import)
         COLOR=()
         THEME="${2}"
+        debug "Import theme: $THEME"
         import_wal_colorscheme "$THEME"
         shift
         ;;
@@ -188,9 +191,16 @@ while [ -n "$1" ]; do
     *)
         COLOR=()
         THEME="${1}"
-        source  "${1/\~/$HOME}"  2>/dev/null \
-            || source "$(theme_path "${1}")" \
-            || fatal "Color theme '$THEME' not found"
+        T_EXT="${THEME#*.}"
+        debug "Load theme: $THEME, $T_EXT"
+
+        if [[ "${T_EXT,,}" == "json" ]]; then
+            import_wal_colorscheme "$THEME"
+        else
+            source  "${THEME/\~/$HOME}"  2>/dev/null \
+                || source "$(theme_path "${THEME}")" \
+                || fatal "Color theme '$THEME' not found"
+        fi
         ;;
     esac
     shift

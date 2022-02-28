@@ -11,7 +11,7 @@
 
 !! compatibility
 *.cursor:               $cursor
-*.font:                 xft:$(font_split_name $TERMINAL_FONT_NAME):size=$(font_split_size $TERMINAL_FONT_NAME)
+*.font:                 xft:$(font_name $TERMINAL_FONT_NAME):size=$(font_size $TERMINAL_FONT_NAME)
 
 !! terminal colors+
 ! black
