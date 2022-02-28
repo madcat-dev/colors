@@ -247,27 +247,27 @@ if istrue "${INSTALL}"; then
     init_sh_theme
 
     # Templates...
-    #apply_template  colors.theme
-    #apply_template  colors.sh
-    #apply_template  colors.css
-    #apply_template  colors.json
+    apply_template  colors.theme
+    apply_template  colors.sh
+    apply_template  colors.css
+    apply_template  colors.json
 
-    #apply_template  zathurarc           - ~/.config/zathura
-    #apply_template  gtksourceview.xml   - ~/.local/share/gtksourceview-3.0/styles
-    #apply_template  gtksourceview.xml   - ~/.local/share/gtksourceview-4/styles
-    #apply_template  colors-rofi.rasi    - ~/.config/rofi
-    #apply_template  colors-kitty.conf   - ~/.config/kitty
-    #apply_template  colors.qss          - ~/.config/qt5ct/qss
-    #apply_template  colors.qss          - ~/.config/qt6ct/qss
+    apply_template  zathurarc           - ~/.config/zathura
+    apply_template  gtksourceview.xml   - ~/.local/share/gtksourceview-3.0/styles
+    apply_template  gtksourceview.xml   - ~/.local/share/gtksourceview-4/styles
+    apply_template  colors-rofi.rasi    - ~/.config/rofi
+    apply_template  colors-kitty.conf   - ~/.config/kitty
+    apply_template  colors.qss          - ~/.config/qt5ct/qss
+    apply_template  colors.qss          - ~/.config/qt6ct/qss
 
-    ## Modules...
-    #apply_template  xrdb
-    #apply_template  xfce-terminal
-    #apply_template  dunst
-    #apply_template  gtk
+    # Modules...
+    apply_template  xrdb
+    apply_template  xfce-terminal
+    apply_template  dunst
+    apply_template  gtk
     apply_template  gtk-icon-theme
-    #apply_template  gtk-theme
-    #apply_template  telegram  "$CACHE/colors.sh"
+    apply_template  gtk-theme
+    apply_template  telegram  "$CACHE/colors.sh"
 
     # DConf
     apply_dconf_template  org.xfce.mousepad
