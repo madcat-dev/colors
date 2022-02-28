@@ -237,12 +237,17 @@ preview_theme
 
 # - Save scheme to path -------------------------------------------------------
 if [[ ${SAVE_THEME} ]]; then
+    APPLY_SUCCESS="is saved"
+    APPLY_ERROR="is not saved"
 	apply_template  colors.theme "${SAVE_THEME}"
 fi
 
 
 # - Install... ----------------------------------------------------------------
 if istrue "${INSTALL}"; then
+    APPLY_SUCCESS="is installed"
+    APPLY_ERROR="is not installed"
+
     # Convert theme to base sh format
     init_sh_theme
 
