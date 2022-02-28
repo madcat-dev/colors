@@ -10,19 +10,19 @@ PATH="$SHARED_PATH/bin:$PATH"
 
 SHARED_PATHS=(
     "$SHARED_PATH"
-    "$HOME/.local/share/$APP_NAME"
-    "/usr/local/share/$APP_NAME"
-    "/usr/share/$APP_NAME"
+    "$HOME/.local"
+    "/usr/local"
+    "/usr"
 )
 
 for path in ${SHARED_PATHS[@]}; do
-    if [[ -e "$path/lib/core.sh" ]]; then
+    if [[ -e "$path/lib/x-theme-lib" ]]; then
         SHARED_PATH="$path"
         break
     fi
 done
 
-if ! source "$SHARED_PATH/lib/core.sh" 2>/dev/null; then
+if ! source "$SHARED_PATH/lib/x-theme-lib" 2>/dev/null; then
     echo -e "\033[31mCore module not loaded!\033[0m"
     exit 1
 fi
@@ -51,8 +51,6 @@ NOTIFY_HEADER='$LABEL'
 # Initialise
 CACHE="$HOME/.cache/${APP_NAME}"
 mkdir -p "$CACHE" > /dev/null 2>&1
-
-AVAILABLE=( $(ls "$SHARED_PATH/themes") )
 
 set_timer
 restore_colors_from_xrdb
@@ -170,7 +168,7 @@ while [ -n "$1" ]; do
         ;;
 
     --list)
-        echo -e "${AVAILABLE[@]}"
+        theme_list
         exit 0
         ;;
 
@@ -207,14 +205,9 @@ while [ -n "$1" ]; do
 
     *)
         COLOR=()
-        THEME="${1/\~/$HOME}"
-
-        debug "Load theme '$THEME'"
-
-        [[ ! -e "${THEME}" ]] \
-            && THEME="$SHARED_PATH/themes/$THEME"
-
-        source "$THEME" 2>/dev/null \
+        THEME="${1}"
+        source  "${1/\~/$HOME}"  2>/dev/null \
+            || source "$(theme_path "${1}")" \
             || fatal "Color theme '$THEME' not found"
         ;;
     esac
@@ -259,9 +252,7 @@ preview_theme
 
 # - Save scheme to path -------------------------------------------------------
 if [[ ${SAVE_THEME} ]]; then
-	apply "$SHARED_PATH/templates/colors.theme" "${SAVE_THEME}" \
-        && success "Theme '${SAVE_THEME/$HOME/\~}' is saved" \
-        || error   "Theme '${SAVE_THEME/$HOME/\~}' is not saved"
+	apply_template  colors.theme "${SAVE_THEME}"
 fi
 
 

@@ -1,25 +1,23 @@
-
-declare -A COLOR
-
 # -----------------------------------------------------------------------------
+# Champloo color theme
 # https://www.reddit.com/r/unixporn/comments/paaocu/i3gaps_champloo/
 # -----------------------------------------------------------------------------
 
-export COLOR=(
+declare -A COLOR=(
     # black
-    [0]=#171618
+    [0]="#171618"
     # red
-    [1]=#822330
+    [1]="#822330"
     # green
-    [2]=#68515D
+    [2]="#68515D"
     # yellow
-    [3]=#AB4F54
+    [3]="#AB4F54"
     # blue
-    [4]=#8A7C7F
+    [4]="#8A7C7F"
     # magenta
-    [5]=#BB908D
+    [5]="#BB908D"
     # cyan
-    [6]=#CDB6A3
+    [6]="#CDB6A3"
     # white
-    [7]=#C5C4C5
+    [7]="#C5C4C5"
 )

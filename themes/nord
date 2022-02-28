@@ -1,26 +1,23 @@
-
-declare -A COLOR
-
 # -----------------------------------------------------------------------------
 # Nord color cheme
 # https://www.nordtheme.com/
 # -----------------------------------------------------------------------------
 
-export COLOR=(
+declare -A COLOR=(
     # black
-    [0]=#3B4252
+    [0]="#3B4252"
     # red
-    [1]=#BF616A
+    [1]="#BF616A"
     # green
-    [2]=#A3BE8C
+    [2]="#A3BE8C"
     # yellow
-    [3]=#EBCB8B
+    [3]="#EBCB8B"
     # blue
-    [4]=#81A1C1
+    [4]="#81A1C1"
     # magenta
-    [5]=#B48EAD
+    [5]="#B48EAD"
     # cyan
-    [6]=#88C0D0
+    [6]="#88C0D0"
     # white
-    [7]=#E5E9F0
+    [7]="#E5E9F0"
 )

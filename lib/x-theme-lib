@@ -3,6 +3,16 @@
 
 LC_ALL=C
 
+APP="$(basename "${BASH_SOURCE:-$0}")"
+
+SEARCH_PATH=(
+    "$(dirname "${BASH_SOURCE:-$0}")/.."
+    "~/.${APP}"
+    "~/.local/share/${APP}"
+    "/usr/local/share/${APP}"
+    "/usr/share/${APP}"
+)
+
 # -----------------------------------------------------------------------------
 # Dependencies:
 # -----------------------------------------------------------------------------
@@ -388,7 +398,7 @@ apply() {
 
 apply_template() {
     local name=${1}; shift
-    local template="$SHARED_PATHS/templates/${name}"
+    local template="$SHARED_PATH/templates/${name}"
 
     debug "apply_template: $template, $name, ${@}"
 
@@ -419,7 +429,7 @@ apply_template() {
 
 apply_dconf_template() {
     local name=${1}; shift
-    local template="$SHARED_PATHS/templates/${name}"
+    local template="$SHARED_PATH/templates/${name}"
     local dcfg="/$(echo ${name} | sed 's/\./\//g')/"
 
     debug "apply_dconf_template: $template, $name, $dcfg, ${@}"
@@ -457,3 +467,29 @@ import_wal_colorscheme() {
     done
 }
 
+
+# -----------------------------------------------------------------------------
+# Templates/Themes describe functions
+# -----------------------------------------------------------------------------
+
+theme_list() {
+    local path
+    for path in ${SEARCH_PATH[@]}; do
+        ls "${path/\~/$HOME}/themes" 2>/dev/null
+    done
+}
+
+theme_path() {
+    local path
+
+    for path in ${SEARCH_PATH[@]}; do
+        path="${path/\~/$HOME}/themes/${1}"
+        [[ -e "$path" ]] \
+            && echo "$path" && return 0
+    done
+    return 1
+}
+
+get_template() {
+    echo
+}
