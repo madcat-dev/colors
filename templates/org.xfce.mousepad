@@ -1,6 +1,6 @@
 [preferences/view]
 auto-indent=true
-color-scheme='$APP_NAME'
+color-scheme='x-theme'
 font-name='$TERMINAL_FONT_NAME'
 highlight-current-line=false
 insert-spaces=true
