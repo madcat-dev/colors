@@ -21,18 +21,26 @@ declare -A COLOR=(
     # Colors
     # black
     [0]="$(get 0)"
+    [8]="$(get 8)"
     # red
     [1]="$(get 1)"
+    [9]="$(get 9)"
     # green
     [2]="$(get 2)"
+    [10]="$(get 10)"
     # yellow
     [3]="$(get 3)"
+    [11]="$(get 11)"
     # blue
     [4]="$(get 4)"
+    [12]="$(get 12)"
     # magenta
     [5]="$(get 5)"
+    [13]="$(get 13)"
     # cyan
     [6]="$(get 6)"
+    [14]="$(get 14)"
     # white
     [7]="$(get 7)"
+    [15]="$(get 15)"
 )
