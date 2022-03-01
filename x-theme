@@ -34,10 +34,9 @@ NOTIFY_HEADER='$LABEL'
 CACHE="$HOME/.cache/x-theme"
 mkdir -p "$CACHE" > /dev/null 2>&1
 
+
 set_timer
 restore_colors_from_xrdb
-restore_environment_variables
-
 
 while [ -n "$1" ]; do
     VAL=
@@ -205,6 +204,8 @@ while [ -n "$1" ]; do
     esac
     shift
 done
+
+restore_environment_variables
 
 
 # - Restore -------------------------------------------------------------------

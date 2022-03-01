@@ -52,6 +52,7 @@ declare -A COLOR_WORDS=(
 
 declare -A COLOR
 
+re_font='^[a-zA-Z\-]+[\ a-zA-Z0-9-]*\ [0-9]+$'
 
 # -----------------------------------------------------------------------------
 # Environment access functions
@@ -135,13 +136,39 @@ restore_environment_variables() {
 	fi
 
 	GTK_FONT_NAME="${GTK_FONT_NAME:-$DEFAULT_GTK_FONT_NAME}"
-    debug "GTK_FONT_NAME: $(font_name "$GTK_FONT_NAME")"
-    debug "GTK_FONT_SIZE: $(font_size "$GTK_FONT_NAME")"
+
+    if [[ ! "$GTK_FONT_NAME" =~ $re_font ]]; then
+        error "Invalid gtk-font-name: $GTK_FONT_NAME, set default..."
+	    GTK_FONT_NAME="$DEFAULT_GTK_FONT_NAME"
+
+        [[ ! "$GTK_FONT_NAME" =~ $re_font ]] \
+            && fatal "Invalid gtk-font-name: $GTK_FONT_NAME" \
+            && exit 1
+    fi
+
+    GTK_FONT_FAMILY="$(font_name "$GTK_FONT_NAME")"
+    GTK_FONT_SIZE="$(font_size "$GTK_FONT_NAME")"
+
+    debug "GTK_FONT_FAMILY: $GTK_FONT_FAMILY"
+    debug "GTK_FONT_SIZE:   $GTK_FONT_SIZE"
 
 
     TERMINAL_FONT_NAME="${TERMINAL_FONT_NAME:-$DEFAULT_TERMINAL_FONT_NAME}"
-    debug "TERMINAL_FONT_NAME: $(font_name "$TERMINAL_FONT_NAME")"
-    debug "TERMINAL_FONT_SIZE: $(font_size "$TERMINAL_FONT_NAME")"
+
+    if [[ ! "$TERMINAL_FONT_NAME" =~ $re_font ]]; then
+        error "Invalid terminal-font-name: $TERMINAL_FONT_NAME, set default..."
+	    TERMINAL_FONT_NAME="$DEFAULT_TERMINAL_FONT_NAME"
+
+        [[ ! "$TERMINAL_FONT_NAME" =~ $re_font ]] \
+            && fatal "Invalid terminal-font-name: $TERMINAL_FONT_NAME" \
+            && exit 1
+    fi
+
+    TERMINAL_FONT_FAMILY="$(font_name "$TERMINAL_FONT_NAME")"
+    TERMINAL_FONT_SIZE="$(font_size "$TERMINAL_FONT_NAME")"
+
+    debug "TERMINAL_FONT_FAMILY: $TERMINAL_FONT_FAMILY"
+    debug "TERMINAL_FONT_SIZE: $TERMINAL_FONT_SIZE"
 
 
     CURSOR_COLOR="${CURSOR_COLOR:-$DEFAULT_CURSOR_COLOR}"

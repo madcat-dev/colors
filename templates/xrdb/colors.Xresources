@@ -10,8 +10,8 @@
 *.highlightColor:       $foreground
 
 !! compatibility
-*.cursor:               $cursor
-*.font:                 xft:$(font_name $TERMINAL_FONT_NAME):size=$(font_size $TERMINAL_FONT_NAME)
+*.cursor:   $cursor
+*.font:     xft:$TERMINAL_FONT_FAMILY:size=$TERMINAL_FONT_SIZE
 
 !! terminal colors+
 ! black
