@@ -36,6 +36,8 @@ DEFAULT_GTK_ICON_THEME_NAME='Adwaita'
 DEFAULT_GTK_FONT_NAME='Noto Sans Regular 10'
 DEFAULT_TERMINAL_FONT_NAME='Monospace Regular 12'
 DEFAULT_CURSOR_COLOR='#FFA500'
+DEFAULT_THEME_BACKGROUND_VALUE=10
+DEFAULT_THEME_COLOR_SCALE=13
 
 
 declare COLOR_KEYS=(
@@ -284,7 +286,7 @@ preview_theme() {
     for i in {0..15}; do
         ecolor $(get $i)
         [[ $i == 7 || $i == 15 ]] \
-            && echo || echo -n "  "
+            && echo -e "" || echo -n "  "
     done
     eline "─" 70
 }
@@ -303,9 +305,9 @@ preview_theme_header() {
 
     eline "─" 70
 
-	echo -e "background:  $(ecolor $(get background) $(get foreground))"
-    echo -e "foreground:  $(ecolor $(get foreground) $(get background))"
-    echo -e "cursor:      $(ecolor $(get cursor)     $(get background))"
+    echo -e "background: $(ecolor $(get background) $(get foreground))"
+    echo -e "foreground: $(ecolor $(get foreground) $(get background))"
+    echo -e "cursor:     $(ecolor $(get cursor)     $(get background))"
 }
 
 
@@ -356,13 +358,17 @@ colors_reallocation() {
 		fi
 
         if [[ ! ${COLOR[background]} ]]; then
-            [[ $v -gt 75 ]] \
-                && COLOR[0]=$(rgb_value $(get 0) 75)
-
-            COLOR[background]=$(rgb_value $(get 0) +10)
+            COLOR[background]=$( \
+                rgb_value $(get 0) $(( 100 - ${THEME_BACKGROUND_VALUE:-$DEFAULT_THEME_BACKGROUND_VALUE})) \
+            )
+            COLOR[0]=$( \
+                rgb_value $(get background) -${THEME_COLOR_SCALE:-$DEFAULT_THEME_COLOR_SCALE} \
+            )
         fi
 
-        COLOR[8]=$(rgb_value $(get 0) -20)
+        COLOR[8]=$( \
+            rgb_value $(get 0) -${THEME_COLOR_SCALE:-$DEFAULT_THEME_COLOR_SCALE} \
+        )
 	fi
 
     if [[ ! "$light" ]]; then
@@ -375,17 +381,21 @@ colors_reallocation() {
 		fi
 
         if [[ ! ${COLOR[background]} ]]; then
-            [[ $v -lt 25 ]] \
-                && COLOR[0]=$(rgb_value $(get 0) 25)
-
-            COLOR[background]=$(rgb_value $(get 0) -10)
+            COLOR[background]=$( \
+                rgb_value $(get 0) ${THEME_BACKGROUND_VALUE:-$DEFAULT_THEME_BACKGROUND_VALUE} \
+            )
+            COLOR[0]=$( \
+                rgb_value $(get background) +${THEME_COLOR_SCALE:-$DEFAULT_THEME_COLOR_SCALE} \
+            )
         fi
 
-        COLOR[8]=$(rgb_value $(get 0) +20)
+        COLOR[8]=$( \
+            rgb_value $(get 0) +${THEME_COLOR_SCALE:-$DEFAULT_THEME_COLOR_SCALE} \
+        )
     fi
 
     for i in {1..7}; do
-        COLOR[$(($i + 8))]=$(rgb_value $(get $i) +10)
+        COLOR[$(($i + 8))]=$(rgb_value $(get $i) +${THEME_COLOR_SCALE:-$DEFAULT_THEME_COLOR_SCALE})
     done
 }
 

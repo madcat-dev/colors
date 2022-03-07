@@ -161,6 +161,10 @@ while [ -n "$1" ]; do
         PURE_THEME=Yes
         ;;
 
+    --reset)
+        COLOR[background]=
+        ;;
+
     --image)
         COLOR=()
         THEME="${2}"
