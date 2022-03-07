@@ -264,7 +264,7 @@ res() {
 ecolor() {
     [[ "${2}" ]] \
         && echo -en "$(setbg ${2})"
-    echo -en "$(setfg ${1})${1}$(res)"
+    echo -en "$(setfg ${1})  ${1}  $(res)"
 }
 
 eline() {
@@ -280,13 +280,16 @@ preview_theme() {
 	local name="$(basename "${THEME:-xrdb}")"
 
     eline "─" 70 "[ ${name} ]"
-    echo -e "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT"
+    echo -e "  BLK      RED      GRN      YEL      BLU      MAG      CYN      WHT  "
     eline "─" 70
 
     for i in {0..15}; do
-        ecolor $(get $i)
+        setbg $(get background)
+        setfg $(get $i)
+        echo -n "$(get $i)"
+
         [[ $i == 7 || $i == 15 ]] \
-            && echo -e "" || echo -n "  "
+            && echo -e "\033[0m" || echo -n "  "
     done
     eline "─" 70
 }
