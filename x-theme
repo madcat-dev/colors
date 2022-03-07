@@ -182,10 +182,17 @@ while [ -n "$1" ]; do
 
     --import)
         COLOR=()
-        THEME="${2}"
-        debug "Import theme: $THEME"
-        import_wal_colorscheme "$THEME"
-        shift
+        TYPE="${2}"
+        THEME="${3}"
+        shift; shift
+
+        debug "Import theme: $THEME, by $TYPE"
+        
+        [[ "$TYPE" == "pywal" ]] \
+            && import_wal_colorscheme "$THEME"
+
+        [[ "$TYPE" == "konsole" ]] \
+            && import_konsole_colorscheme "$THEME"
         ;;
 
     --debug)
@@ -194,16 +201,11 @@ while [ -n "$1" ]; do
     *)
         COLOR=()
         THEME="${1}"
-        T_EXT="${THEME#*.}"
-        debug "Load theme: $THEME, $T_EXT"
+        debug "Load theme: $THEME"
 
-        if [[ "${T_EXT,,}" == "json" ]]; then
-            import_wal_colorscheme "$THEME"
-        else
-            source  "${THEME/\~/$HOME}"  2>/dev/null \
-                || source "$(theme_path "${THEME}")" \
-                || fatal "Color theme '$THEME' not found"
-        fi
+        source "${THEME/\~/$HOME}" 2>/dev/null \
+            || source "$(theme_path "${THEME}")" \
+            || fatal "Color theme '$THEME' not found"
         ;;
     esac
     shift

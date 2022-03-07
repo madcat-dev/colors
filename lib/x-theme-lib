@@ -535,7 +535,6 @@ apply_dconf_template() {
 # Import color-scheme from pywal
 # https://github.com/dylanaraps/pywal
 # -----------------------------------------------------------------------------
-
 import_wal_colorscheme() {
     local color
 
@@ -550,3 +549,17 @@ import_wal_colorscheme() {
         COLOR[$i]="$color"
     done
 }
+
+# - Import Konsole Color Schemes -------------------------------------------------
+import_konsole_colorscheme() {
+    local color
+
+    local data="$(cat "${1}")"
+
+    for i in {0..15}; do
+        color=$(echo "$data" | grep -A01 "\[Color${i}\]" | grep "Color=")
+        color=${color:6}
+        COLOR[$i]="$(rgb_to_hex ${color//,/ })"
+    done
+}
+
