@@ -159,6 +159,10 @@ while [ -n "$1" ]; do
         SHORT_PREVIEW=Yes
         ;;
 
+    --block)
+        BLOCK_PREVIEW=Yes
+        ;;
+
     --pure|-)
         PURE_THEME=Yes
         ;;
@@ -253,10 +257,12 @@ fi
 
 
 # - Preview -------------------------------------------------------------------
-isfalse "${SHORT_PREVIEW}" \
+isfalse "${SHORT_PREVIEW}" && isfalse "${BLOCK_PREVIEW}" \
     && preview_theme_header
 
-preview_theme
+isfalse "${BLOCK_PREVIEW}" \
+    && preview_theme
+
 preview_theme_block
 
 
