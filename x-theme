@@ -257,6 +257,7 @@ isfalse "${SHORT_PREVIEW}" \
     && preview_theme_header
 
 preview_theme
+preview_theme_block
 
 
 # - Save scheme to path -------------------------------------------------------

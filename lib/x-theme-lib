@@ -294,6 +294,33 @@ preview_theme() {
     eline "─" 70
 }
 
+preview_theme_block() {
+    for i in {0..7}; do
+        setfg $(get $i)
+        echo -en " ████"
+        setfg $(get $(($i + 8)))
+        echo -en "▄ "
+        [[ $i -lt 7 ]] && echo -n "  "
+    done
+    echo -e "\033[0m"
+
+    for i in {0..7}; do
+        setfg $(get $i)
+        echo -en " ████"
+        setfg $(get $(($i + 8)))
+        echo -en "█ "
+        [[ $i -lt 7 ]] && echo -n "  "
+    done
+    echo -e "\033[0m"
+
+    for i in {0..7}; do
+        setfg $(get $(($i + 8)))
+        echo -en "  ▀▀▀▀ "
+        [[ $i -lt 7 ]] && echo -n "  "
+    done
+    echo -e "\033[0m"
+}
+
 preview_theme_header() {
 	local name="${THEME:-xrdb}"
     local wall="$(get_wallpaper)"
