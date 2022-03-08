@@ -408,10 +408,19 @@ colors_reallocation() {
 # -----------------------------------------------------------------------------
 
 theme_list() {
-    local path
+    local path list l
+    declare -A list
+
     for path in ${SEARCH_PATH[@]}; do
-        ls "${path/\~/$HOME}/themes" 2>/dev/null
+        for l in $(ls "${path/\~/$HOME}/themes" 2>/dev/null); do
+            list["$l"]="$l"
+        done
     done
+
+    for l in "${!list[@]}"; do
+        echo -n "$l "
+    done
+    echo ""
 }
 
 theme_path() {
