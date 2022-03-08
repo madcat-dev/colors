@@ -284,7 +284,6 @@ preview_theme() {
     eline "─" 70
 
     for i in {0..15}; do
-        setbg $(get background)
         setfg $(get $i)
         echo -n "$(get $i)"
 
