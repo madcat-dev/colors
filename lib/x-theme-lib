@@ -48,8 +48,14 @@ declare COLOR_KEYS=(
 )
 
 declare -A COLOR_WORDS=(
-    [black]=0  [red]=1	    [green]=2  [yellow]=3
-    [blue]=4   [magenta]=5  [cyan]=6   [white]=7
+    [black]=0       [blk]=0
+    [red]=1         [red]=1
+    [green]=2       [grn]=2
+    [yellow]=3      [yel]=3
+    [blue]=4        [blu]=4
+    [magenta]=5     [mag]=5
+    [cyan]=6        [cyn]=6
+    [white]=7       [wht]=7
 )
 
 declare -A COLOR
