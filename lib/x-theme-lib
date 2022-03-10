@@ -579,7 +579,7 @@ apply_dconf_template() {
 # Import color-scheme from pywal
 # https://github.com/dylanaraps/pywal
 # -----------------------------------------------------------------------------
-import_wal_colorscheme() {
+import_pywal_colorscheme() {
     local color
 
     local data="$(cat "${1}")"

@@ -179,7 +179,7 @@ while [ -n "$1" ]; do
     --image)
         COLOR=()
         THEME="${2}"
-        debug "Generate theme from wallpaper: $THEME"
+        debug "Generate theme from image: $THEME"
         gen_theme_from_image "$THEME"
         shift
         ;;
@@ -200,7 +200,7 @@ while [ -n "$1" ]; do
         debug "Import theme: $THEME, by $TYPE"
         
         [[ "$TYPE" == "pywal" ]] \
-            && import_wal_colorscheme "$THEME"
+            && import_pywal_colorscheme "$THEME"
 
         [[ "$TYPE" == "konsole" ]] \
             && import_konsole_colorscheme "$THEME"
