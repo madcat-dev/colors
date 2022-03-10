@@ -210,11 +210,11 @@ get_color_key() {
     local REKEY=$(echo "$KEY" | sed 's/[^a-z]//g')
 
     [[ "${COLOR_WORDS[$REKEY]}" ]] 2>/dev/null \
-		&& KEY=${COLOR_WORDS[$REKEY]}
+        && KEY=${COLOR_WORDS[$REKEY]}
 
     [[ ${#KEY[@]} -eq 1 && " ${COLOR_KEYS[@]} " == *" $KEY "* ]] \
-		&& echo "$KEY" \
-		|| echo "UNDEFINED"
+        && echo "$KEY" \
+        || echo "UNDEFINED"
 }
 
 get() {
