@@ -270,7 +270,7 @@ preview_theme_block
 if [[ ${SAVE_THEME} ]]; then
     APPLY_SUCCESS="is saved"
     APPLY_ERROR="is not saved"
-	apply_template  colors.theme "${SAVE_THEME}"
+    apply_template  colors.theme "${SAVE_THEME}"
 fi
 
 
