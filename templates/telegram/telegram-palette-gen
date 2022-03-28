@@ -17,21 +17,7 @@ prepare() {
 
 	pre="${HOME}/.cache/telegram-palette-gen"
 	mkdir -p "$pre" 2>/dev/null
-	rm    -f "${pre}/background".*
 	rm    -f "${pre}/colors.tdesktop-palette"
-
-	if [[ "${wallpaper}" ]]; then
-		wal_ext="${wallpaper##*.}"
-		cp "${wallpaper/\~/$HOME}" "${pre}/background.${wal_ext}"
-
-	elif [[ -f "${HOME}/.fehbg" ]]; then
-		wal_path="$(tail -n1 "${HOME}/.fehbg" \
-			| awk '{print $NF}' \
-			| sed "s/'//g")"
-
-		wal_ext="${wal_path##*.}"
-		cp "${wal_path/\~/$HOME}" "${pre}/background.${wal_ext}"
-	fi
 }
 
 # Lighten/darken by 20%, 30%, 40%, 50%, 60% some colors using only pure bash.
