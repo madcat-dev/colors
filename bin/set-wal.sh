@@ -34,6 +34,6 @@ if [[ ! -f "$IMG" ]]; then
     exit 1
 fi
 
-feh --bg-fill "$IMG"
+feh --bg-fill "$IMG" || exit 1
 
 echo -e "\033[32mSuccess!!!\033[0m"
