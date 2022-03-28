@@ -3,13 +3,12 @@
 CFG="/etc/lightdm/lightdm-gtk-greeter.conf"
 IMG="/usr/share/backgrounds/background.jpg"
 
+if [[ ! -f "${1/\~/$HOME}" ]]; then
+    echo -e "\033[31mImage not existing!\033[0m"
+    exit 1
+fi
 
 if [[ $(id -u) -eq 0 ]]; then
-    if [[ ! -f "${1/\~/$HOME}" ]]; then
-        echo -e "\033[31mImage not existing!\033[0m"
-        exit 1
-    fi
-
     if ! convert "${1/\~/$HOME}" "$IMG"; then
         echo -e "\033[31mImage not converting!\033[0m"
         exit 1
