@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-#	DUNST
+#	XRDB
 #
 
 MODULE="$(dirname "$BASH_SOURCE")"

@@ -1,10 +1,5 @@
 # - Special -------------------------------------------------------------------
 
-GTK_APPLICATION_PREFER_DARK_THEME=$GTK_APPLICATION_PREFER_DARK_THEME
-GTK_THEME_NAME="$GTK_THEME_NAME"
-GTK_ICON_THEME_NAME="$GTK_ICON_THEME_NAME"
-GTK_FONT_NAME="$GTK_FONT_NAME"
-TERMINAL_FONT_NAME="$TERMINAL_FONT_NAME"
 CURSOR_COLOR="$CURSOR_COLOR"
 
 # - Colors --------------------------------------------------------------------

@@ -18,9 +18,8 @@ apply_theme() {
     mkdir -p ~/.config/xfce4/terminal > /dev/null 2>&1
     cd ~/.config/xfce4/terminal
 
-    cat terminalrc | grep -v Color | grep -v FontName > $TMP
-    grep -e Color    "$1" >> $TMP
-    grep -e FontName "$1" >> $TMP
+    cat terminalrc | grep -v Color > $TMP
+    grep -e Color "$1" >> $TMP
 
 	cp terminalrc $BAK
 	mv $TMP terminalrc

@@ -20,25 +20,26 @@ References:
   <author>Arctic Ice Studio</author>
   <description>An arctic, north-bluish clean and elegant gedit syntax theme.</description>
 
-  <color name="nord0" value="${color0}" />
-  <color name="nord1" value="${color1}" />
-  <color name="nord2" value="${color2}" />
-  <color name="nord3" value="${color3}" />
-  <color name="nord3-brightened" value="$(rgb_value ${color3} +20)" />
-  <color name="nord4" value="${color4}" />
-  <color name="nord5" value="${color5}" />
-  <color name="nord6" value="${color6}" />
+  <color name="nord0" value="${background}" />
+  <color name="nord1" value="${color0}" />
+  <color name="nord2" value="${color8}" />
+  <color name="nord3" value="${color8}" />
+  <color name="nord3-brightened" value="$(rgb_value ${color8} +20)" />
+  <color name="nord4" value="${color7}" />
+  <color name="nord5" value="${color7}" />
+  <color name="nord6" value="${color15}" />
 
-  <color name="nord7" value="${color7}" />
-  <color name="nord8" value="${color8}" />
-  <color name="nord9" value="${color9}" />
-  <color name="nord10" value="${color10}" />
+  <color name="nord7" value="${color14}" />
+  <color name="nord8" value="${color6}" />
+  <color name="nord9" value="${color4}" />
+  <color name="nord10" value="${color12}" />
 
-  <color name="nord11" value="${color11}" />
-  <color name="nord12" value="${color12}" />
-  <color name="nord13" value="${color13}" />
-  <color name="nord14" value="${color14}" />
-  <color name="nord15" value="${color15}" />
+  <color name="nord11" value="${color1}" />
+  <color name="nord12" value="${color11}" />
+  <color name="nord13" value="${color3}" />
+  <color name="nord14" value="${color2}" />
+  <color name="nord15" value="${color5}" />
+
 
 <!--+- - - - - +
     + Settings +

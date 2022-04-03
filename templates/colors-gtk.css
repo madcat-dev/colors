@@ -27,24 +27,3 @@
 @define-color tooltip_bg_color ${background};
 @define-color tooltip_fg_color ${foreground};
 
-
-tab label {
-    color: @color8;
-}
-
-tab:checked label {
-    color: @fg_color;
-    font-weight: 500;
-}
-
-tab:checked {
-    box-shadow: inset 0 -2px @selected_bg_color;
-}
-
-VteTerminal, vte-terminal {
-    padding: 8px;
-}
-
-#xfce4-terminal-notebook tab:checked {
-    box-shadow: inset 0 2px @selected_bg_color;
-}

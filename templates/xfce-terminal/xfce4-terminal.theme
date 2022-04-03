@@ -10,4 +10,3 @@ ColorSelectionUseDefault=FALSE
 ColorSelection=${background}
 ColorSelectionBackground=${foreground}
 
-FontName=${TERMINAL_FONT_NAME}
