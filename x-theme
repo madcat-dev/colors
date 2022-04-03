@@ -16,10 +16,6 @@ source "$BASE/lib/x-theme-lib" 2>/dev/null \
 # -----------------------------------------------------------------------------
 
 DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME=1
-DEFAULT_GTK_THEME_NAME='FlatColor'
-DEFAULT_GTK_ICON_THEME_NAME='Tela'
-DEFAULT_GTK_FONT_NAME='Noto Sans 11'
-DEFAULT_TERMINAL_FONT_NAME='Iosevka Fixed Curly Medium 12'
 DEFAULT_CURSOR_COLOR='#FFA500'
 DEFAULT_THEME_BACKGROUND_VALUE=10
 DEFAULT_THEME_COLOR_SCALE=15
@@ -296,8 +292,8 @@ if istrue "${INSTALL}"; then
     # Modules...
     apply_template  xrdb
     apply_template  xfce-terminal
-    apply_template  gtk-icon-theme/Tela
-    apply_template  gtk-theme/FlatColor
+    apply_template  gtk-icon-theme/Tela --force
+    apply_template  gtk-theme/FlatColor --force
     apply_template  telegram  "$CACHE/colors.sh"
 
     notify "-- Installation complete, errors: $ERROR_COUNTER --"

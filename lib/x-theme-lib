@@ -31,10 +31,6 @@ fi
 # Declarations and Defaults
 # -----------------------------------------------------------------------------
 DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME=1
-DEFAULT_GTK_THEME_NAME='Adwaita'
-DEFAULT_GTK_ICON_THEME_NAME='Adwaita'
-DEFAULT_GTK_FONT_NAME='Noto Sans Regular 10'
-DEFAULT_TERMINAL_FONT_NAME='Monospace Regular 12'
 DEFAULT_CURSOR_COLOR='#FFA500'
 DEFAULT_THEME_BACKGROUND_VALUE=10
 DEFAULT_THEME_COLOR_SCALE=13
@@ -118,66 +114,6 @@ restore_environment_variables() {
 		istrue "${GTK_APPLICATION_PREFER_DARK_THEME:-DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME}" \
 			&& echo 1 || echo 0)
 	debug "GTK_APPLICATION_PREFER_DARK_THEME: $GTK_APPLICATION_PREFER_DARK_THEME"
-
-
-	if [[ ! "${GTK_THEME_NAME}" ]]; then
-		GTK_THEME_NAME=$(\
-			get_gtk_setting 'gtk-theme-name')
-	fi
-
-	GTK_THEME_NAME="${GTK_THEME_NAME:-$DEFAULT_GTK_THEME_NAME}"
-	debug "GTK_THEME_NAME: $GTK_THEME_NAME"
-
-
-	if [[ ! "${GTK_ICON_THEME_NAME}" ]]; then
-		GTK_ICON_THEME_NAME=$(\
-			get_gtk_setting 'gtk-icon-theme-name')
-	fi
-
-	GTK_ICON_THEME_NAME="${GTK_ICON_THEME_NAME:-$DEFAULT_GTK_ICON_THEME_NAME}"
-	debug "GTK_ICON_THEME_NAME: $GTK_ICON_THEME_NAME"
-
-
-	if [[ ! "${GTK_FONT_NAME}" ]]; then
-		GTK_FONT_NAME=$(\
-			get_gtk_setting 'gtk-font-name')
-	fi
-
-	GTK_FONT_NAME="${GTK_FONT_NAME:-$DEFAULT_GTK_FONT_NAME}"
-
-    if [[ ! "$GTK_FONT_NAME" =~ $re_font ]]; then
-        error "Invalid gtk-font-name: $GTK_FONT_NAME, set default..."
-	    GTK_FONT_NAME="$DEFAULT_GTK_FONT_NAME"
-
-        [[ ! "$GTK_FONT_NAME" =~ $re_font ]] \
-            && fatal "Invalid gtk-font-name: $GTK_FONT_NAME" \
-            && exit 1
-    fi
-
-    GTK_FONT_FAMILY="$(font_name "$GTK_FONT_NAME")"
-    GTK_FONT_SIZE="$(font_size "$GTK_FONT_NAME")"
-
-    debug "GTK_FONT_FAMILY: $GTK_FONT_FAMILY"
-    debug "GTK_FONT_SIZE:   $GTK_FONT_SIZE"
-
-
-    TERMINAL_FONT_NAME="${TERMINAL_FONT_NAME:-$DEFAULT_TERMINAL_FONT_NAME}"
-
-    if [[ ! "$TERMINAL_FONT_NAME" =~ $re_font ]]; then
-        error "Invalid terminal-font-name: $TERMINAL_FONT_NAME, set default..."
-	    TERMINAL_FONT_NAME="$DEFAULT_TERMINAL_FONT_NAME"
-
-        [[ ! "$TERMINAL_FONT_NAME" =~ $re_font ]] \
-            && fatal "Invalid terminal-font-name: $TERMINAL_FONT_NAME" \
-            && exit 1
-    fi
-
-    TERMINAL_FONT_FAMILY="$(font_name "$TERMINAL_FONT_NAME")"
-    TERMINAL_FONT_SIZE="$(font_size "$TERMINAL_FONT_NAME")"
-
-    debug "TERMINAL_FONT_FAMILY: $TERMINAL_FONT_FAMILY"
-    debug "TERMINAL_FONT_SIZE: $TERMINAL_FONT_SIZE"
-
 
     CURSOR_COLOR="${CURSOR_COLOR:-$DEFAULT_CURSOR_COLOR}"
     debug "CURSOR_COLOR: $CURSOR_COLOR"
@@ -332,11 +268,11 @@ preview_theme_header() {
 
 	echo -e "Theme:         ${name/$HOME/\~}"
     echo -e "Wallpaper:     ${wall/$HOME/\~}"
-    echo -e "Gtk theme:     ${GTK_THEME_NAME:-...} [$(get_gtk_setting gtk-theme-name)]"
-    echo -e "Icons theme:   ${GTK_ICON_THEME_NAME:-...} [$(get_gtk_setting gtk-icon-theme-name)]"
-	echo -e "Dark theme:    ${GTK_APPLICATION_PREFER_DARK_THEME:-...} [$(get_gtk_setting gtk-application-prefer-dark-theme)]"
-    echo -e "Font name:     ${GTK_FONT_NAME:-...} [$(get_gtk_setting gtk-font-name)]"
-    echo -e "Terminal font: ${TERMINAL_FONT_NAME}"
+    echo -e "Gtk theme:     $(get_gtk_setting gtk-theme-name)"
+    echo -e "Icons theme:   $(get_gtk_setting gtk-icon-theme-name)"
+	echo -e "Dark theme:    $(get_gtk_setting gtk-application-prefer-dark-theme)"
+    echo -e "Font name:     $(get_gtk_setting gtk-font-name)"
+    echo -e "Terminal font: $(xrdbq font | sed 's/^xft://' | sed 's/:size=/ /')"
 
     eline "─" 70
 

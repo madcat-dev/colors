@@ -11,6 +11,11 @@ THEME="Tela"
 
 debug "Install gtk icon theme '$THEME'"
 
+if [[ ! "${1}" == "--force" ]]; then
+	[[ -e "$ICONS/$THEME" ]] \
+		&& return 0
+fi
+
 if [[ ! -e "$MODULE/$THEME.tar.gz" ]]; then
 	error "Icons theme '$THEME' archive not existing"
 	return 1
