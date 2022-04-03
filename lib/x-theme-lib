@@ -73,7 +73,7 @@ get_wallpaper() {
 }
 
 get_gtk_setting() {
-    gtk-query-settings \
+    gtk-query-settings 2>/dev/null \
         | grep -w ${1}: \
         | sed 's/^.*\:\ *//g' \
         | sed 's/"//g'
