@@ -22,11 +22,11 @@ References:
 
   <color name="nord0" value="${background}" />
   <color name="nord1" value="${color0}" />
-  <color name="nord2" value="${color8}" />
+  <color name="nord2" value="$(rgb_value ${color0} +5)" />
   <color name="nord3" value="${color8}" />
-  <color name="nord3-brightened" value="$(rgb_value ${color8} +20)" />
+  <color name="nord3-brightened" value="$(rgb_value ${color8} +5)" />
   <color name="nord4" value="${color7}" />
-  <color name="nord5" value="${color7}" />
+  <color name="nord5" value="$(rgb_value ${color7} +5)" />
   <color name="nord6" value="${color15}" />
 
   <color name="nord7" value="${color14}" />
@@ -39,7 +39,6 @@ References:
   <color name="nord13" value="${color3}" />
   <color name="nord14" value="${color2}" />
   <color name="nord15" value="${color5}" />
-
 
 <!--+- - - - - +
     + Settings +
