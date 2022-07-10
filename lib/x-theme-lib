@@ -32,8 +32,9 @@ fi
 # -----------------------------------------------------------------------------
 DEFAULT_GTK_APPLICATION_PREFER_DARK_THEME=1
 DEFAULT_CURSOR_COLOR='#FFA500'
-DEFAULT_THEME_BACKGROUND_VALUE=10
+DEFAULT_THEME_BACKGROUND_SCALE=10
 DEFAULT_THEME_COLOR_SCALE=13
+DEFAULT_THEME_BLACK_SCALE=13
 
 
 declare COLOR_KEYS=(
@@ -330,7 +331,7 @@ colors_reallocation() {
 
         if [[ ! ${COLOR[background]} ]]; then
             COLOR[background]=$( \
-                rgb_value $(get 0) $(( 100 - ${THEME_BACKGROUND_VALUE:-$DEFAULT_THEME_BACKGROUND_VALUE})) \
+                rgb_value $(get 0) $(( 100 - ${THEME_BACKGROUND_VALUE:-$DEFAULT_THEME_BACKGROUND_SCALE})) \
             )
             COLOR[0]=$( \
                 rgb_value $(get background) -${THEME_COLOR_SCALE:-$DEFAULT_THEME_COLOR_SCALE} \
@@ -338,7 +339,7 @@ colors_reallocation() {
         fi
 
         COLOR[8]=$( \
-            rgb_value $(get 0) -${THEME_COLOR_SCALE:-$DEFAULT_THEME_COLOR_SCALE} \
+            rgb_value $(get 0) -${THEME_BLACK_SCALE:-$DEFAULT_THEME_BLACK_SCALE} \
         )
 	fi
 
@@ -353,7 +354,7 @@ colors_reallocation() {
 
         if [[ ! ${COLOR[background]} ]]; then
             COLOR[background]=$( \
-                rgb_value $(get 0) ${THEME_BACKGROUND_VALUE:-$DEFAULT_THEME_BACKGROUND_VALUE} \
+                rgb_value $(get 0) ${THEME_BACKGROUND_VALUE:-$DEFAULT_THEME_BACKGROUND_SCALE} \
             )
             COLOR[0]=$( \
                 rgb_value $(get background) +${THEME_COLOR_SCALE:-$DEFAULT_THEME_COLOR_SCALE} \
@@ -361,7 +362,7 @@ colors_reallocation() {
         fi
 
         COLOR[8]=$( \
-            rgb_value $(get 0) +${THEME_COLOR_SCALE:-$DEFAULT_THEME_COLOR_SCALE} \
+            rgb_value $(get 0) +${THEME_BLACK_SCALE:-$DEFAULT_THEME_BLACK_SCALE} \
         )
     fi
 
