@@ -5,6 +5,6 @@
 
 MODULE="$(dirname "$BASH_SOURCE")"
 
-apply "$MODULE/colors.Xresources" "$HOME/.xrdb/colors.Xresources" || return 1
+apply "$MODULE/colors.Xresources" "${CACHE:-$HOME/.cache}/colors.Xresources" || return 1
 
-xrdb -merge "$HOME/.xrdb/colors.Xresources"
+xrdb -merge "${CACHE:-$HOME/.cache}/colors.Xresources"

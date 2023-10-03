@@ -26,3 +26,4 @@ rm   -rf "$THEME_DIR/$THEME" 2>/dev/null
 
 tar -xzf "$MODULE/$THEME.tar.gz" -C "$THEME_DIR/"
 
+ln -s "$THEME_DIR/$THEME/gtk-3.20" "$THEME_DIR/$THEME/gtk-4.0"
