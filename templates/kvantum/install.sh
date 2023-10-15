@@ -14,15 +14,15 @@ sed  -i "s/#1b2224/${background}/gi" \
 	"$KVANTUM/XTheme.svg" || return 1
 
 # base color / black
-sed  -i "s/#222b2e/${color0}/gi" \
+sed  -i "s/#222b2e/$(rgb_value ${background} +4)/gi" \
 	"$KVANTUM/XTheme.svg" || return 1
 
 # button color 
-sed  -i "s/#263034/$(rgb_value ${color0} +2)/gi" \
+sed  -i "s/#263034/$(rgb_value ${background} +6)/gi" \
 	"$KVANTUM/XTheme.svg" || return 1
 
 # button color 2
-sed  -i "s/#39494f/$(rgb_value ${color0} +12)/gi" \
+sed  -i "s/#39494f/$(rgb_value ${background} +17)/gi" \
 	"$KVANTUM/XTheme.svg" || return 1
 
 # selected color / green

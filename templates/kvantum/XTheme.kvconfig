@@ -70,11 +70,11 @@ submenu_delay=250
 
 [GeneralColors]
 window.color=${background}
-base.color=$(rgb_value ${background} +5)
-alt.base.color=$(rgb_value ${background} +5)
-button.color=$(rgb_value ${background} +8)
-light.color=$(rgb_value ${background} +5)
-mid.light.color=$(rgb_value ${background} +5)
+base.color=$(rgb_value ${background} +4)
+alt.base.color=$(rgb_value ${background} +4)
+button.color=$(rgb_value ${background} +6)
+light.color=$(rgb_value ${background} +4)
+mid.light.color=$(rgb_value ${background} +4)
 dark.color=${background}
 mid.color=${background}
 highlight.color=${color2}
