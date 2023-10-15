@@ -30,11 +30,7 @@ sed  -i "s/#2eb398/${color2}/gi" \
 	"$KVANTUM/XTheme.svg" || return 1
 
 # selected color / green
-if istrue ${GTK_APPLICATION_PREFER_DARK_THEME:-1}; then
-    VARIANT=$(rgb_value $foreground +5)
-else
-    VARIANT=$(rgb_value $foreground -5)
-
+if isfalse ${GTK_APPLICATION_PREFER_DARK_THEME:-1}; then
     sed  -i "s/#dfdfdf/$(rgb_value '#dfdfdf' -50)/gi" \
         "$KVANTUM/XTheme.svg" || return 1
 

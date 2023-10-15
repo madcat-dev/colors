@@ -9,21 +9,19 @@ MODULE="$(dirname "$BASH_SOURCE")"
 THEME_DIR="$HOME/.themes"
 THEME="FlatColor"
 
-if [[ ! "${1}" == "--force" ]]; then
-	[[ -e "$THEME_DIR/$THEME" ]] \
-		&& return 0
-fi
-
 debug "Install gtk theme '$THEME'"
 
-if [[ ! -e "$MODULE/$THEME.tar.gz" ]]; then
-	error "Theme '$THEME' archive not existing"
-	return 1
-fi
-
 mkdir -p "$THEME_DIR"        2>/dev/null
-rm   -rf "$THEME_DIR/$THEME" 2>/dev/null
 
-tar -xzf "$MODULE/$THEME.tar.gz" -C "$THEME_DIR/"
+#rm   -rf "$THEME_DIR/$THEME" 2>/dev/null
 
-ln -s "$THEME_DIR/$THEME/gtk-3.20" "$THEME_DIR/$THEME/gtk-4.0"
+cp -xarf "$MODULE/$THEME" "$THEME_DIR/" || return 1
+
+apply "$THEME_DIR/$THEME/gtk-2.0/gtkrc.base" \
+    "$THEME_DIR/$THEME/gtk-2.0/gtkrc" || return 1
+
+apply "$THEME_DIR/$THEME/gtk-3.0/gtk.css.base" \
+    "$THEME_DIR/$THEME/gtk-3.0/gtk.css" || return 1
+
+apply "$THEME_DIR/$THEME/gtk-3.20/gtk.css.base" \
+    "$THEME_DIR/$THEME/gtk-3.20/gtk.css" || return 1
