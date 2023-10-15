@@ -290,12 +290,15 @@ if istrue "${INSTALL}"; then
     apply_template  colors-gtk.rc
     apply_template  colors-gtk.css
 
+    apply_template  xtheme.theme        - ~/.local/share/xfce4/terminal/colorschemes
+
     # Modules...
     apply_template  xrdb
     apply_template  xfce-terminal
     apply_template  gtk-icon-theme/Tela --force
     apply_template  gtk-theme/FlatColor --force
     apply_template  telegram  "$CACHE/colors.sh"
+    apply_template  kvantum
 
     notify "-- Installation complete, errors: $ERROR_COUNTER --"
 fi
