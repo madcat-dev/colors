@@ -294,11 +294,11 @@ if istrue "${INSTALL}"; then
 
     # Modules...
     apply_template  xrdb
+    apply_template  kvantum
     apply_template  xfce-terminal
     apply_template  gtk-icon-theme/Tela --force
     apply_template  gtk-theme/FlatColor --force
     apply_template  telegram  "$CACHE/colors.sh"
-    apply_template  kvantum
 
     notify "-- Installation complete, errors: $ERROR_COUNTER --"
 fi
